@@ -48,7 +48,7 @@ const { chromium } = require("playwright");
     await page.getByRole("heading", { name: "从需求到完整功能" }).waitFor();
 
     await page.locator(".practice-related-footer [data-lesson]").first().click();
-    await page.locator(".course-heading h1").waitFor();
+    await page.locator(".lesson-canvas-head h1").waitFor();
 
     if (pageErrors.length) throw new Error("Browser errors: " + pageErrors.join("; "));
     process.stdout.write("PASS: six scenarios, eight chapters, playbook route, step playback, prompt copy, hub route and knowledge link.\n");
