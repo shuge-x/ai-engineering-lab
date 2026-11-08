@@ -105,8 +105,14 @@ function practiceRight(p,step){
  if(state.practiceTab==="agent")return '<div class="detail-block"><span class="detail-kicker">EXPECTED AGENT BEHAVIOR</span><h3>'+esc(step.title)+'</h3><p>'+esc(step.agentBehavior)+'</p><div class="callout">如果 Agent 跳过必要问题、擅自扩大范围或没有提供证据，应暂停并纠正。</div></div>';
  if(state.practiceTab==="artifact")return '<div class="detail-block"><span class="detail-kicker">EXPECTED ARTIFACT</span><h3>'+esc(step.title)+'</h3><p>'+esc(step.artifact)+'</p><div class="detail-section"><b>检查清单</b><ul>'+step.checklist.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul></div><div class="detail-section"><b>交接条件</b><p>'+esc(step.handoff)+'</p></div></div>';
  if(state.practiceTab==="sources")return '<div class="detail-block"><span class="detail-kicker">UPSTREAM SOURCES</span><h3>上游依据与适用边界</h3><ul>'+p.sources.map(url=>'<li><a href="'+esc(url)+'" target="_blank" rel="noreferrer">'+esc(url.split('/').slice(-2).join('/'))+' ↗</a></li>').join("")+'</ul><p>教学建议和上游 Skill 的强制行为会分开标注；具体调用权限以当前上游版本为准。</p></div>';
- return '<div class="detail-block"><span class="detail-kicker">COMMAND / PROMPT</span><h3>'+esc(step.title)+'</h3><div class="practice-command"><small>调用方式 · '+esc(step.invocation.kind)+'</small><code>'+esc(step.invocation.command||'按自然语言描述任务')+'</code><button class="copy-prompt" data-copy-command>复制调用指令</button></div><div class="detail-section"><b>给 Agent 的完整提示词</b><pre class="prompt">'+esc(step.prompt)+'</pre><button class="copy-prompt" data-copy-practice-prompt>复制完整 Prompt</button></div><div class="callout">复制后请先确认当前项目和起始版本正确，再发送给 Coding Agent。</div></div>';
+ const inv=step.invocation||{};
+ const userCommand=inv.kind==="slash"||inv.kind==="shell"||inv.kind==="tool";
+ const invokeLabel=inv.kind==="slash"?"用户主动调用":inv.kind==="agent"?"Agent 按需调用":inv.kind==="tool"?"外部工具 / MCP":inv.kind==="shell"?"终端命令":"直接对话";
+ const invokeValue=inv.command||"直接向 Agent 描述当前任务";
+ const invokeButton=userCommand?'<button class="copy-prompt" data-copy-command>复制调用指令</button>':'<p class="invocation-hint">这一步不需要额外输入命令；按上面的方式与 Agent 协作即可。</p>';
+ return '<div class="detail-block"><span class="detail-kicker">COMMAND / PROMPT</span><h3>'+esc(step.title)+'</h3><div class="practice-command"><small>调用方式 · '+esc(invokeLabel)+'</small><code>'+esc(invokeValue)+'</code>'+invokeButton+'</div><div class="detail-section"><b>给 Agent 的完整提示词</b><pre class="prompt">'+esc(step.prompt)+'</pre><button class="copy-prompt" data-copy-practice-prompt>复制完整 Prompt</button></div><div class="callout">复制后请先确认当前项目和起始版本正确，再发送给 Coding Agent。</div></div>';
 }
+
 function playbookPage(){
  const p=currentPlaybook(),sc=scenarios.find(x=>x.id===p.scenarioId),step=p.steps[Math.min(state.step,p.steps.length-1)];
  const sec=practiceSections.find(x=>x.id===state.practiceSection)||practiceSections[0];
