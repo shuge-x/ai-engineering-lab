@@ -102,7 +102,7 @@ document.addEventListener("click",e=>{
 });
 document.addEventListener("change",e=>{if(e.target.id==="speed"){state.speed=Number(e.target.value);if(state.playing){stop();play()}}});
 $("#theme").addEventListener("click",()=>{const t=document.documentElement.dataset.theme==="dark"?"light":"dark";document.documentElement.dataset.theme=t;localStorage.setItem("ael-theme",t)});
-$("#search").addEventListener("input",e=>{state.search=e.target.value;const q=state.search.trim().toLowerCase();if(!q)return;const match=W.find(w=>(w.title+w.summary+w.principle+w.prompt+w.en).toLowerCase().includes(q));if(match){state.page="course";state.id=match.id;state.mode="task";state.step=0;render()}});
+$("#search").addEventListener("input",e=>{state.search=e.target.value;const q=state.search.trim().toLowerCase();if(!q)return;const match=W.find(w=>(w.title+w.summary+w.principle+w.prompt+w.en).toLowerCase().includes(q));if(match){stop();state.page="course";state.id=match.id;state.category=categoryFor(match.id);state.mode="task";state.step=0;state.branch="main";render()}});
 document.addEventListener("keydown",e=>{if(e.key==="/"&&!["INPUT","TEXTAREA"].includes(document.activeElement.tagName)){e.preventDefault();$("#search").focus()}if(e.key==="Escape"&&document.activeElement===$("#search")){$("#search").blur()}});
 const saved=localStorage.getItem("ael-theme");if(saved)document.documentElement.dataset.theme=saved;
 render();
