@@ -136,8 +136,8 @@ function topicPage(kind) {
 function skillsPage(){return '<div class="topic-page"><div class="eyebrow">REFERENCE / SKILL CATALOG</div><h1>Matt Pocock Skills 索引</h1><p class="topic-lead">Skill 的名称、调用权限和内容以当前安装的上游版本为准。</p><div class="skill-grid">'+CUR.lessons.filter((l)=>l.sources.length).slice(0,12).map((l)=>'<article class="skill-card"><h3>'+esc(l.title)+'</h3><p>'+esc(l.summary)+'</p></article>').join("")+'</div></div>';}
 function render() {
  nav();
- $("#main").innerHTML=state.page==="home"?home():state.page==="course"?course():state.page==="knowledge"?topicPage("knowledge"):state.page==="verify"?topicPage("verify"):skillsPage();
- $("#page-status").textContent=state.page==="course"?current().title:state.page==="home"?"选择一个要解决的问题":state.page==="knowledge"?"项目知识与 CodeGraph":state.page==="verify"?"测试、验证与验收":"Matt Skills 索引";
+ $("#main").innerHTML=state.page==="home"?home():state.page==="story"?storyPage():state.page==="course"?course():state.page==="knowledge"?topicPage("knowledge"):state.page==="verify"?topicPage("verify"):skillsPage();
+ $("#page-status").textContent=state.page==="course"?current().title:state.page==="story"?(stories.find((x)=>x.id===state.story)?.story||"真实开发故事"):state.page==="home"?"任务入口 · 真实开发案例":state.page==="knowledge"?"项目知识与 CodeGraph":state.page==="verify"?"测试、验证与验收":"Matt Skills 索引";
  $("#search").value=state.search;
  $("#progress-count").textContent=Object.keys(progress).length+" / "+lessons.length;
 }
@@ -152,6 +152,7 @@ document.addEventListener("click",(e)=>{
  const b=e.target.closest("button,a"); if(!b)return;
  if(b.dataset.category!==undefined){state.group=Number(b.dataset.category);goLesson(currentGroupLessons()[0].id);return;}
  if(b.dataset.lesson){goLesson(b.dataset.lesson);return;}
+ if(b.dataset.story){goStory(b.dataset.story);return;}
  if(b.dataset.branch){stop();state.branch=b.dataset.branch;state.step=0;render();return;}
  if(b.dataset.homeMode){state.mode=b.dataset.homeMode;render();return;}
  if(b.dataset.homeStep!==undefined){state.step=Number(b.dataset.homeStep);render();return;}
