@@ -21,5 +21,5 @@ const skills=[
 ["retro","用户主动调用","复盘并改进工程环境","复杂任务结束或重复出现同类错误时。"]
 ];
 
-W.forEach(w => { w.main = w.steps; delete w.steps; });
+W.forEach(w => { w.main = w.steps.map(x => [x[0], x[1], x[2], x[3], '交接要求：完成本阶段产物后，核对输入与输出；未满足条件时不要推进。', x[4]]); w.fault = w.fault.map(x => [x[0], '错误案例', x[1], x[2], x[2], x[3]]); delete w.steps; });
 window.LAB_DATA = { workflows: W, skills };
