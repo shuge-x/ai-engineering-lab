@@ -346,3 +346,192 @@ html,body{font-family:Inter,"Noto Sans SC","PingFang SC","Microsoft YaHei",Arial
   max-width:none;
   padding:12px clamp(14px,1.2vw,22px) 24px;
 }
+
+/* Lesson page: immersive K8s-style three-column learning workstation */
+#app-layout:not(.home-mode) #main{
+  width:100%;
+  max-width:none;
+  padding:12px 12px 20px;
+}
+#app-layout:not(.home-mode) .course-shell{
+  width:100%;
+  max-width:none;
+  margin:0;
+}
+#app-layout:not(.home-mode) .workbench{
+  display:grid;
+  grid-template-columns:268px minmax(480px,1fr) 410px;
+  grid-template-rows:minmax(500px,calc(100vh - 240px)) auto;
+  gap:8px;
+  align-items:stretch;
+}
+#app-layout:not(.home-mode) .left-panel{
+  grid-column:1;
+  grid-row:1 / 3;
+  display:flex;
+  flex-direction:column;
+  min-height:0;
+}
+#app-layout:not(.home-mode) .left-panel .panel-heading{
+  height:48px;
+  flex:none;
+  font-size:13px;
+}
+.directory-domain{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px 13px;
+  background:var(--panel2);
+  border-bottom:1px solid var(--line);
+  gap:8px;
+}
+.directory-domain span{font-size:11px;font-weight:750;color:var(--text)}
+.directory-domain small{font-size:10px;color:var(--muted);white-space:nowrap}
+.directory-list{padding:8px 10px;overflow:auto;flex:1;min-height:0}
+.directory-topic{border-bottom:1px solid var(--line);padding:3px 0}
+.directory-topic-button{
+  display:grid;
+  grid-template-columns:29px minmax(0,1fr) 15px;
+  align-items:center;
+  gap:7px;
+  width:100%;
+  padding:8px 4px;
+  border:1px solid transparent;
+  border-radius:4px;
+  background:transparent;
+  text-align:left;
+  color:var(--text);
+}
+.directory-topic-button:hover{background:var(--blue2)}
+.directory-topic-button.active{background:var(--teal2);border-color:var(--teal);color:var(--teal)}
+.directory-topic-number{
+  display:grid;place-items:center;width:23px;height:23px;
+  border:1px solid var(--line);border-radius:50%;
+  font:11px ui-monospace,monospace;color:var(--muted)
+}
+.directory-topic-button.active .directory-topic-number{background:var(--teal);color:#fff;border-color:var(--teal)}
+.directory-topic-title{font-size:11px;line-height:1.5;font-weight:600}
+.directory-topic-chevron{font-size:16px;text-align:center;color:var(--muted)}
+.lesson-substeps{padding:2px 0 7px 34px;display:grid;gap:2px}
+.lesson-substep{
+  display:flex;align-items:center;gap:8px;width:100%;padding:5px 7px;
+  border:0;border-radius:3px;background:transparent;text-align:left;
+  color:var(--muted);font-size:10px
+}
+.lesson-substep span{
+  display:grid;place-items:center;width:17px;height:17px;flex:none;
+  border:1px solid var(--line);border-radius:50%;font:9px ui-monospace,monospace
+}
+.lesson-substep.active{color:var(--blue);font-weight:800;background:var(--blue2)}
+.lesson-substep.active span{background:var(--blue);color:white;border-color:var(--blue)}
+.directory-foot{
+  display:flex;justify-content:space-between;padding:9px 12px;
+  border-top:1px solid var(--line);font-size:9px;color:var(--muted);flex:none
+}
+#app-layout:not(.home-mode) .center-panel{
+  grid-column:2;grid-row:1;min-height:0;display:flex;flex-direction:column
+}
+#app-layout:not(.home-mode) .right-panel{
+  grid-column:3;grid-row:1;min-height:0;display:flex;flex-direction:column
+}
+#app-layout:not(.home-mode) .center-panel>.mode-tabs{flex:none}
+#app-layout:not(.home-mode) .lesson-canvas-head{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:15px 18px 10px;
+  background-color:var(--panel);
+  background-image:linear-gradient(135deg,transparent 49.5%,var(--line) 50%,transparent 50.5%);
+  background-size:22px 22px;
+  flex:none
+}
+.lesson-canvas-head h1{font-size:25px;font-weight:650;margin:4px 0;letter-spacing:.3px}
+.lesson-canvas-head p{font-size:11px;color:var(--muted);margin:0;line-height:1.7}
+.lesson-index{font:800 42px ui-monospace,monospace;color:var(--blue2);align-self:flex-start}
+#app-layout:not(.home-mode) .scene-switch{
+  display:flex;align-items:center;gap:7px;padding:0 18px 8px;flex:none
+}
+.scene-label{font-size:10px;color:var(--muted);margin-right:3px}
+.scene-switch button{
+  border:1px solid var(--line);background:var(--panel);padding:5px 10px;
+  color:var(--muted);font-size:10px
+}
+.scene-switch button.active{border-color:var(--teal);background:var(--teal2);color:var(--teal);font-weight:800}
+.scene-count{margin-left:auto;font-size:9px;color:var(--muted)}
+#app-layout:not(.home-mode) .stage-path{
+  display:flex;align-items:center;gap:5px;padding:8px 14px;
+  margin:0 12px 6px;background:var(--panel2);border:1px solid var(--line);
+  overflow-x:auto;flex:none
+}
+.stage-path-item{
+  display:flex;align-items:center;gap:6px;white-space:nowrap;
+  border:1px solid transparent;background:transparent;padding:5px 6px;
+  color:var(--muted);font-size:9px
+}
+.stage-path-item span{font:10px ui-monospace,monospace}
+.stage-path-item b{font-size:9px;font-weight:600}
+.stage-path-item.active{border-color:var(--blue);background:var(--blue2);color:var(--blue);font-weight:800}
+.stage-path-item.passed{color:var(--teal)}
+.stage-path-arrow{font-size:11px;color:var(--muted)}
+#app-layout:not(.home-mode) .center-content{
+  flex:1;min-height:0;overflow:auto
+}
+#app-layout:not(.home-mode) .mechanism-view{padding:7px 16px 14px}
+.mechanism-diagram-wrap{
+  display:grid;place-items:center;min-height:240px;
+  background-color:var(--panel);
+  background-image:linear-gradient(30deg,transparent 49.6%,rgba(130,155,190,.12) 50%,transparent 50.4%);
+  background-size:25px 25px
+}
+.mechanism-diagram{width:min(100%,700px);height:auto;max-height:300px;overflow:visible}
+.mechanism-link{stroke:var(--blue);stroke-width:2;stroke-dasharray:4 4;opacity:.65}
+.mechanism-link.passed{stroke:var(--teal);stroke-dasharray:none;opacity:1}
+.mechanism-node{cursor:pointer}
+.mechanism-node rect{fill:var(--panel);stroke:var(--line);stroke-width:1.5}
+.mechanism-node circle{fill:var(--panel2);stroke:var(--line)}
+.mechanism-node-number{font:10px ui-monospace,monospace;fill:var(--muted)}
+.mechanism-node-label{font-size:12px;font-weight:700;fill:var(--text)}
+.mechanism-node.active rect{stroke:var(--blue);stroke-width:2.5;fill:var(--blue2)}
+.mechanism-node.active circle{fill:var(--blue);stroke:var(--blue)}
+.mechanism-node.active .mechanism-node-number{fill:#fff}
+.mechanism-node.passed rect{stroke:var(--teal);fill:var(--teal2)}
+#app-layout:not(.home-mode) .active-stage{margin-top:8px}
+#app-layout:not(.home-mode) .right-content{flex:1;min-height:0;max-height:none;overflow:auto;padding:16px 18px}
+#app-layout:not(.home-mode) .trace-panel{
+  grid-column:2 / 4;grid-row:2;margin:0;min-width:0
+}
+#app-layout:not(.home-mode) .trace-head{height:44px}
+#app-layout:not(.home-mode) .trace-row{min-height:34px}
+#app-layout:not(.home-mode) .trace-foot{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:7px 12px;border-top:1px solid var(--line);
+  font-size:9px;color:var(--muted)
+}
+#app-layout:not(.home-mode) .course-footer{display:none}
+@media(max-width:1250px){
+ #app-layout:not(.home-mode) .workbench{
+  grid-template-columns:235px minmax(380px,1fr) 340px;
+ }
+}
+@media(max-width:980px){
+ #app-layout:not(.home-mode) .workbench{
+  grid-template-columns:220px minmax(0,1fr);
+  grid-template-rows:minmax(450px,auto) auto auto
+ }
+ #app-layout:not(.home-mode) .left-panel{grid-column:1;grid-row:1 / 4}
+ #app-layout:not(.home-mode) .center-panel{grid-column:2;grid-row:1}
+ #app-layout:not(.home-mode) .right-panel{grid-column:2;grid-row:2}
+ #app-layout:not(.home-mode) .trace-panel{grid-column:2;grid-row:3}
+}
+@media(max-width:680px){
+ #app-layout:not(.home-mode) #main{padding:8px}
+ #app-layout:not(.home-mode) .workbench{display:flex;flex-direction:column}
+ #app-layout:not(.home-mode) .left-panel{order:0;max-height:320px}
+ #app-layout:not(.home-mode) .center-panel{order:1}
+ #app-layout:not(.home-mode) .right-panel{order:2}
+ #app-layout:not(.home-mode) .trace-panel{order:3}
+ #app-layout:not(.home-mode) .lesson-canvas-head{padding:12px}
+ .lesson-canvas-head h1{font-size:20px}
+ #app-layout:not(.home-mode) .stage-path{margin:0 7px 6px}
+ #app-layout:not(.home-mode) .scene-switch{padding:0 10px 8px;flex-wrap:wrap}
+ .stage-path-item b{display:none}
+}
