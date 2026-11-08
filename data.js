@@ -21,4 +21,5 @@ const skills=[
 ["retro","用户主动调用","复盘并改进工程环境","复杂任务结束或重复出现同类错误时。"]
 ];
 
+W.forEach(w => { w.main = w.steps; delete w.steps; });
 window.LAB_DATA = { workflows: W, skills };
