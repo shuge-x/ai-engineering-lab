@@ -982,7 +982,6 @@ window.LAB_PRACTICE = {
       "knowledgeRefs": [
         "wayfinder",
         "research",
-        "prototype",
         "adr",
         "architecture",
         "tickets",
