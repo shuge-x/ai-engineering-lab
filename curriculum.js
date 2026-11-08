@@ -1829,7 +1829,8 @@ window.LAB_CURRICULUM = {
       ],
       "task": "邀请功能实现完成，要求在提交前做一次独立双轴审查。",
       "prompt": "请以固定基线执行独立 Code Review。分别输出 Standards 和 Spec Compliance 两轴发现；每项标明严重度、文件位置、依据、影响和建议。逐条映射批准 Spec 与验收条件，不能仅以测试通过判定符合。",
-      "artifact": [
+      "artifact": "Standards Review / Spec Review / 问题修复记录",
+      "sources": [
         {
           "title": "code-review · Skill",
           "url": "https://github.com/mattpocock/skills/blob/main/skills/engineering/code-review/SKILL.md",
