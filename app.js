@@ -227,11 +227,11 @@ function topicPage(kind) {
 function skillsPage(){return '<div class="topic-page"><div class="eyebrow">REFERENCE / SKILL CATALOG</div><h1>Matt Pocock Skills 索引</h1><p class="topic-lead">Skill 的名称、调用权限和内容以当前安装的上游版本为准。</p><div class="skill-grid">'+CUR.lessons.filter((l)=>l.sources.length).slice(0,12).map((l)=>'<article class="skill-card"><h3>'+esc(l.title)+'</h3><p>'+esc(l.summary)+'</p></article>').join("")+'</div></div>';}
 function render() {
  nav();
- $("#main").innerHTML=state.page==="home"?home():state.page==="story"?storyPage():state.page==="course"?course():state.page==="knowledge"?topicPage("knowledge"):state.page==="verify"?topicPage("verify"):skillsPage();
+ $("#main").innerHTML=state.page==="home"?home():state.page==="playbooks"?playbookHub():state.page==="playbook"?playbookPage():state.page==="course"?course():state.page==="knowledge"?topicPage("knowledge"):state.page==="verify"?topicPage("verify"):skillsPage();
  const pageStatus=$("#page-status");
- if(pageStatus)pageStatus.textContent=state.page==="course"?current().title:state.page==="story"?(stories.find((x)=>x.id===state.story)?.story||"真实开发故事"):state.page==="home"?"任务入口 · 真实开发案例":state.page==="knowledge"?"项目知识与 CodeGraph":state.page==="verify"?"测试、验证与验收":"Matt Skills 索引";
+ if(pageStatus)pageStatus.textContent=state.page==="course"?current().title:state.page==="playbook"?currentPlaybook().title:state.page==="playbooks"?"04 工作流实战":state.page==="home"?"任务入口 · 真实开发案例":state.page==="knowledge"?"项目知识与 CodeGraph":state.page==="verify"?"测试、验证与验收":"Matt Skills 索引";
  $("#search").value=state.search;
- $("#progress-count").textContent=Object.keys(progress).length+" / "+lessons.length;
+ $("#progress-count").textContent=Object.keys(progress).length+" / "+(lessons.length+playbooks.length);
 }
 function changeStep(n) {
  state.step=Math.max(0,Math.min(stages().length-1,n));
@@ -240,19 +240,19 @@ function changeStep(n) {
 }
 function play() {
  if(state.playing){stop();render();return;}
- if(state.step>=stages().length-1)state.step=0;
+ if(state.step>=activeStages().length-1)state.step=0;
  state.playing=true;
  state.flowPulse=true;
  render();
 }
 document.addEventListener("animationend",(e)=>{
  if(e.animationName!=="mechanism-flow")return;
- const edge=e.target.closest?.(".mechanism-edge-group.active");
+ const edge=e.target.closest?.(".mechanism-edge-group.active, .practice-edge-group.active");
  if(!edge || !state.flowPulse)return;
  state.flowPulse=false;
  if(state.playing){
-   if(state.step<stages().length-1)state.step+=1;
-   if(state.step>=stages().length-1){
+   if(state.step<activeStages().length-1)state.step+=1;
+   if(state.step>=activeStages().length-1){
      state.playing=false;
    }else{
      state.flowPulse=true;
@@ -265,9 +265,12 @@ document.addEventListener("click",(e)=>{
  const b=e.target.closest("button,a"); if(!b)return;
  if(b.dataset.category!==undefined){state.group=Number(b.dataset.category);goLesson(currentGroupLessons()[0].id);return;}
  if(b.dataset.lesson){goLesson(b.dataset.lesson);return;}
- if(b.dataset.story){goStory(b.dataset.story);return;}
+ if(b.dataset.playbook){goPlaybook(b.dataset.playbook);return;}
  if(b.dataset.branch){stop();state.branch=b.dataset.branch;state.step=0;render();return;}
  if(b.dataset.homeMode){state.mode=b.dataset.homeMode;render();return;}
+ if(b.dataset.practiceSection){stop();state.practiceSection=b.dataset.practiceSection;render();return;}
+ if(b.dataset.practiceStep!==undefined){stop();state.practiceSection="execution";changeStep(Number(b.dataset.practiceStep));return;}
+ if(b.dataset.practiceTab){state.practiceTab=b.dataset.practiceTab;render();return;}
  if(b.dataset.homeStep!==undefined){state.step=Number(b.dataset.homeStep);render();return;}
  if(b.dataset.page){e.preventDefault();goPage(b.dataset.page);return;}
  if(b.dataset.mode){state.mode=b.dataset.mode;render();return;}
@@ -278,11 +281,14 @@ document.addEventListener("click",(e)=>{
  if(b.hasAttribute("data-play")){play();return;}
  if(b.hasAttribute("data-reset")){stop();state.step=0;render();return;}
  if(b.hasAttribute("data-mark")){progress[state.lesson]=true;localStorage.setItem("ael-progress-v3",JSON.stringify(progress));render();return;}
+ if(b.hasAttribute("data-practice-mark")){progress["playbook:"+state.playbook]=true;localStorage.setItem("ael-progress-v3",JSON.stringify(progress));render();return;}
  if(b.hasAttribute("data-copy")){navigator.clipboard?.writeText(stages()[state.step].prompt).then(()=>{b.textContent="已复制 ✓";}).catch(()=>{b.textContent="复制失败";});return;}
+ if(b.hasAttribute("data-copy-command")){navigator.clipboard?.writeText(practiceSteps()[state.step].invocation.command||"").then(()=>{b.textContent="已复制 ✓";}).catch(()=>{b.textContent="复制失败";});return;}
+ if(b.hasAttribute("data-copy-practice-prompt")){navigator.clipboard?.writeText(practiceSteps()[state.step].prompt).then(()=>{b.textContent="已复制 ✓";}).catch(()=>{b.textContent="复制失败";});return;}
 });
 document.addEventListener("change",(e)=>{if(e.target.id==="speed"){state.speed=Number(e.target.value);if(state.playing){state.flowPulse=true;render();}}});
 $("#theme").addEventListener("click",()=>{const t=document.documentElement.dataset.theme==="dark"?"light":"dark";document.documentElement.dataset.theme=t;localStorage.setItem("ael-theme",t);});
-$("#search").addEventListener("input",(e)=>{state.search=e.target.value;const q=state.search.trim().toLowerCase();if(!q)return;const match=lessons.find((l)=>(l.title+" "+l.summary+" "+l.principle+" "+l.prompt+" "+l.en).toLowerCase().includes(q));if(match)goLesson(match.id);});
+$("#search").addEventListener("input",(e)=>{state.search=e.target.value;const q=state.search.trim().toLowerCase();if(!q)return;const match=lessons.find((l)=>(l.title+" "+l.summary+" "+l.principle+" "+l.prompt+" "+l.en).toLowerCase().includes(q));if(match){goLesson(match.id);return;}const practiceMatch=playbooks.find((p)=>{const sc=scenarios.find((x)=>x.id===p.scenarioId);return (p.title+" "+p.workflow+" "+p.summary+" "+sc.title+" "+sc.request).toLowerCase().includes(q)});if(practiceMatch)goPlaybook(practiceMatch.id);});
 document.addEventListener("keydown",(e)=>{if(e.key==="/"&&!["INPUT","TEXTAREA"].includes(document.activeElement.tagName)){e.preventDefault();$("#search").focus();}if(e.key==="Escape"&&document.activeElement===$("#search"))$("#search").blur();});
 const saved=localStorage.getItem("ael-theme");if(saved)document.documentElement.dataset.theme=saved;
 render();
