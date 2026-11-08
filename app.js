@@ -103,20 +103,67 @@ function course() {
 function taskCanvas(l,s,ss) {
  return '<div class="task-view"><div class="task-kicker">LEARNING SCENARIO</div><h2>'+esc(l.title)+'</h2><p class="task-description">'+esc(l.summary)+'</p><div class="task-facts"><div><small>核心原则</small><b>'+esc(l.principle)+'</b></div><div><small>实践重点</small><b>'+esc(l.tradeoff)+'</b></div><div><small>核心工件</small><b>'+esc(l.artifact)+'</b></div></div><div class="task-route"><div class="route-head"><b>学习步骤</b><span>选择阶段进入学习</span></div><div class="route-steps">'+ss.map((x,i)=>'<button data-step="'+i+'" class="'+(i===state.step?"active":"")+'"><span>0'+(i+1)+'</span><b>'+esc(x.title)+'</b><small>'+esc(x.actor)+'</small></button>').join("")+'</div></div><div class="current-task"><span class="current-label">当前阶段</span><b>'+esc(s.title)+'</b><p>'+esc(s.detail)+'</p><button class="primary" data-mode="mechanism">进入机制演示 →</button></div></div>';
 }
+function nodeKind(label) {
+ const v=String(label||"").toLowerCase();
+ if(/用户|user|客户端|client|pod|human|目标/.test(v))return "user";
+ if(/grill|访谈|澄清|问题|需求/.test(v))return "conversation";
+ if(/spec|文档|规则|adr|glossary|声明|记录/.test(v))return "document";
+ if(/ticket|任务拆解|工单/.test(v))return "ticket";
+ if(/agent|implement|执行|runtime|工作流/.test(v))return "agent";
+ if(/测试|验证|验收|review|审查|检查|证据/.test(v))return "verify";
+ if(/code|代码|graph|调用|依赖|源码/.test(v))return "code";
+ if(/bug|故障|错误|诊断|风险/.test(v))return "bug";
+ if(/数据库|sql|migration|data|存储|repository/.test(v))return "database";
+ if(/知识|knowledge|上下文|会话|handoff|索引/.test(v))return "knowledge";
+ if(/架构|模块|architecture|接口|边界/.test(v))return "architecture";
+ if(/发布|部署|交付|delivery|package/.test(v))return "delivery";
+ if(/决策|选择|判断|复杂度|方案/.test(v))return "decision";
+ return "system";
+}
+function objectGlyph(kind) {
+ const common='fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
+ const shapes={
+  user:'<circle cx="0" cy="-7" r="5" '+common+'/><path d="M-11 12 C-10 3 10 3 11 12" '+common+'/>',
+  conversation:'<path d="M-13 -11 H13 V6 H2 L-6 13 V6 H-13 Z" '+common+'/><path d="M-7 -3 H7 M-7 2 H3" '+common+'/>',
+  document:'<path d="M-10 -14 H4 L11 -7 V14 H-10 Z M4 -14 V-7 H11 M-5 -1 H6 M-5 5 H6" '+common+'/>',
+  ticket:'<path d="M-13 -10 H13 V-3 C7 0 7 4 13 7 V11 H-13 V7 C-7 4 -7 0 -13 -3 Z" '+common+'/><path d="M0 -8 V8" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 3"/>',
+  agent:'<rect x="-11" y="-10" width="22" height="19" rx="5" '+common+'/><path d="M0 -15 V-10 M-4 -15 H4 M-6 -2 H-4 M4 -2 H6 M-4 4 H4" '+common+'/><circle cx="-4" cy="-2" r="1" fill="currentColor"/><circle cx="4" cy="-2" r="1" fill="currentColor"/>',
+  verify:'<path d="M0 -15 L12 -10 V0 C12 8 5 13 0 16 C-5 13 -12 8 -12 0 V-10 Z" '+common+'/><path d="M-6 0 L-1 5 L7 -5" '+common+'/>',
+  code:'<path d="M-5 -10 L-13 0 L-5 10 M5 -10 L13 0 L5 10 M2 -13 L-2 13" '+common+'/>',
+  bug:'<ellipse cx="0" cy="1" rx="7" ry="10" '+common+'/><circle cx="0" cy="-11" r="4" '+common+'/><path d="M-7 -5 L-13 -10 M7 -5 L13 -10 M-8 1 L-15 1 M8 1 L15 1 M-7 8 L-13 13 M7 8 L13 13 M-4 -15 L-7 -19 M4 -15 L7 -19" '+common+'/>',
+  database:'<ellipse cx="0" cy="-9" rx="12" ry="5" '+common+'/><path d="M-12 -9 V9 C-12 16 12 16 12 9 V-9 M-12 0 C-12 7 12 7 12 0" '+common+'/>',
+  knowledge:'<circle cx="-10" cy="-8" r="4" '+common+'/><circle cx="10" cy="-8" r="4" '+common+'/><circle cx="0" cy="11" r="4" '+common+'/><path d="M-6 -6 L-2 7 M6 -6 L2 7 M-6 -8 H6" '+common+'/>',
+  decision:'<path d="M0 -15 L14 0 L0 15 L-14 0 Z" '+common+'/><path d="M-6 0 H6 M2 -4 L6 0 L2 4" '+common+'/>',
+  architecture:'<path d="M0 -15 L14 -7 L0 1 L-14 -7 Z M-14 -7 V8 L0 16 L14 8 V-7 M0 1 V16 M-14 0 L0 8 L14 0" '+common+'/>',
+  delivery:'<path d="M0 -15 L13 -8 V8 L0 15 L-13 8 V-8 Z M-13 -8 L0 0 L13 -8 M0 0 V15 M-5 -5 H6 M2 -9 L6 -5 L2 -1" '+common+'/>',
+  system:'<rect x="-12" y="-12" width="24" height="24" rx="4" '+common+'/><path d="M-6 -5 H6 M-6 0 H6 M-6 5 H2" '+common+'/>'
+ };
+ return '<g class="object-glyph object-'+kind+'" transform="translate(0 0)">'+(shapes[kind]||shapes.system)+'</g>';
+}
 function mechanism(l,ss,s,nodes) {
- const labels=(nodes&&nodes.length?nodes:l.nodes).slice(0,4);
- const positions=[{x:105,y:28},{x:470,y:28},{x:470,y:170},{x:105,y:170}];
- const links=[[0,1],[1,2],[2,3]];
- const lines=links.map(([a,b],i)=>{
-   const p=positions[a],q=positions[b];
-   const x1=p.x+115,y1=p.y+37,x2=q.x+115,y2=q.y+37;
-   return '<path class="mechanism-link '+(i<state.step?"passed":"")+'" d="M '+x1+' '+y1+' L '+x2+' '+y2+'" fill="none" marker-end="url(#flow-arrow)"/>';
+ const labels=(nodes&&nodes.length?nodes:l.nodes||[]).slice(0,4);
+ const positions=[{x:205,y:93},{x:595,y:93},{x:595,y:282},{x:205,y:282}];
+ const edgePaths=[
+  "M 280 93 L 520 93",
+  "M 595 151 L 595 224",
+  "M 520 282 L 280 282"
+ ];
+ const lines=edgePaths.map((d,i)=>{
+   const completed=i<state.step,active=i===state.step;
+   const cls=completed?"completed":active?"active":"future";
+   const label=ss[i]?.event||ss[i]?.title||"";
+   const edgeLabel=i===0?'<text class="mechanism-edge-label" x="400" y="77" text-anchor="middle">'+esc(label)+'</text>':i===1?'<text class="mechanism-edge-label" x="616" y="190" text-anchor="start">'+esc(label.length>13?label.slice(0,12)+"…":label)+'</text>':'<text class="mechanism-edge-label" x="400" y="266" text-anchor="middle">'+esc(label)+'</text>';
+   const packets=active?'<circle class="mechanism-packet" r="5"><animateMotion dur="1.65s" repeatCount="indefinite" path="'+d+'"/></circle><circle class="mechanism-packet secondary" r="3.2"><animateMotion begin="-0.82s" dur="1.65s" repeatCount="indefinite" path="'+d+'"/></circle>':"";
+   return '<g class="mechanism-edge-group '+cls+'"><path class="mechanism-link '+cls+'" d="'+d+'" marker-end="url(#mechanism-arrow)"/>'+edgeLabel+packets+'</g>';
  }).join("");
  const marks=labels.map((label,i)=>{
-   const p=positions[i],active=i===state.step,passed=i<state.step;
-   return '<g class="mechanism-node '+(active?"active":passed?"passed":"")+'" data-step="'+i+'" tabindex="0" role="button" aria-label="'+esc(label)+'"><rect x="'+p.x+'" y="'+p.y+'" width="230" height="74" rx="8"/><circle cx="'+(p.x+27)+'" cy="'+(p.y+25)+'" r="13"/><text class="mechanism-node-number" x="'+(p.x+27)+'" y="'+(p.y+29)+'" text-anchor="middle">'+String(i+1).padStart(2,"0")+'</text><text class="mechanism-node-label" x="'+(p.x+115)+'" y="'+(p.y+49)+'" text-anchor="middle">'+esc(label.length>15?label.slice(0,14)+"…":label)+'</text></g>';
+   const p=positions[i],kind=nodeKind(label),active=i===state.step,passed=i<state.step,receiving=i===state.step+1;
+   const cls=active?"active":passed?"passed":receiving?"receiving":"";
+   const glyphColor=kind==="verify"||kind==="bug"?"var(--amber)":kind==="knowledge"||kind==="document"||kind==="ticket"?"var(--purple)":kind==="agent"||kind==="code"?"var(--teal)":"var(--blue)";
+   return '<g class="mechanism-object '+cls+' kind-'+kind+'" data-step="'+i+'" tabindex="0" role="button" aria-label="'+esc(label)+'"><ellipse class="object-shadow" cx="'+p.x+'" cy="'+(p.y+47)+'" rx="57" ry="10"/><polygon class="object-side-left" points="'+(p.x-52)+','+(p.y-2)+' '+p.x+','+(p.y+24)+' '+p.x+','+(p.y+53)+' '+(p.x-52)+','+(p.y+26)+'"/><polygon class="object-side-right" points="'+(p.x+52)+','+(p.y-2)+' '+p.x+','+(p.y+24)+' '+p.x+','+(p.y+53)+' '+(p.x+52)+','+(p.y+26)+'"/><polygon class="object-top" points="'+p.x+','+(p.y-30)+' '+(p.x+52)+','+(p.y-2)+' '+p.x+','+(p.y+24)+' '+(p.x-52)+','+(p.y-2)+'"/><g class="object-icon" style="color:'+glyphColor+'" transform="translate('+p.x+' '+(p.y-3)+')">'+objectGlyph(kind)+'</g><text class="object-index" x="'+(p.x-58)+'" y="'+(p.y-37)+'">'+String(i+1).padStart(2,"0")+'</text><text class="object-label" x="'+p.x+'" y="'+(p.y+76)+'" text-anchor="middle">'+esc(label)+'</text><text class="object-type" x="'+p.x+'" y="'+(p.y+91)+'" text-anchor="middle">'+kind.toUpperCase()+'</text></g>';
  }).join("");
- return '<div class="mechanism-view"><div class="mechanism-meta"><span>机制关系 · 教学抽象</span><span>当前阶段：'+String(state.step+1).padStart(2,"0")+'</span></div><div class="mechanism-diagram-wrap"><svg class="mechanism-diagram" viewBox="0 0 700 275" role="img" aria-label="'+esc(l.title)+'机制关系图"><defs><marker id="flow-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="var(--blue)"/></marker></defs>'+lines+marks+'</svg></div><div class="active-stage"><div class="active-stage-no">'+String(state.step+1).padStart(2,"0")+'</div><div><span class="task-kicker">'+esc(s.actor)+'</span><h2>'+esc(s.title)+'</h2><p>'+esc(s.detail)+'</p></div></div><div class="artifact-row"><div><small>阶段产物</small><b>'+esc(s.artifact)+'</b></div><div><small>交接要求</small><b>'+esc(s.handoff)+'</b></div></div><div class="mechanism-bottom"><span>节点表示当前知识主题中的关键环节；连线表达教学关系，不等同于真实代码调用。</span><button class="secondary" data-mode="graph">查看关联主题 →</button></div></div>';
+ const progress=state.step===ss.length-1?"当前主题的最后一个阶段":"当前节点正在处理，信息将沿连线流向下一节点";
+ return '<div class="mechanism-view"><div class="mechanism-meta"><span>机制对象 · 信息 / 控制流</span><span>当前阶段：'+String(state.step+1).padStart(2,"0")+' / '+String(ss.length).padStart(2,"0")+'</span></div><div class="mechanism-diagram-wrap"><svg class="mechanism-diagram" viewBox="0 0 800 390" role="img" aria-label="'+esc(l.title)+'机制流转图"><defs><marker id="mechanism-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="var(--blue)"/></marker></defs>'+lines+marks+'</svg></div><div class="active-stage"><div class="active-stage-no">'+String(state.step+1).padStart(2,"0")+'</div><div><span class="task-kicker">'+esc(s.actor)+'</span><h2>'+esc(s.title)+'</h2><p>'+esc(s.detail)+'</p></div></div><div class="artifact-row"><div><small>阶段产物</small><b>'+esc(s.artifact)+'</b></div><div><small>交接要求</small><b>'+esc(s.handoff)+'</b></div></div><div class="mechanism-bottom"><span>'+progress+'；节点图表达本主题的教学机制，不等同于真实代码调用图。</span><button class="secondary" data-mode="graph">查看关联主题 →</button></div></div>';
 }
 function graph(l,related) {
  const nodes=[{title:l.title,x:340,y:118,id:null},...related.slice(0,6).map((x,i)=>({title:x.title,id:x.id,x:[55,340,625,55,340,625][i],y:[25,25,25,220,220,220][i]}))];
