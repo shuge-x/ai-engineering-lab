@@ -2,8 +2,19 @@
 <html lang="zh-CN">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f5f7fb"><meta name="description" content="基于 Matt Pocock Skills 与 CodeGraph 的中文 AI 编程工程实践实验室。"><title>AI Engineering Lab · AI 编程工程实践实验室</title><link rel="stylesheet" href="styles.css"></head>
 <body>
-<header class="topbar"><a class="brand" href="#" data-page="home"><span class="brand-mark">AE</span><span><b>AI ENGINEERING LAB</b><small>AI 编程工程实践实验室</small></span></a><div class="top-center"><span class="top-kicker">学习入口</span><b id="page-status">从真实开发问题开始</b></div><div class="top-right"><label class="search"><span>⌕</span><input id="search" placeholder="搜索工作流、Skill、知识点…  /"></label><span class="progress-mini">本地学习进度</span><button class="icon-btn" id="theme" aria-label="切换主题">◐</button><a class="github" href="https://github.com/shuge-x/ai-engineering-lab" target="_blank" rel="noreferrer">GitHub ↗</a></div></header>
-<div class="app-layout"><aside class="sidebar"><div class="side-caption">学习目录 <span>06</span></div><button class="side-home active" data-page="home">⌂　任务入口首页</button><div class="side-caption section-caption">开发工作流 <span>WORKFLOWS</span></div><div id="course-nav"></div><div class="side-caption section-caption">工程专题</div><button class="side-link" data-page="knowledge">◇　项目知识与 CodeGraph</button><button class="side-link" data-page="verify">✓　测试、验证与验收</button><button class="side-link" data-page="skills">▤　Matt Skills 索引</button><div class="sidebar-principle"><b>工程原则</b><p>人掌握决策权<br>Agent 在授权范围内执行<br>证据决定是否完成</p></div></aside><main id="main" tabindex="-1"></main></div>
+<header class="topbar">
+<a class="brand" href="#" data-page="home"><span class="brand-mark">AE</span><span><b>AI ENGINEERING LAB</b><small>AI 编程工程实践实验室</small></span></a>
+<nav class="top-categories" aria-label="学习领域">
+<button data-category="needs" class="active"><span>01</span>需求与架构</button>
+<button data-category="delivery"><span>02</span>开发与交付</button>
+<button data-category="quality"><span>03</span>质量与演进</button>
+</nav>
+<div class="top-right"><label class="search"><span>⌕</span><input id="search" placeholder="搜索工作流、Skill、知识点…  /"></label><span class="progress-mini"><b id="progress-count">0 / 18</b><small>学习进度</small></span><button class="icon-btn" id="theme" aria-label="切换主题">◐</button><a class="github" href="https://github.com/shuge-x/ai-engineering-lab" target="_blank" rel="noreferrer">GitHub ↗</a></div>
+</header>
+<div class="app-layout home-mode" id="app-layout">
+<aside class="sidebar" id="sidebar"><div class="side-caption">学习目录 <span>06</span></div><button class="side-home active" data-page="home">⌂　任务入口首页</button><div class="side-caption section-caption">开发工作流 <span>WORKFLOWS</span></div><div id="course-nav"></div><div class="side-caption section-caption">工程专题</div><button class="side-link" data-page="knowledge">◇　项目知识与 CodeGraph</button><button class="side-link" data-page="verify">✓　测试、验证与验收</button><button class="side-link" data-page="skills">▤　Matt Skills 索引</button><div class="sidebar-principle"><b>工程原则</b><p>人掌握决策权<br>Agent 在授权范围内执行<br>证据决定是否完成</p></div></aside>
+<main id="main" tabindex="-1"></main>
+</div>
 <footer class="footer"><span>AI Engineering Lab · 中文实践手册</span><span>Matt Pocock Skills + CodeGraph · 交互式学习工作台</span></footer>
 <script src="data.js"></script><script src="app.js"></script>
 </body></html>
