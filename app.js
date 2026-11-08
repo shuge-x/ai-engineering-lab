@@ -18,10 +18,16 @@ const storyLessons = {
 const state = {page:"home", group:0, lesson:lessons[0].id, story:"quick", mode:"task", step:0, branch:"main", tab:"mechanism", playing:false, speed:1, search:""};
 const progress = JSON.parse(localStorage.getItem("ael-progress-v3") || "{}");
 let timer = null;
+let playbackRun = 0;
 const current = () => lessons.find((l) => l.id === state.lesson) || lessons[0];
 const currentGroupLessons = () => lessons.filter((l) => l.group === state.group);
 const stages = () => state.branch === "main" ? current().main : current().fault.steps;
-const stop = () => { state.playing=false; if (timer) clearInterval(timer); timer=null; };
+const stop = () => {
+  state.playing=false;
+  playbackRun++;
+  if (timer) clearTimeout(timer);
+  timer=null;
+};
 function goLesson(id) {
   stop();
   const lesson=lessons.find((l)=>l.id===id);
@@ -153,7 +159,7 @@ function mechanism(l,ss,s,nodes) {
    const cls=completed?"completed":active?"active":"future";
    const label=ss[i]?.event||ss[i]?.title||"";
    const edgeLabel=i===0?'<text class="mechanism-edge-label" x="400" y="77" text-anchor="middle">'+esc(label)+'</text>':i===1?'<text class="mechanism-edge-label" x="616" y="190" text-anchor="start">'+esc(label.length>13?label.slice(0,12)+"…":label)+'</text>':'<text class="mechanism-edge-label" x="400" y="266" text-anchor="middle">'+esc(label)+'</text>';
-   const packets=active?'<circle class="mechanism-packet" r="5"><animateMotion dur="1.65s" repeatCount="indefinite" path="'+d+'"/></circle><circle class="mechanism-packet secondary" r="3.2"><animateMotion begin="-0.82s" dur="1.65s" repeatCount="indefinite" path="'+d+'"/></circle>':"";
+   const packets=active?'<circle class="mechanism-packet" r="5"><animateMotion dur="2.15s" repeatCount="1" fill="freeze" path="'+d+'"/></circle><circle class="mechanism-packet secondary" r="3.2"><animateMotion begin="0.22s" dur="1.65s" repeatCount="indefinite" path="'+d+'"/></circle>':"";
    return '<g class="mechanism-edge-group '+cls+'"><path class="mechanism-link '+cls+'" d="'+d+'" marker-end="url(#mechanism-arrow)"/>'+edgeLabel+packets+'</g>';
  }).join("");
  const marks=labels.map((label,i)=>{
@@ -189,12 +195,30 @@ function render() {
  $("#progress-count").textContent=Object.keys(progress).length+" / "+lessons.length;
 }
 function changeStep(n) { state.step=Math.max(0,Math.min(stages().length-1,n)); render(); }
+function schedulePlayback(run) {
+ if(run!==playbackRun || !state.playing) return;
+ const delay=Math.max(1900,2600/state.speed);
+ timer=setTimeout(()=>{
+   if(run!==playbackRun || !state.playing) return;
+   if(state.step>=stages().length-1){
+     stop();
+     render();
+     return;
+   }
+   state.step+=1;
+   render();
+   schedulePlayback(run);
+ },delay);
+}
 function play() {
  if(state.playing){stop();render();return;}
  if(state.step>=stages().length-1)state.step=0;
- state.playing=true;render();
- timer=setInterval(()=>{if(state.step>=stages().length-1){stop();render();return;}state.step++;render();},2400/state.speed);
+ state.playing=true;
+ const run=++playbackRun;
+ render();
+ schedulePlayback(run);
 }
+
 document.addEventListener("click",(e)=>{
  const b=e.target.closest("button,a"); if(!b)return;
  if(b.dataset.category!==undefined){state.group=Number(b.dataset.category);goLesson(currentGroupLessons()[0].id);return;}
