@@ -84,13 +84,17 @@ function topicPage(kind){
 function knowledgeDiagram(){return `<div class="knowledge-pair"><div class="knowledge-box human"><b>Matt · Intent Knowledge</b><span>GLOSSARY</span><span>ADR</span><span>Feature Spec</span><span>Module Knowledge</span></div><div class="merge">↔</div><div class="knowledge-box code"><b>CodeGraph · Code Knowledge</b><span>Symbols / Routes</span><span>Calls / Imports</span><span>Dependencies</span><span>Impact / Tests</span></div></div><div class="knowledge-result">新会话：业务意图 + 当前实现事实 → 可追踪的模块理解</div>`}
 function verifyDiagram(){return `<div class="verify-layers"><div><b>01 Unit</b><span>函数 / 组件行为</span></div><div><b>02 Integration</b><span>数据库 / API / 服务协同</span></div><div><b>03 E2E</b><span>完整用户操作链路</span></div><div><b>04 Spec Review</b><span>需求与实现一致性</span></div><div><b>05 Human Acceptance</b><span>真实使用是否符合预期</span></div></div><div class="knowledge-result">自动化通过 ≠ 规格符合 ≠ 人工验收完成</div>`}
 function skillsPage(){return `<div class="topic-page"><div class="eyebrow">REFERENCE / SKILL CATALOG</div><h1>Matt Pocock Skills 索引</h1><p class="topic-lead">按职责理解 Skill，不要把索引当作本地安装清单。调用权限和具体名称以你安装的上游版本为准。</p><div class="skill-grid">${SK.map(s=>`<article class="skill-card"><div class="skill-kind">${esc(s[1])}</div><h3>${esc(s[0])}</h3><p>${esc(s[2])}</p><small>适用：${esc(s[3])}</small></article>`).join("")}</div><div class="callout">User-invoked 工作流入口由用户主动选择；Model-invoked 专业能力可在获准流程内按需调用。需求讨论完成或设计认可不代表编码授权。</div></div>`}
-function render(){nav();$("#main").innerHTML=state.page==="home"?home():state.page==="course"?course():state.page==="knowledge"?topicPage("knowledge"):state.page==="verify"?topicPage("verify"):skillsPage();$("#page-status").textContent=state.page==="course"?wf().title:"学习入口";$("#search").value=state.search;}
+function render(){nav();$("#main").innerHTML=state.page==="home"?home():state.page==="course"?course():state.page==="knowledge"?topicPage("knowledge"):state.page==="verify"?topicPage("verify"):skillsPage();$("#page-status").textContent=state.page==="course"?wf().title:state.page==="home"?"选择一个要解决的问题":state.page==="knowledge"?"项目知识与 CodeGraph":state.page==="verify"?"测试、验证与验收":"Matt Skills 索引";$("#search").value=state.search;$("#progress-count").textContent=Object.values(progress).flat().length+" / 18";}
 function changeStep(n){const max=steps().length-1;state.step=Math.max(0,Math.min(max,n));render()}
 function play(){if(state.playing){stop();render();return}if(state.step>=steps().length-1)state.step=0;state.playing=true;render();timer=setInterval(()=>{if(state.step>=steps().length-1){stop();render();return}state.step++;render()},2400/state.speed)}
 document.addEventListener("click",e=>{
  const svgStep=e.target.closest("g[data-step]");if(svgStep){stop();changeStep(Number(svgStep.dataset.step));return;}
  const graphNode=e.target.closest("g[data-node]");if(graphNode){state.selectedNode=Number(graphNode.dataset.node);render();return;}
+ const homeGraphNode=e.target.closest("g[data-home-node]");if(homeGraphNode){state.selectedNode=Number(homeGraphNode.dataset.homeNode);render();return;}
  const b=e.target.closest("button,a");if(!b)return;
+ if(b.dataset.category){stop();state.category=b.dataset.category;state.page="home";state.homeMode="task";state.homeStep=0;render();window.scrollTo(0,0);return}
+ if(b.dataset.homeMode){state.homeMode=b.dataset.homeMode;stop();render();return}
+ if(b.dataset.homeStep!==undefined){state.homeStep=Number(b.dataset.homeStep);render();return}
  if(b.dataset.wf){stop();go("course",b.dataset.wf);return}
  if(b.dataset.page){e.preventDefault();go(b.dataset.page);return}
  if(b.dataset.mode){state.mode=b.dataset.mode;render();return}
