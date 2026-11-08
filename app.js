@@ -5,17 +5,10 @@ const $ = (s) => document.querySelector(s);
 const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const groups = CUR.groups;
 const lessons = CUR.lessons;
-const stories = (window.LAB_DATA && window.LAB_DATA.workflows) || [];
-const storyDomain = {quick:1,discovery:0,feature:1,architecture:0,bug:2,refactor:2};
-const storyLessons = {
- quick:["task-routing","tdd","review"],
- discovery:["grill","domain","adr"],
- feature:["spec","tickets","tdd","review","delivery"],
- architecture:["wayfinder","research","architecture","adr","multi-agent"],
- bug:["bug","codegraph","test-strategy","spec-compliance"],
- refactor:["refactor","codegraph","tdd","architecture"]
-};
-const state = {page:"home", group:0, lesson:lessons[0].id, story:"quick", mode:"task", step:0, branch:"main", tab:"mechanism", playing:false, speed:1, flowPulse:false, search:""};
+const PRACTICE = window.LAB_PRACTICE;
+const scenarios = PRACTICE.scenarios;
+const playbooks = PRACTICE.playbooks;
+const state = {page:"home", group:0, lesson:lessons[0].id, playbook:"quick-change", practiceSection:"scenario", practiceTab:"command", mode:"task", step:0, branch:"main", tab:"mechanism", playing:false, speed:1, flowPulse:false, search:""};
 const progress = JSON.parse(localStorage.getItem("ael-progress-v3") || "{}");
 const current = () => lessons.find((l) => l.id === state.lesson) || lessons[0];
 const currentGroupLessons = () => lessons.filter((l) => l.group === state.group);
@@ -31,11 +24,16 @@ function goLesson(id) {
   state.lesson=id; state.group=lesson.group; state.page="course"; state.mode="mechanism"; state.step=0; state.branch="main"; state.tab="mechanism";
   render(); window.scrollTo(0,0);
 }
-function goStory(id) {
+function goPlaybook(id) {
   stop();
-  if(!stories.some((x)=>x.id===id)) return;
-  state.story=id; state.page="story"; state.mode="task"; state.step=0; state.branch="main";
+  const item=playbooks.find((x)=>x.id===id);
+  if(!item) return;
+  state.playbook=id; state.page="playbook"; state.practiceSection="scenario"; state.practiceTab="command"; state.step=0; state.mode="mechanism"; state.branch="main";
   render(); window.scrollTo(0,0);
+}
+function goScenario(id) {
+  const item=playbooks.find((x)=>x.scenarioId===id);
+  if(item)goPlaybook(item.id);
 }
 function goPage(page) {
   stop(); state.page=page;
@@ -44,8 +42,11 @@ function goPage(page) {
 }
 function nav() {
   document.querySelectorAll("[data-category]").forEach((b)=>b.classList.toggle("active",state.page==="course"&&Number(b.dataset.category)===state.group));
-  document.querySelectorAll("[data-page]").forEach((b)=>b.classList.toggle("active",b.dataset.page==="home"?(state.page==="home"||state.page==="story"):b.dataset.page===state.page));
-  $("#app-layout").classList.toggle("home-mode",state.page==="home"||state.page==="story");
+  document.querySelectorAll("[data-page]").forEach((b)=>{
+    const page=b.dataset.page;
+    b.classList.toggle("active",page==="home"?(state.page==="home"):page==="playbooks"?(state.page==="playbooks"||state.page==="playbook"):page===state.page);
+  });
+  $("#app-layout").classList.toggle("home-mode",state.page==="home"||state.page==="playbooks");
 }
 function home() {
  const storyCards=stories.map((w)=>{
