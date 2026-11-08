@@ -331,3 +331,18 @@ html,body{font-family:Inter,"Noto Sans SC","PingFang SC","Microsoft YaHei",Arial
     margin-right:2px;
   }
 }
+
+/* The global sidebar duplicated the active domain directory.
+   Keep only the contextual lesson directory inside the course workbench. */
+.app-layout{
+  display:block;
+  grid-template-columns:none;
+  width:100%;
+  max-width:none;
+  min-height:calc(100vh - 122px);
+}
+#app-layout:not(.home-mode) #main{
+  width:100%;
+  max-width:none;
+  padding:12px clamp(14px,1.2vw,22px) 24px;
+}
