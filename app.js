@@ -106,7 +106,7 @@ document.addEventListener("click",e=>{
  if(b.hasAttribute("data-play")){play();return}
  if(b.hasAttribute("data-reset")){stop();state.step=0;render();return}
  if(b.hasAttribute("data-mark")){const a=progress[wf().id]||[];if(!a.includes(state.branch))a.push(state.branch);progress[wf().id]=a;localStorage.setItem("ael-progress-v2",JSON.stringify(progress));render();return}
- if(b.hasAttribute("data-copy")){const text=steps()[state.step][4];navigator.clipboard?.writeText(text).then(()=>{b.textContent="已复制 ✓"}).catch(()=>{b.textContent="复制失败"});return}
+ if(b.hasAttribute("data-copy")){const text=steps()[state.step][5];navigator.clipboard?.writeText(text).then(()=>{b.textContent="已复制 ✓"}).catch(()=>{b.textContent="复制失败"});return}
 });
 document.addEventListener("change",e=>{if(e.target.id==="speed"){state.speed=Number(e.target.value);if(state.playing){stop();play()}}});
 $("#theme").addEventListener("click",()=>{const t=document.documentElement.dataset.theme==="dark"?"light":"dark";document.documentElement.dataset.theme=t;localStorage.setItem("ael-theme",t)});
