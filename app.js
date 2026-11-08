@@ -87,6 +87,7 @@ document.addEventListener("click",e=>{
  if(b.dataset.homeMode){state.homeMode=b.dataset.homeMode;stop();render();return}
  if(b.dataset.homeStep!==undefined){state.homeStep=Number(b.dataset.homeStep);render();return}
  if(b.dataset.wf){stop();go("course",b.dataset.wf);return}
+ if(b.dataset.related){stop();go("course",b.dataset.related);return}
  if(b.dataset.page){e.preventDefault();go(b.dataset.page);return}
  if(b.dataset.mode){state.mode=b.dataset.mode;render();return}
  if(b.dataset.branch){stop();state.branch=b.dataset.branch;state.step=0;render();return}
