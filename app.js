@@ -65,61 +65,7 @@ function course() {
 function taskCanvas(l,s,ss) {
  return '<div class="task-view"><div class="task-kicker">LEARNING SCENARIO</div><h2>'+esc(l.title)+'</h2><p class="task-description">'+esc(l.summary)+'</p><div class="task-facts"><div><small>核心原则</small><b>'+esc(l.principle)+'</b></div><div><small>实践重点</small><b>'+esc(l.tradeoff)+'</b></div><div><small>核心工件</small><b>'+esc(l.artifact)+'</b></div></div><div class="task-route"><div class="route-head"><b>学习步骤</b><span>选择阶段进入学习</span></div><div class="route-steps">'+ss.map((x,i)=>'<button data-step="'+i+'" class="'+(i===state.step?"active":"")+'"><span>0'+(i+1)+'</span><b>'+esc(x.title)+'</b><small>'+esc(x.actor)+'</small></button>').join("")+'</div></div><div class="current-task"><span class="current-label">当前阶段</span><b>'+esc(s.title)+'</b><p>'+esc(s.detail)+'</p><button class="primary" data-mode="mechanism">进入机制演示 →</button></div></div>';
 }
-function graph(l,related) {
- const nodes=[{title:l.title,x:340,y:118,id:null},...related.slice(0,6).map((x,i)=>({title:x.title,id:x.id,x:[55,340,625,55,340,625][i],y:[25,25,25,220,220,220][i]}))];
- const edges=nodes.slice(1).map((n)=>'<line class="graph-edge" x1="415" y1="144" x2="'+(n.x+75)+'" y2="'+(n.y+26)+'"/>').join("");
- const marks=nodes.map((n,i)=>'<g class="graph-node '+(i===0?"current":"related")+'" '+(n.id?'data-related="'+n.id+'"':"")+'><rect x="'+n.x+'" y="'+n.y+'" width="150" height="52" rx="7"/><text x="'+(n.x+75)+'" y="'+(n.y+30)+'" text-anchor="middle">'+esc(n.title.length>13?n.title.slice(0,12)+"…":n.title)+'</text></g>').join("");
- return '<div class="graph-view"><div class="mechanism-meta"><span>当前知识主题的直接关联</span><span>概念关系 · 非严格前置依赖</span></div><svg class="knowledge-svg" viewBox="0 0 830 300" role="img" aria-label="'+esc(l.title)+' 关联主题图">'+edges+marks+'</svg><div class="graph-selected"><b>'+esc(l.title)+'</b><p>'+esc(l.summary)+' 相关主题用于提示延伸学习，不代表严格执行顺序。</p></div><div class="graph-legend"><span>当前主题</span><span>直接关联主题</span></div></div>';
-}
-function rightContent(l,s) {
- if(state.tab==="command") return '<div class="detail-block"><span class="detail-kicker">可复制操作指令</span><h3>'+esc(s.title)+'</h3><p>以下提示词是课程提供的实践模板，请结合项目上下文使用。</p><pre class="prompt">'+esc(s.prompt)+'</pre><button class="copy-prompt" data-copy>复制 Prompt</button></div>';
- if(state.tab==="sources") return '<div class="detail-block"><span class="detail-kicker">UPSTREAM SOURCES</span><h3>上游依据与适用边界</h3><p>课程内容是实践整理；Skill 名称与调用权限以当前安装版本为准。</p><ul>'+l.sources.map((x)=>'<li><a href="'+esc(x.url)+'" target="_blank" rel="noreferrer">'+esc(x.title)+' ↗</a><p>'+esc(x.note)+'</p></li>').join("")+'</ul></div>';
- return '<div class="detail-block"><span class="detail-kicker">MECHANISM / WHY IT MATTERS</span><h3>'+esc(s.title)+'</h3><p>'+esc(s.detail)+'</p><div class="detail-section"><b>阶段产物</b><p>'+esc(s.artifact)+'</p></div><div class="detail-section"><b>交接规则</b><p>'+esc(s.handoff)+'</p></div><div class="detail-section"><b>主题原则</b><p>'+esc(l.principle)+'</p></div><div class="callout">核对实际工件和证据；不要把 Agent 的完成陈述当作验证结果。</div></div>';
-}
-function topicPage(kind) {
- const isKnowledge=kind==="knowledge";
- return '<div class="topic-page"><div class="eyebrow">ENGINEERING TOPIC</div><h1>'+(isKnowledge?"项目知识与 CodeGraph":"测试、验证与真实验收")+'</h1><p class="topic-lead">'+(isKnowledge?"让新会话同时理解当初为什么这样设计，以及当前代码实际上如何运行。":"测试通过只证明已有断言通过。必须把需求覆盖、实现符合性和真实用户验收分开。")+'</p><div class="topic-workspace"><section class="panel topic-main"><div class="panel-heading"><b>'+(isKnowledge?"业务意图与代码事实":"五层验证闭环")+'</b></div><div class="topic-diagram">'+(isKnowledge?'<div class="knowledge-pair"><div class="knowledge-box human"><b>Matt · Intent Knowledge</b><span>GLOSSARY</span><span>ADR</span><span>Feature Spec</span><span>Module Knowledge</span></div><div class="merge">↔</div><div class="knowledge-box code"><b>CodeGraph · Code Knowledge</b><span>Symbols / Routes</span><span>Calls / Imports</span><span>Dependencies</span><span>Impact / Tests</span></div></div>':'<div class="verify-layers"><div><b>01 Unit</b><span>函数 / 组件行为</span></div><div><b>02 Integration</b><span>数据库 / API / 服务协同</span></div><div><b>03 E2E</b><span>完整用户操作链路</span></div><div><b>04 Spec Review</b><span>需求与实现一致性</span></div><div><b>05 Human Acceptance</b><span>真实使用是否符合预期</span></div></div>')+'</div></section><section class="panel topic-side"><div class="panel-heading"><b>核心边界</b></div><div class="panel-content"><p>'+(isKnowledge?"CodeGraph 提供代码结构线索，不替代业务文档、SQL 核对或运行时验证。":"自动化测试通过不等于需求满足，更不等于人工验收完成。")+'</p></div></section></div></div>';
-}
-function skillsPage(){return '<div class="topic-page"><div class="eyebrow">REFERENCE / SKILL CATALOG</div><h1>Matt Pocock Skills 索引</h1><p class="topic-lead">Skill 的名称、调用权限和内容以当前安装的上游版本为准。</p><div class="skill-grid">'+CUR.lessons.filter((l)=>l.sources.length).slice(0,12).map((l)=>'<article class="skill-card"><h3>'+esc(l.title)+'</h3><p>'+esc(l.summary)+'</p></article>').join("")+'</div></div>';}
-function render() {
- nav();
- $("#main").innerHTML=state.page==="home"?home():state.page==="course"?course():state.page==="knowledge"?topicPage("knowledge"):state.page==="verify"?topicPage("verify"):skillsPage();
- $("#page-status").textContent=state.page==="course"?current().title:state.page==="home"?"选择一个要解决的问题":state.page==="knowledge"?"项目知识与 CodeGraph":state.page==="verify"?"测试、验证与验收":"Matt Skills 索引";
- $("#search").value=state.search;
- $("#progress-count").textContent=Object.keys(progress).length+" / "+lessons.length;
-}
-function changeStep(n) { state.step=Math.max(0,Math.min(stages().length-1,n)); render(); }
-function play() {
- if(state.playing){stop();render();return;}
- if(state.step>=stages().length-1)state.step=0;
- state.playing=true;render();
- timer=setInterval(()=>{if(state.step>=stages().length-1){stop();render();return;}state.step++;render();},2400/state.speed);
-}
-document.addEventListener("click",(e)=>{
- const b=e.target.closest("button,a"); if(!b)return;
- if(b.dataset.category!==undefined){state.group=Number(b.dataset.category);goLesson(currentGroupLessons()[0].id);return;}
- if(b.dataset.lesson){goLesson(b.dataset.lesson);return;}
- if(b.dataset.branch){stop();state.branch=b.dataset.branch;state.step=0;render();return;}
- if(b.dataset.homeMode){state.mode=b.dataset.homeMode;render();return;}
- if(b.dataset.homeStep!==undefined){state.step=Number(b.dataset.homeStep);render();return;}
- if(b.dataset.page){e.preventDefault();goPage(b.dataset.page);return;}
- if(b.dataset.mode){state.mode=b.dataset.mode;render();return;}
- if(b.dataset.step!==undefined){stop();changeStep(Number(b.dataset.step));return;}
- if(b.dataset.tab){state.tab=b.dataset.tab;render();return;}
- if(b.hasAttribute("data-next")){stop();changeStep(state.step+1);return;}
- if(b.hasAttribute("data-prev")){stop();changeStep(state.step-1);return;}
- if(b.hasAttribute("data-play")){play();return;}
- if(b.hasAttribute("data-reset")){stop();state.step=0;render();return;}
- if(b.hasAttribute("data-mark")){progress[state.lesson]=true;localStorage.setItem("ael-progress-v3",JSON.stringify(progress));render();return;}
- if(b.hasAttribute("data-copy")){navigator.clipboard?.writeText(stages()[state.step].prompt).then(()=>{b.textContent="已复制 ✓";}).catch(()=>{b.textContent="复制失败";});return;}
-});
-document.addEventListener("change",(e)=>{if(e.target.id==="speed"){state.speed=Number(e.target.value);if(state.playing){stop();play();}}});
-$("#theme").addEventListener("click",()=>{const t=document.documentElement.dataset.theme==="dark"?"light":"dark";document.documentElement.dataset.theme=t;localStorage.setItem("ael-theme",t);});
-$("#search").addEventListener("input",(e)=>{state.search=e.target.value;const q=state.search.trim().toLowerCase();if(!q)return;const match=lessons.find((l)=>(l.title+" "+l.summary+" "+l.principle+" "+l.prompt+" "+l.en).toLowerCase().includes(q));if(match)goLesson(match.id);});
-document.addEventListener("keydown",(e)=>{if(e.key==="/"&&!["INPUT","TEXTAREA"].includes(document.activeElement.tagName)){e.preventDefault();$("#search").focus();}if(e.key==="Escape"&&document.activeElement===$("#search"))$("#search").blur();});
-const saved=localStorage.getItem("ael-theme");if(saved)document.documentElement.dataset.theme=saved;
-render();
-})()function mechanism(l,ss,s,nodes) {
+function mechanism(l,ss,s,nodes) {
  const labels=(nodes&&nodes.length?nodes:l.nodes).slice(0,4);
  const positions=[{x:105,y:28},{x:470,y:28},{x:470,y:170},{x:105,y:170}];
  const links=[[0,1],[1,2],[2,3]];
@@ -168,6 +114,7 @@ document.addEventListener("click",(e)=>{
  const b=e.target.closest("button,a"); if(!b)return;
  if(b.dataset.category!==undefined){state.group=Number(b.dataset.category);goLesson(currentGroupLessons()[0].id);return;}
  if(b.dataset.lesson){goLesson(b.dataset.lesson);return;}
+ if(b.dataset.branch){stop();state.branch=b.dataset.branch;state.step=0;render();return;}
  if(b.dataset.homeMode){state.mode=b.dataset.homeMode;render();return;}
  if(b.dataset.homeStep!==undefined){state.step=Number(b.dataset.homeStep);render();return;}
  if(b.dataset.page){e.preventDefault();goPage(b.dataset.page);return;}
