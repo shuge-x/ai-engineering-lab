@@ -3,14 +3,20 @@
 const D=window.LAB_DATA, W=D.workflows, SK=D.skills;
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const state={page:"home",id:"feature",mode:"task",step:0,branch:"main",tab:"mechanism",playing:false,speed:1,search:"",selectedNode:0};
+const categories=[
+{id:"needs",n:"01",title:"需求与架构",subtitle:"先弄清楚要解决什么，再决定系统应该如何设计。",ids:["discovery","architecture"],route:[["01","澄清真实需求","Grill 访谈与领域建模"],["02","解决关键未知","Wayfinder 与技术验证"],["03","记录重要决策","GLOSSARY 与 ADR"],["04","形成可实施规格","Spec 与任务边界"]]},
+{id:"delivery",n:"02",title:"开发与交付",subtitle:"从明确的小改动到完整业务功能，选择恰当的工程控制力度。",ids:["quick","feature"],route:[["01","理解修改范围","读取项目知识与代码"],["02","选择执行粒度","直接实施或 Spec 驱动"],["03","实现与验证","TDD、集成测试与 Review"],["04","交付与同步","验收证据与知识更新"]]},
+{id:"quality",n:"03",title:"质量与演进",subtitle:"面对真实故障和持续增长的复杂度，用证据诊断并安全改进。",ids:["bug","refactor"],route:[["01","还原真实问题","症状、日志与复现"],["02","理解影响范围","CodeGraph 与源码核对"],["03","验证改进方案","回归测试与小步重构"],["04","确认结果","原始场景复测与复盘"]]}
+];
+const state={page:"home",id:"feature",mode:"task",step:0,branch:"main",tab:"mechanism",playing:false,speed:1,search:"",selectedNode:0,category:"needs",homeMode:"task",homeStep:0};
 const progress=JSON.parse(localStorage.getItem("ael-progress-v2")||"{}");
 let timer=null;
 const modeNames={task:"任务入口",mechanism:"机制演示",graph:"知识图谱"};
 function wf(){return W.find(x=>x.id===state.id)||W[0]}
 function steps(){return wf()[state.branch]||wf().main}
 function stop(){state.playing=false;if(timer)clearInterval(timer);timer=null}
-function go(page,id){stop();state.page=page;if(id)state.id=id;state.mode="task";state.step=0;state.branch="main";render();window.scrollTo(0,0)}
+function categoryFor(id){return categories.find(c=>c.ids.includes(id))?.id||"needs"}
+function go(page,id){stop();state.page=page;if(id){state.id=id;state.category=categoryFor(id)}state.mode="task";state.step=0;state.branch="main";render();window.scrollTo(0,0)}
 function nav(){
  $("#course-nav").innerHTML=W.map(w=>`<button class="course-nav ${state.page==="course"&&state.id===w.id?"active":""}" data-wf="${w.id}"><span class="nav-no">${w.n}</span><span>${esc(w.title)}</span><small>${esc(w.level)}</small></button>`).join("");
  document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===state.page));
@@ -18,11 +24,31 @@ function nav(){
 function header(){const w=wf();return `<header class="topbar"><a class="brand" href="#" data-page="home"><span class="brand-mark">AE</span><span><b>AI ENGINEERING LAB</b><small>AI 编程工程实践实验室</small></span></a><div class="top-center"><span class="top-kicker">${state.page==="course"?"正在学习":"学习入口"}</span><b>${state.page==="course"?esc(w.title):"从真实开发问题开始"}</b></div><div class="top-right"><label class="search"><span>⌕</span><input id="search" value="${esc(state.search)}" placeholder="搜索工作流、Skill、知识点…  /"></label><span class="progress-mini">${Object.values(progress).flat().length} / 18 已掌握</span><button class="icon-btn" id="theme" aria-label="切换主题">◐</button><a class="github" href="https://github.com/shuge-x/ai-engineering-lab" target="_blank" rel="noreferrer">GitHub ↗</a></div></header>`}
 function sidebar(){return `<aside class="sidebar"><div class="side-caption">学习目录 <span>06</span></div><button class="side-home ${state.page==="home"?"active":""}" data-page="home">⌂　任务入口首页</button><div class="side-caption section-caption">开发工作流 <span>WORKFLOWS</span></div><div id="course-nav"></div><div class="side-caption section-caption">工程专题</div><button class="side-link ${state.page==="knowledge"?"active":""}" data-page="knowledge">◇　项目知识与 CodeGraph</button><button class="side-link ${state.page==="verify"?"active":""}" data-page="verify">✓　测试、验证与验收</button><button class="side-link ${state.page==="skills"?"active":""}" data-page="skills">▤　Matt Skills 索引</button><div class="sidebar-principle"><b>工程原则</b><p>人掌握决策权<br>Agent 在授权范围内执行<br>证据决定是否完成</p></div></aside>`}
 function home(){
- const cards=W.map(w=>`<button class="task-card" data-wf="${w.id}"><div class="task-card-top"><span class="number">${w.n} / PATH</span><span class="mini-tag">${esc(w.level)}</span></div><h3>${esc(w.story)}</h3><p>${esc(w.summary)}</p><div class="card-bottom"><span>进入工作流</span><b>→</b></div></button>`).join("");
- return `<div class="home-workspace"><section class="home-intro"><div><div class="eyebrow">START WITH A REAL ENGINEERING TASK</div><h1>你现在要解决<br><em>什么开发问题？</em></h1><p>不从 Skill 清单开始。选择一个真实场景，沿着需求、设计、实现、验证与知识沉淀的路径学习。</p><div class="intro-meta"><span>● 六种工作流</span><span>● 主流程 + 错误分支</span><span>● 中文场景与可复制指令</span></div></div><div class="intro-diagram"><div class="diagram-row"><div class="diagram-node human"><b>Human</b><small>目标 · 决策 · 授权</small></div><span>→</span><div class="diagram-node agent"><b>Agent</b><small>分析 · 规划 · 执行</small></div></div><div class="diagram-layers"><span>Matt Skills</span><span>CodeGraph</span><span>Repository</span><span>Evidence</span></div><div class="diagram-foot">HUMAN-DIRECTED · AGENT-EXECUTED · EVIDENCE-VERIFIED</div></div></section>
- <div class="section-title"><div><h2>选择一个开发场景</h2><p>先看适用边界，再进入完整故事和机制演示。</p></div><span class="muted">01 — 06 / SIX PATHS</span></div><div class="task-grid">${cards}</div>
- <div class="section-title"><div><h2>两个核心工程问题</h2><p>这套实践体系要持续解决的真实痛点。</p></div></div><div class="topic-grid"><button class="topic-card" data-page="knowledge"><span class="topic-icon">◇</span><div><b>新会话如何快速理解项目？</b><p>Matt 保存业务意图和决策，CodeGraph 提供当前代码结构与调用关系。</p><span>项目知识 · 代码图谱 →</span></div></button><button class="topic-card" data-page="verify"><span class="topic-icon">✓</span><div><b>为什么测试通过，实际使用仍有问题？</b><p>区分自动化测试、规格符合性、端到端验证和人工验收。</p><span>验证体系 · 验收证据 →</span></div></button></div>
- <div class="principle-band"><div><b>人掌握决策权</b><small>目标、业务规则、重大架构和最终验收由人决定。</small></div><div><b>Agent 负责执行</b><small>在明确授权范围内组织 Skills、测试与审查。</small></div><div><b>证据决定完成</b><small>实际测试、Diff 和验收记录比“我完成了”更重要。</small></div></div></div>`}
+ const cat=categories.find(c=>c.id===state.category)||categories[0];
+ const cards=cat.ids.map(id=>W.find(w=>w.id===id)).filter(Boolean).map(w=>`<button class="task-card" data-wf="${w.id}"><div class="task-card-top"><span class="number">${w.n} / WORKFLOW</span><span class="mini-tag">${esc(w.level)}</span></div><h3>${esc(w.story)}</h3><p>${esc(w.summary)}</p><div class="card-bottom"><span>查看完整开发故事</span><b>→</b></div></button>`).join("");
+ const modeTabs=`<div class="home-modebar"><div class="mode-left"><button data-home-mode="task" class="${state.homeMode==="task"?"active":""}">⌂ 任务入口</button><button data-home-mode="mechanism" class="${state.homeMode==="mechanism"?"active":""}">⬡ 机制演示</button><button data-home-mode="graph" class="${state.homeMode==="graph"?"active":""}">♧ 知识图谱</button></div><span class="mode-hint">AI ENGINEERING LEARNING MODEL</span></div>`;
+ if(state.homeMode==="mechanism")return `<div class="home-shell">${modeTabs}${homeMechanism(cat)}</div>`;
+ if(state.homeMode==="graph")return `<div class="home-shell">${modeTabs}${homeGraph()}</div>`;
+ return `<div class="home-shell">${modeTabs}
+ <section class="home-hero"><div class="eyebrow">START WITH A REAL ENGINEERING TASK</div><h1>先解决一个工程问题，<br><em>再掌握背后的方法。</em></h1><p>不必从几十个 Skill 名称开始。选择你当前面对的开发场景，沿着一次真实工程任务，理解需求如何澄清、决策如何沉淀、代码如何实现，以及结果如何验证。</p><div class="hero-meta"><span>● 六种真实开发场景</span><span>● 正确流程与常见错误</span><span>● 可复制的操作指令</span></div></section>
+ <div class="category-heading"><div><span class="eyebrow">${cat.n} / 03 · LEARNING DOMAIN</span><h2>${esc(cat.title)}</h2><p>${esc(cat.subtitle)}</p></div><span class="category-count">${cat.ids.length} 条实践路径</span></div>
+ <div class="task-grid home-task-grid">${cards}</div>
+ <section class="learning-route"><div class="route-intro"><span class="eyebrow">SUGGESTED LEARNING ROUTE</span><h3>一条循序渐进的学习路径</h3><p>先建立必要上下文，再逐步完成当前领域的关键工程活动。</p></div><div class="route-cards">${cat.route.map(x=>`<div class="route-card"><span>${x[0]}</span><b>${esc(x[1])}</b><small>${esc(x[2])}</small></div>`).join("")}</div></section>
+ <section class="home-bottom"><div class="home-topic"><span class="topic-icon">◇</span><div><b>新会话如何快速理解项目？</b><p>业务意图由 Matt 的工程工件保存，代码结构由 CodeGraph 动态探索。</p><button data-page="knowledge">学习项目知识与 CodeGraph →</button></div></div><div class="home-topic"><span class="topic-icon">✓</span><div><b>为什么测试通过，实际使用仍有问题？</b><p>把自动化测试、规格审查和人工验收分开管理。</p><button data-page="verify">学习测试与验收闭环 →</button></div></div></section>
+ </div>`;
+}
+function homeMechanism(cat){
+ const phases=[["用户目标","人提出要解决的问题，说明期望结果和限制。"],["工作流选择","根据需求清晰度、影响范围和风险选择轻重合适的路径。"],["专业能力","在授权范围内调用 Grill、Spec、TDD、Code Review 等 Skills。"],["证据验证","用测试、Diff、运行结果和用户验收判断是否完成。"],["知识沉淀","更新 GLOSSARY、ADR、模块知识，让新会话能够接续。"]];
+ return `<section class="home-hero compact"><div class="eyebrow">HOW THE ENGINEERING SYSTEM WORKS</div><h1>不是一串命令，<br><em>而是一套有边界的协作机制。</em></h1><p>人决定目标与授权，Agent 在授权范围内组织执行，客观证据决定工作是否真正完成。</p></section><div class="mechanism-overview"><div class="overview-steps">${phases.map((p,i)=>`<button class="overview-step ${state.homeStep===i?"active":""}" data-home-step="${i}"><span>${String(i+1).padStart(2,"0")}</span><b>${p[0]}</b></button>`).join("")}</div><div class="overview-detail"><div class="overview-number">${String(state.homeStep+1).padStart(2,"0")}</div><div><span class="eyebrow">SYSTEM MECHANISM</span><h2>${phases[state.homeStep][0]}</h2><p>${phases[state.homeStep][1]}</p><div class="mechanism-guard">${state.homeStep===0?"人工决策：明确目标与真实业务意图。":state.homeStep===1?"人工控制：复杂度判断可以由 Agent 建议，但工作流授权由人掌握。":state.homeStep===2?"执行约束：遵守 Skill 调用权限和已批准的工作范围。":state.homeStep===3?"质量约束：没有真实执行证据，不得报告验证通过。":"知识闭环：重要变更验收后，对账并更新业务知识。 "}</div></div></div><div class="overview-footer"><span>当前领域：${esc(cat.title)}</span><button data-home-step="${Math.min(4,state.homeStep+1)}" ${state.homeStep===4?"disabled":""}>下一机制 →</button></div></div>`;
+}
+function homeGraph(){
+ const nodes=[["用户目标",65,55,"human"],["Grill / 设计",285,55,"skill"],["Spec",505,55,"artifact"],["Tickets",725,55,"artifact"],["Implement",725,205,"skill"],["测试与验收",505,205,"evidence"],["Code Review",285,205,"evidence"],["模块知识 / ADR",65,205,"artifact"]];
+ const links=[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,0]];
+ const lines=links.map(([a,b])=>`<line x1="${nodes[a][1]+75}" y1="${nodes[a][2]+27}" x2="${nodes[b][1]+75}" y2="${nodes[b][2]+27}" class="home-graph-link"/>`).join("");
+ const groups=nodes.map((n,i)=>`<g class="home-graph-node ${n[3]}" data-home-node="${i}" tabindex="0" role="button"><rect x="${n[1]}" y="${n[2]}" width="150" height="54" rx="7"/><text x="${n[1]+75}" y="${n[2]+32}" text-anchor="middle">${n[0]}</text></g>`).join("");
+ const descriptions=["人提出目标、业务意图和约束，并保留重要决策权。","通过 Grill 和领域建模澄清需求，识别未知和边界。","把已确认的需求、规则和验收条件固化为变更规格。","将规格拆成可独立实施和验证的任务。","Agent 在明确授权范围内修改代码和测试。","通过自动化测试、E2E 与人工验收验证结果。","独立检查工程标准、规格符合性和变更风险。","把已确认的业务规则和架构决策沉淀为长期知识。"];
+ return `<section class="home-hero compact"><div class="eyebrow">ENGINEERING KNOWLEDGE MAP</div><h1>让需求、实现与知识，<br><em>形成可以追踪的闭环。</em></h1><p>这是一张方法论关系图，展示工程工件和职责之间的概念关系，不代表具体项目的运行时调用图。</p></section><div class="home-graph-panel"><div class="graph-caption"><b>从用户意图到可验证交付</b><span>点击节点查看职责</span></div><div class="home-graph-scroll"><svg class="home-graph-svg" viewBox="0 0 940 300" role="img" aria-label="AI 工程知识关系图">${lines}${groups}</svg></div><div class="graph-detail"><b>${nodes[state.selectedNode][0]}</b><p>${descriptions[state.selectedNode]}</p></div><div class="graph-legend"><span>人类意图</span><span>Skill / 工作流</span><span>工程工件</span><span>验证证据</span></div></div>`;
+}
 function course(){
  const w=wf(), ss=steps(), s=ss[Math.min(state.step,ss.length-1)], done=(progress[w.id]||[]);
  const isFault=state.branch==="fault";
