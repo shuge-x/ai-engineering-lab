@@ -42,7 +42,7 @@ function goPage(page) {
 }
 function nav() {
   document.querySelectorAll("[data-category]").forEach((b)=>b.classList.toggle("active",state.page==="course"&&Number(b.dataset.category)===state.group));
-  document.querySelectorAll("[data-page]").forEach((b)=>b.classList.toggle("active",b.dataset.page===state.page));
+  document.querySelectorAll("[data-page]").forEach((b)=>b.classList.toggle("active",b.dataset.page==="home"?(state.page==="home"||state.page==="story"):b.dataset.page===state.page));
   $("#app-layout").classList.toggle("home-mode",state.page==="home"||state.page==="story");
 }
 function home() {
