@@ -186,7 +186,8 @@ function skillsPage(){return '<div class="topic-page"><div class="eyebrow">REFER
 function render() {
  nav();
  $("#main").innerHTML=state.page==="home"?home():state.page==="story"?storyPage():state.page==="course"?course():state.page==="knowledge"?topicPage("knowledge"):state.page==="verify"?topicPage("verify"):skillsPage();
- $("#page-status").textContent=state.page==="course"?current().title:state.page==="story"?(stories.find((x)=>x.id===state.story)?.story||"真实开发故事"):state.page==="home"?"任务入口 · 真实开发案例":state.page==="knowledge"?"项目知识与 CodeGraph":state.page==="verify"?"测试、验证与验收":"Matt Skills 索引";
+ const pageStatus=$("#page-status");
+ if(pageStatus)pageStatus.textContent=state.page==="course"?current().title:state.page==="story"?(stories.find((x)=>x.id===state.story)?.story||"真实开发故事"):state.page==="home"?"任务入口 · 真实开发案例":state.page==="knowledge"?"项目知识与 CodeGraph":state.page==="verify"?"测试、验证与验收":"Matt Skills 索引";
  $("#search").value=state.search;
  $("#progress-count").textContent=Object.keys(progress).length+" / "+lessons.length;
 }
