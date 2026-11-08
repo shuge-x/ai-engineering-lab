@@ -105,19 +105,19 @@ function taskCanvas(l,s,ss) {
 }
 function nodeKind(label) {
  const v=String(label||"").toLowerCase();
- if(/用户|user|客户端|client|pod|human|目标/.test(v))return "user";
- if(/grill|访谈|澄清|问题|需求/.test(v))return "conversation";
- if(/spec|文档|规则|adr|glossary|声明|记录/.test(v))return "document";
- if(/ticket|任务拆解|工单/.test(v))return "ticket";
+ if(/用户|user|客户端|client|pod|human|目标|用户结论/.test(v))return "user";
+ if(/grill|访谈|澄清|问题|业务表达/.test(v))return "conversation";
+ if(/spec|文档|规则|adr|glossary|声明|记录|资料|摘要|批准范围|批准规格|原始需求|已确认需求/.test(v))return "document";
+ if(/ticket|任务拆解|工单|任务图|frontier|切片/.test(v))return "ticket";
  if(/agent|implement|执行|runtime|工作流/.test(v))return "agent";
- if(/测试|验证|验收|review|审查|检查|证据/.test(v))return "verify";
- if(/code|代码|graph|调用|依赖|源码/.test(v))return "code";
+ if(/测试|验证|验收|review|审查|检查|证据|回归/.test(v))return "verify";
+ if(/code|代码|graph|调用|依赖|源码|原型/.test(v))return "code";
  if(/bug|故障|错误|诊断|风险/.test(v))return "bug";
  if(/数据库|sql|migration|data|存储|repository/.test(v))return "database";
- if(/知识|knowledge|上下文|会话|handoff|索引/.test(v))return "knowledge";
+ if(/知识|knowledge|上下文|会话|handoff|索引|项目知识/.test(v))return "knowledge";
  if(/架构|模块|architecture|接口|边界/.test(v))return "architecture";
  if(/发布|部署|交付|delivery|package/.test(v))return "delivery";
- if(/决策|选择|判断|复杂度|方案/.test(v))return "decision";
+ if(/决策|选择|判断|复杂度|方案|目的地|批准决策|变更批准|改进建议/.test(v))return "decision";
  return "system";
 }
 function objectGlyph(kind) {
