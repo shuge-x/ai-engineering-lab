@@ -239,8 +239,9 @@ function render() {
  $("#search").value=state.search;
  $("#progress-count").textContent=Object.keys(progress).length+" / "+(lessons.length+playbooks.length);
 }
+function activeStages(){return state.page==="playbook"?practiceSteps():stages();}
 function changeStep(n) {
- state.step=Math.max(0,Math.min(stages().length-1,n));
+ state.step=Math.max(0,Math.min(activeStages().length-1,n));
  state.flowPulse=true;
  render();
 }
