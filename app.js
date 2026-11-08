@@ -62,6 +62,8 @@ function render(){nav();$("#main").innerHTML=state.page==="home"?home():state.pa
 function changeStep(n){const max=steps().length-1;state.step=Math.max(0,Math.min(max,n));render()}
 function play(){if(state.playing){stop();render();return}if(state.step>=steps().length-1)state.step=0;state.playing=true;render();timer=setInterval(()=>{if(state.step>=steps().length-1){stop();render();return}state.step++;render()},2400/state.speed)}
 document.addEventListener("click",e=>{
+ const svgStep=e.target.closest("g[data-step]");if(svgStep){stop();changeStep(Number(svgStep.dataset.step));return;}
+ const graphNode=e.target.closest("g[data-node]");if(graphNode){state.selectedNode=Number(graphNode.dataset.node);render();return;}
  const b=e.target.closest("button,a");if(!b)return;
  if(b.dataset.wf){stop();go("course",b.dataset.wf);return}
  if(b.dataset.page){e.preventDefault();go(b.dataset.page);return}
