@@ -39,7 +39,7 @@ const { chromium } = require("playwright");
     await page.locator('[data-practice-tab="command"]').click();
     await page.locator("[data-copy-practice-prompt]").click();
     const copied = await page.evaluate(() => navigator.clipboard.readText());
-    if (!copied.includes("Feature Spec")) throw new Error("Practice prompt copy did not copy the current step prompt");
+    if (!copied.toLowerCase().includes("tracer-bullet tickets")) throw new Error("Practice prompt copy did not copy the current step prompt");
 
     await page.locator('[data-page="playbooks"]').first().click();
     await page.getByRole("heading", { name: "把工程知识" }).waitFor();
