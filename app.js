@@ -24,8 +24,6 @@ function nav() {
   document.querySelectorAll("[data-category]").forEach((b)=>b.classList.toggle("active",Number(b.dataset.category)===state.group));
   document.querySelectorAll("[data-page]").forEach((b)=>b.classList.toggle("active",b.dataset.page===state.page));
   $("#app-layout").classList.toggle("home-mode",state.page==="home");
-  const list=currentGroupLessons();
-  $("#course-nav").innerHTML=list.map((l)=>'<button class="course-nav '+(state.page==="course"&&l.id===state.lesson?"active":"")+'" data-lesson="'+l.id+'"><span class="nav-no">'+String(lessons.indexOf(l)+1).padStart(2,"0")+'</span><span>'+esc(l.title)+'</span><small>'+esc(l.en)+'</small></button>').join("");
 }
 function home() {
   const g=groups[state.group];
