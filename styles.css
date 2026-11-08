@@ -875,3 +875,18 @@ html,body{font-family:Inter,"Noto Sans SC","PingFang SC","Microsoft YaHei",Arial
  #app-layout:not(.home-mode) .mechanism-object .object-label{font-size:12px}
  #app-layout:not(.home-mode) .mechanism-object .object-type{font-size:8px}
 }
+
+/* Playback is event-driven: animate one active edge, then advance the lesson
+   only after that edge reports animationend. */
+.mechanism-edge-group.active .mechanism-link{
+  animation:none;
+}
+.mechanism-view.flow-pulse .mechanism-edge-group.active .mechanism-link{
+  animation:mechanism-flow var(--flow-duration,2.25s) linear 1 forwards;
+}
+@media(prefers-reduced-motion:reduce){
+  .mechanism-view.flow-pulse .mechanism-edge-group.active .mechanism-link{
+    animation-duration:.12s;
+  }
+  .mechanism-packet{display:none}
+}
