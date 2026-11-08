@@ -535,3 +535,117 @@ html,body{font-family:Inter,"Noto Sans SC","PingFang SC","Microsoft YaHei",Arial
  #app-layout:not(.home-mode) .scene-switch{padding:0 10px 8px;flex-wrap:wrap}
  .stage-path-item b{display:none}
 }
+
+/* Remove decorative textures: keep the lesson canvas quiet and content-first. */
+#app-layout:not(.home-mode) .lesson-canvas-head{
+  background-color:var(--panel);
+  background-image:none;
+}
+#app-layout:not(.home-mode) .mechanism-diagram-wrap{
+  background-color:var(--panel);
+  background-image:none;
+}
+/* Improve reading comfort in both side columns. */
+#app-layout:not(.home-mode) .workbench{
+  grid-template-columns:280px minmax(480px,1fr) 410px;
+}
+#app-layout:not(.home-mode) .directory-domain{
+  padding:12px 14px;
+}
+#app-layout:not(.home-mode) .directory-domain span{
+  font-size:13px;
+}
+#app-layout:not(.home-mode) .directory-domain small{
+  font-size:11px;
+}
+#app-layout:not(.home-mode) .directory-list{
+  padding:9px 11px;
+}
+#app-layout:not(.home-mode) .directory-topic-button{
+  grid-template-columns:31px minmax(0,1fr) 16px;
+  gap:8px;
+  padding:9px 5px;
+}
+#app-layout:not(.home-mode) .directory-topic-number{
+  width:25px;
+  height:25px;
+  font-size:12px;
+}
+#app-layout:not(.home-mode) .directory-topic-title{
+  font-size:13px;
+  line-height:1.6;
+  font-weight:600;
+}
+#app-layout:not(.home-mode) .lesson-substeps{
+  padding-left:36px;
+  gap:3px;
+}
+#app-layout:not(.home-mode) .lesson-substep{
+  font-size:12px;
+  line-height:1.55;
+  padding:6px 7px;
+  gap:9px;
+}
+#app-layout:not(.home-mode) .lesson-substep span{
+  width:19px;
+  height:19px;
+  font-size:10px;
+}
+#app-layout:not(.home-mode) .directory-foot{
+  font-size:10px;
+  padding:10px 13px;
+}
+#app-layout:not(.home-mode) .left-panel .panel-heading,
+#app-layout:not(.home-mode) .right-panel .panel-heading{
+  height:48px;
+}
+#app-layout:not(.home-mode) .left-panel .panel-heading b,
+#app-layout:not(.home-mode) .right-panel .panel-heading b{
+  font-size:14px;
+}
+#app-layout:not(.home-mode) .right-tabs button{
+  font-size:13px;
+  padding:12px 5px;
+}
+#app-layout:not(.home-mode) .right-content{
+  padding:18px 18px 22px;
+}
+#app-layout:not(.home-mode) .detail-kicker{
+  font-size:10px;
+}
+#app-layout:not(.home-mode) .detail-block h3{
+  font-size:17px;
+  line-height:1.55;
+}
+#app-layout:not(.home-mode) .detail-block p,
+#app-layout:not(.home-mode) .detail-block li{
+  font-size:13px;
+  line-height:1.9;
+}
+#app-layout:not(.home-mode) .detail-section b{
+  font-size:13px;
+}
+#app-layout:not(.home-mode) .detail-section p{
+  font-size:13px;
+  line-height:1.9;
+}
+#app-layout:not(.home-mode) .callout{
+  font-size:12px;
+  line-height:1.8;
+}
+#app-layout:not(.home-mode) .prompt{
+  font-size:12px;
+  line-height:1.9;
+}
+@media(max-width:1250px){
+ #app-layout:not(.home-mode) .workbench{
+  grid-template-columns:250px minmax(380px,1fr) 350px;
+ }
+}
+@media(max-width:980px){
+ #app-layout:not(.home-mode) .workbench{
+  grid-template-columns:230px minmax(0,1fr);
+ }
+ #app-layout:not(.home-mode) .directory-topic-title{font-size:12px}
+ #app-layout:not(.home-mode) .lesson-substep{font-size:11px}
+}
