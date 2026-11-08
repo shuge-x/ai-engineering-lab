@@ -15,18 +15,14 @@ const storyLessons = {
  bug:["bug","codegraph","test-strategy","spec-compliance"],
  refactor:["refactor","codegraph","tdd","architecture"]
 };
-const state = {page:"home", group:0, lesson:lessons[0].id, story:"quick", mode:"task", step:0, branch:"main", tab:"mechanism", playing:false, speed:1, search:""};
+const state = {page:"home", group:0, lesson:lessons[0].id, story:"quick", mode:"task", step:0, branch:"main", tab:"mechanism", playing:false, speed:1, flowPulse:false, search:""};
 const progress = JSON.parse(localStorage.getItem("ael-progress-v3") || "{}");
-let timer = null;
-let playbackRun = 0;
 const current = () => lessons.find((l) => l.id === state.lesson) || lessons[0];
 const currentGroupLessons = () => lessons.filter((l) => l.group === state.group);
 const stages = () => state.branch === "main" ? current().main : current().fault.steps;
 const stop = () => {
   state.playing=false;
-  playbackRun++;
-  if (timer) clearTimeout(timer);
-  timer=null;
+  state.flowPulse=false;
 };
 function goLesson(id) {
   stop();
@@ -159,7 +155,7 @@ function mechanism(l,ss,s,nodes) {
    const cls=completed?"completed":active?"active":"future";
    const label=ss[i]?.event||ss[i]?.title||"";
    const edgeLabel=i===0?'<text class="mechanism-edge-label" x="400" y="77" text-anchor="middle">'+esc(label)+'</text>':i===1?'<text class="mechanism-edge-label" x="616" y="190" text-anchor="start">'+esc(label.length>13?label.slice(0,12)+"…":label)+'</text>':'<text class="mechanism-edge-label" x="400" y="266" text-anchor="middle">'+esc(label)+'</text>';
-   const packets=active?'<circle class="mechanism-packet" r="5"><animateMotion dur="2.15s" repeatCount="1" fill="freeze" path="'+d+'"/></circle><circle class="mechanism-packet secondary" r="3.2"><animateMotion begin="0.22s" dur="1.65s" repeatCount="indefinite" path="'+d+'"/></circle>':"";
+   const packets=active&&state.flowPulse?'<circle class="mechanism-packet" r="5"><animateMotion dur="2.15s" repeatCount="1" fill="freeze" path="'+d+'"/></circle><circle class="mechanism-packet secondary" r="3.2"><animateMotion begin="0.22s" dur="1.65s" repeatCount="indefinite" path="'+d+'"/></circle>':"";
    return '<g class="mechanism-edge-group '+cls+'"><path class="mechanism-link '+cls+'" d="'+d+'" marker-end="url(#mechanism-arrow)"/>'+edgeLabel+packets+'</g>';
  }).join("");
  const marks=labels.map((label,i)=>{
@@ -169,7 +165,7 @@ function mechanism(l,ss,s,nodes) {
    return '<g class="mechanism-object '+cls+' kind-'+kind+'" data-step="'+i+'" tabindex="0" role="button" aria-label="'+esc(label)+'"><ellipse class="object-shadow" cx="'+p.x+'" cy="'+(p.y+47)+'" rx="57" ry="10"/><polygon class="object-side-left" points="'+(p.x-52)+','+(p.y-2)+' '+p.x+','+(p.y+24)+' '+p.x+','+(p.y+53)+' '+(p.x-52)+','+(p.y+26)+'"/><polygon class="object-side-right" points="'+(p.x+52)+','+(p.y-2)+' '+p.x+','+(p.y+24)+' '+p.x+','+(p.y+53)+' '+(p.x+52)+','+(p.y+26)+'"/><polygon class="object-top" points="'+p.x+','+(p.y-30)+' '+(p.x+52)+','+(p.y-2)+' '+p.x+','+(p.y+24)+' '+(p.x-52)+','+(p.y-2)+'"/><g class="object-icon" style="color:'+glyphColor+'" transform="translate('+p.x+' '+(p.y-3)+')">'+objectGlyph(kind)+'</g><text class="object-index" x="'+(p.x-58)+'" y="'+(p.y-37)+'">'+String(i+1).padStart(2,"0")+'</text><text class="object-label" x="'+p.x+'" y="'+(p.y+76)+'" text-anchor="middle">'+esc(label)+'</text><text class="object-type" x="'+p.x+'" y="'+(p.y+91)+'" text-anchor="middle">'+kind.toUpperCase()+'</text></g>';
  }).join("");
  const progress=state.step===ss.length-1?"当前主题的最后一个阶段":"当前节点正在处理，信息将沿连线流向下一节点";
- return '<div class="mechanism-view"><div class="mechanism-meta"><span>机制对象 · 信息 / 控制流</span><span>当前阶段：'+String(state.step+1).padStart(2,"0")+' / '+String(ss.length).padStart(2,"0")+'</span></div><div class="mechanism-diagram-wrap"><svg class="mechanism-diagram" viewBox="0 0 800 390" role="img" aria-label="'+esc(l.title)+'机制流转图"><defs><marker id="mechanism-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="var(--blue)"/></marker></defs>'+lines+marks+'</svg></div><div class="active-stage"><div class="active-stage-no">'+String(state.step+1).padStart(2,"0")+'</div><div><span class="task-kicker">'+esc(s.actor)+'</span><h2>'+esc(s.title)+'</h2><p>'+esc(s.detail)+'</p></div></div><div class="artifact-row"><div><small>阶段产物</small><b>'+esc(s.artifact)+'</b></div><div><small>交接要求</small><b>'+esc(s.handoff)+'</b></div></div><div class="mechanism-bottom"><span>'+progress+'；节点图表达本主题的教学机制，不等同于真实代码调用图。</span><button class="secondary" data-mode="graph">查看关联主题 →</button></div></div>';
+ return '<div class="mechanism-view '+(state.flowPulse?"flow-pulse":"")+'" style="--flow-duration:'+(2.25/state.speed)+'s"><div class="mechanism-meta"><span>机制对象 · 信息 / 控制流</span><span>当前阶段：'+String(state.step+1).padStart(2,"0")+' / '+String(ss.length).padStart(2,"0")+'</span></div><div class="mechanism-diagram-wrap"><svg class="mechanism-diagram" viewBox="0 0 800 390" role="img" aria-label="'+esc(l.title)+'机制流转图"><defs><marker id="mechanism-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="var(--blue)"/></marker></defs>'+lines+marks+'</svg></div><div class="active-stage"><div class="active-stage-no">'+String(state.step+1).padStart(2,"0")+'</div><div><span class="task-kicker">'+esc(s.actor)+'</span><h2>'+esc(s.title)+'</h2><p>'+esc(s.detail)+'</p></div></div><div class="artifact-row"><div><small>阶段产物</small><b>'+esc(s.artifact)+'</b></div><div><small>交接要求</small><b>'+esc(s.handoff)+'</b></div></div><div class="mechanism-bottom"><span>'+progress+'；节点图表达本主题的教学机制，不等同于真实代码调用图。</span><button class="secondary" data-mode="graph">查看关联主题 →</button></div></div>';
 }
 function graph(l,related) {
  const nodes=[{title:l.title,x:340,y:118,id:null},...related.slice(0,6).map((x,i)=>({title:x.title,id:x.id,x:[55,340,625,55,340,625][i],y:[25,25,25,220,220,220][i]}))];
@@ -194,30 +190,33 @@ function render() {
  $("#search").value=state.search;
  $("#progress-count").textContent=Object.keys(progress).length+" / "+lessons.length;
 }
-function changeStep(n) { state.step=Math.max(0,Math.min(stages().length-1,n)); render(); }
-function schedulePlayback(run) {
- if(run!==playbackRun || !state.playing) return;
- const delay=Math.max(1900,2600/state.speed);
- timer=setTimeout(()=>{
-   if(run!==playbackRun || !state.playing) return;
-   if(state.step>=stages().length-1){
-     stop();
-     render();
-     return;
-   }
-   state.step+=1;
-   render();
-   schedulePlayback(run);
- },delay);
+function changeStep(n) {
+ state.step=Math.max(0,Math.min(stages().length-1,n));
+ state.flowPulse=true;
+ render();
 }
 function play() {
  if(state.playing){stop();render();return;}
  if(state.step>=stages().length-1)state.step=0;
  state.playing=true;
- const run=++playbackRun;
+ state.flowPulse=true;
  render();
- schedulePlayback(run);
 }
+document.addEventListener("animationend",(e)=>{
+ if(e.animationName!=="mechanism-flow")return;
+ const edge=e.target.closest?.(".mechanism-edge-group.active");
+ if(!edge || !state.flowPulse)return;
+ state.flowPulse=false;
+ if(state.playing){
+   if(state.step<stages().length-1)state.step+=1;
+   if(state.step>=stages().length-1){
+     state.playing=false;
+   }else{
+     state.flowPulse=true;
+   }
+   render();
+ }
+});
 
 document.addEventListener("click",(e)=>{
  const b=e.target.closest("button,a"); if(!b)return;
@@ -238,7 +237,7 @@ document.addEventListener("click",(e)=>{
  if(b.hasAttribute("data-mark")){progress[state.lesson]=true;localStorage.setItem("ael-progress-v3",JSON.stringify(progress));render();return;}
  if(b.hasAttribute("data-copy")){navigator.clipboard?.writeText(stages()[state.step].prompt).then(()=>{b.textContent="已复制 ✓";}).catch(()=>{b.textContent="复制失败";});return;}
 });
-document.addEventListener("change",(e)=>{if(e.target.id==="speed"){state.speed=Number(e.target.value);if(state.playing){stop();play();}}});
+document.addEventListener("change",(e)=>{if(e.target.id==="speed"){state.speed=Number(e.target.value);if(state.playing){state.flowPulse=true;render();}}});
 $("#theme").addEventListener("click",()=>{const t=document.documentElement.dataset.theme==="dark"?"light":"dark";document.documentElement.dataset.theme=t;localStorage.setItem("ael-theme",t);});
 $("#search").addEventListener("input",(e)=>{state.search=e.target.value;const q=state.search.trim().toLowerCase();if(!q)return;const match=lessons.find((l)=>(l.title+" "+l.summary+" "+l.principle+" "+l.prompt+" "+l.en).toLowerCase().includes(q));if(match)goLesson(match.id);});
 document.addEventListener("keydown",(e)=>{if(e.key==="/"&&!["INPUT","TEXTAREA"].includes(document.activeElement.tagName)){e.preventDefault();$("#search").focus();}if(e.key==="Escape"&&document.activeElement===$("#search"))$("#search").blur();});
