@@ -5,7 +5,17 @@ const $ = (s) => document.querySelector(s);
 const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const groups = CUR.groups;
 const lessons = CUR.lessons;
-const state = {page:"home", group:0, lesson:lessons[0].id, mode:"task", step:0, branch:"main", tab:"mechanism", playing:false, speed:1, search:""};
+const stories = (window.LAB_DATA && window.LAB_DATA.workflows) || [];
+const storyDomain = {quick:1,discovery:0,feature:1,architecture:0,bug:2,refactor:2};
+const storyLessons = {
+ quick:["task-routing","tdd","review"],
+ discovery:["grill","domain","adr"],
+ feature:["spec","tickets","tdd","review","delivery"],
+ architecture:["wayfinder","research","architecture","adr","multi-agent"],
+ bug:["bug","codegraph","test-strategy","spec-compliance"],
+ refactor:["refactor","codegraph","tdd","architecture"]
+};
+const state = {page:"home", group:0, lesson:lessons[0].id, story:"quick", mode:"task", step:0, branch:"main", tab:"mechanism", playing:false, speed:1, search:""};
 const progress = JSON.parse(localStorage.getItem("ael-progress-v3") || "{}");
 let timer = null;
 const current = () => lessons.find((l) => l.id === state.lesson) || lessons[0];
@@ -19,19 +29,47 @@ function goLesson(id) {
   state.lesson=id; state.group=lesson.group; state.page="course"; state.mode="mechanism"; state.step=0; state.branch="main"; state.tab="mechanism";
   render(); window.scrollTo(0,0);
 }
-function goPage(page) { stop(); state.page=page; render(); window.scrollTo(0,0); }
+function goStory(id) {
+  stop();
+  if(!stories.some((x)=>x.id===id)) return;
+  state.story=id; state.page="story"; state.mode="task"; state.step=0; state.branch="main";
+  render(); window.scrollTo(0,0);
+}
+function goPage(page) {
+  stop(); state.page=page;
+  if(page==="home"){state.mode="task";state.step=0;}
+  render(); window.scrollTo(0,0);
+}
 function nav() {
-  document.querySelectorAll("[data-category]").forEach((b)=>b.classList.toggle("active",Number(b.dataset.category)===state.group));
+  document.querySelectorAll("[data-category]").forEach((b)=>b.classList.toggle("active",state.page==="course"&&Number(b.dataset.category)===state.group));
   document.querySelectorAll("[data-page]").forEach((b)=>b.classList.toggle("active",b.dataset.page===state.page));
-  $("#app-layout").classList.toggle("home-mode",state.page==="home");
+  $("#app-layout").classList.toggle("home-mode",state.page==="home"||state.page==="story");
 }
 function home() {
-  const g=groups[state.group];
-  const cards=currentGroupLessons().map((l)=>'<button class="task-card" data-lesson="'+l.id+'"><div class="task-card-top"><span class="number">'+String(lessons.indexOf(l)+1).padStart(2,"0")+' / TOPIC</span><span class="mini-tag">'+esc(l.en)+'</span></div><h3>'+esc(l.title)+'</h3><p>'+esc(l.summary)+'</p><div class="card-bottom"><span>进入知识主题</span><b>→</b></div></button>').join("");
-  const tabs='<div class="home-modebar"><div class="mode-left"><button data-home-mode="task" class="'+(state.mode==="task"?"active":"")+'">⌂ 任务入口</button><button data-home-mode="mechanism" class="'+(state.mode==="mechanism"?"active":"")+'">⬡ 机制演示</button><button data-home-mode="graph" class="'+(state.mode==="graph"?"active":"")+'">♧ 知识图谱</button></div><span class="mode-hint">AI ENGINEERING LEARNING MODEL</span></div>';
-  if(state.mode==="mechanism") return tabs+homeMechanism();
-  if(state.mode==="graph") return tabs+homeGraph();
-  return '<div class="home-shell">'+tabs+'<section class="home-hero"><div class="eyebrow">START WITH A REAL ENGINEERING TASK</div><h1>先解决一个工程问题，<br><em>再掌握背后的方法。</em></h1><p>从真实开发问题出发，选择合适的知识主题。理解需求如何澄清、决策如何沉淀、代码如何实现，以及结果如何验证。</p><div class="hero-meta"><span>● 三大学习领域</span><span>● '+lessons.length+' 个知识主题</span><span>● 任务、机制与知识图谱三种视角</span></div></section><div class="category-heading"><div><span class="eyebrow">0'+(state.group+1)+' / 03 · LEARNING DOMAIN</span><h2>'+esc(g.title)+'</h2><p>'+esc(g.intro)+'</p></div><span class="category-count">'+currentGroupLessons().length+' 个知识主题</span></div><div class="task-grid home-task-grid">'+cards+'</div><section class="learning-route"><div class="route-intro"><span class="eyebrow">SUGGESTED LEARNING ROUTE</span><h3>本领域的学习路径</h3><p>从基础概念到真实开发应用，逐步建立工程认知。</p></div><div class="route-cards">'+currentGroupLessons().slice(0,4).map((l,i)=>'<div class="route-card"><span>0'+(i+1)+'</span><b>'+esc(l.title)+'</b><small>'+esc(l.summary)+'</small></div>').join("")+'</div></section><section class="home-bottom"><div class="home-topic"><span class="topic-icon">◇</span><div><b>新会话如何快速理解项目？</b><p>业务意图由 Matt 的工程工件保存，代码结构由 CodeGraph 动态探索。</p><button data-page="knowledge">学习项目知识与 CodeGraph →</button></div></div><div class="home-topic"><span class="topic-icon">✓</span><div><b>为什么测试通过，实际使用仍有问题？</b><p>把自动化测试、规格审查和人工验收分开管理。</p><button data-page="verify">学习测试与验收闭环 →</button></div></div></section></div>';
+ const storyCards=stories.map((w)=>{
+   const group=groups[storyDomain[w.id]??1];
+   return '<button class="task-card story-card" data-story="'+w.id+'"><div class="task-card-top"><span class="number">'+w.n+' / REAL CASE</span><span class="mini-tag">'+esc(w.level)+'</span></div><h3>'+esc(w.story)+'</h3><p>'+esc(w.bg)+'</p><div class="story-card-meta"><span>'+esc(group.title)+'</span><span>'+w.main.length+' 个阶段</span></div><div class="card-bottom"><span>进入完整开发故事</span><b>→</b></div></button>';
+ }).join("");
+ const tabs='<div class="home-modebar"><div class="mode-left"><button data-home-mode="task" class="'+(state.mode==="task"?"active":"")+'">⌂ 任务入口</button><button data-home-mode="mechanism" class="'+(state.mode==="mechanism"?"active":"")+'">⬡ 机制演示</button><button data-home-mode="graph" class="'+(state.mode==="graph"?"active":"")+'">♧ 知识图谱</button></div><span class="mode-hint">AI ENGINEERING LEARNING MODEL</span></div>';
+ if(state.mode==="mechanism") return '<div class="home-shell">'+tabs+homeMechanism()+'</div>';
+ if(state.mode==="graph") return '<div class="home-shell">'+tabs+homeGraph()+'</div>';
+ const domainCards=groups.map((g,i)=>'<button class="domain-card" data-category="'+i+'"><span class="domain-number">0'+(i+1)+'</span><div><b>'+esc(g.title)+'</b><p>'+esc(g.intro)+'</p><small>'+lessons.filter((l)=>l.group===i).length+' 个知识主题 · 进入课程体系 →</small></div></button>').join("");
+ return '<div class="home-shell">'+tabs+
+ '<section class="home-hero"><div class="eyebrow">START WITH A REAL ENGINEERING TASK</div><h1>先从一个真实开发问题开始，<br><em>再掌握背后的工程方法。</em></h1><p>像真实项目一样学习：选择一个你正在面对的场景，沿着开发故事看清需求、决策、实施与验证。需要系统掌握方法时，再进入对应的知识课程。</p><div class="hero-meta"><span>● 6 个真实开发案例</span><span>● 完整主流程与常见错误</span><span>● 可关联到 22 个知识主题</span></div></section>'+
+ '<div class="category-heading story-section-heading"><div><span class="eyebrow">CHOOSE A REAL-WORLD SCENARIO</span><h2>你现在想解决什么问题？</h2><p>从任务目标进入，不必先理解所有 Skill 名称。</p></div><span class="category-count">'+stories.length+' 个实践故事</span></div>'+
+ '<div class="task-grid home-task-grid story-grid">'+storyCards+'</div>'+
+ '<section class="learning-route"><div class="route-intro"><span class="eyebrow">A PRACTICAL ENGINEERING JOURNEY</span><h3>一次开发任务的典型旅程</h3><p>不同任务不一定走完所有步骤；根据不确定性和风险选择最小充分流程。</p></div><div class="route-cards"><div class="route-card"><span>01</span><b>理解问题</b><small>恢复项目上下文，澄清真实目标</small></div><div class="route-card"><span>02</span><b>形成规格</b><small>记录业务规则、边界与验收条件</small></div><div class="route-card"><span>03</span><b>实施验证</b><small>拆分任务，TDD 与独立审查</small></div><div class="route-card"><span>04</span><b>交付沉淀</b><small>人工验收，更新项目知识</small></div></div></section>'+
+ '<section class="knowledge-entry"><div class="knowledge-entry-heading"><div><span class="eyebrow">SYSTEMATIC KNOWLEDGE CURRICULUM</span><h2>想系统学习某个工程方法？</h2><p>这里是独立的知识课程体系。每个领域包含可逐步深入的知识主题，与上面的真实开发故事相互关联。</p></div><span class="category-count">'+lessons.length+' 个知识主题</span></div><div class="domain-grid">'+domainCards+'</div></section>'+
+ '</div>';
+}
+function storyPage() {
+ const w=stories.find((x)=>x.id===state.story)||stories[0];
+ const group=groups[storyDomain[w.id]??1];
+ const related=(storyLessons[w.id]||[]).map((id)=>lessons.find((l)=>l.id===id)).filter(Boolean);
+ const stages=w.main.map((x,i)=>'<article class="story-stage"><div class="story-stage-number">'+String(i+1).padStart(2,"0")+'</div><div class="story-stage-body"><div class="story-stage-head"><h3>'+esc(x[0])+'</h3><span>'+esc(x[1])+'</span></div><p>'+esc(x[2])+'</p><div class="story-stage-artifacts"><div><small>阶段产物</small><b>'+esc(x[3])+'</b></div><div><small>交接提示</small><b>'+esc(x[4])+'</b></div></div><details><summary>查看可复制操作指令</summary><pre>'+esc(x[5]||"")+'</pre></details></div></article>').join("");
+ const faults=w.fault.map((x)=>'<article class="story-fault"><b>'+esc(x[0])+'</b><p>'+esc(x[1])+'</p><div>'+esc(x[2])+'</div></article>').join("");
+ const linked=related.map((l)=>'<button class="related-lesson" data-lesson="'+l.id+'"><span>'+String(lessons.indexOf(l)+1).padStart(2,"0")+'</span><b>'+esc(l.title)+'</b><small>进入知识课程 →</small></button>').join("");
+ return '<div class="story-page"><div class="story-backline"><button data-page="home">← 返回任务入口</button><span>真实开发故事 / '+esc(group.title)+'</span></div><section class="story-hero"><div><div class="eyebrow">REAL-WORLD ENGINEERING STORY · '+esc(w.level)+'</div><h1>'+esc(w.story)+'</h1><p>'+esc(w.bg)+'</p></div><div class="story-hero-side"><small>实践工作流</small><b>'+esc(w.title)+'</b><small>主要使用能力</small><b>'+esc(w.skills)+'</b></div></section><div class="story-summary-grid"><div><small>适用场景</small><p>'+esc(w.when)+'</p></div><div><small>预期产物</small><p>'+esc(w.out)+'</p></div><div><small>流程边界</small><p>'+esc(w.gate)+'</p></div></div><div class="story-content-grid"><section class="story-main"><div class="story-section-title"><div><span class="eyebrow">MAIN JOURNEY</span><h2>完整开发故事</h2></div><span>'+w.main.length+' 个阶段</span></div><div class="story-stages">'+stages+'</div><div class="story-section-title fault-title"><div><span class="eyebrow">WHAT CAN GO WRONG</span><h2>常见错误与纠正</h2></div><span>'+w.fault.length+' 个案例</span></div><div class="story-fault-grid">'+faults+'</div></section><aside class="story-related"><div class="story-section-title"><div><span class="eyebrow">KNOWLEDGE CONNECTIONS</span><h2>关联知识课程</h2></div></div><p>实践故事告诉你一次任务如何推进；以下课程帮助你单独掌握其中的方法。</p><div class="related-list">'+linked+'</div><button class="back-to-tasks" data-page="home">选择其他实践故事 →</button></aside></div></div>';
 }
 function homeMechanism() {
  const names=["用户目标","工作流选择","专业能力","证据验证","知识沉淀"];
