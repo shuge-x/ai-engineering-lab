@@ -18,10 +18,13 @@ jobs:
       - uses: actions/configure-pages@v5
         with:
           enablement: true
-      - name: Validate static site
+      - name: Validate application scripts and course model
         run: |
-          node -e "const fs=require('fs');const h=fs.readFileSync('index.html','utf8');const m=[...h.matchAll(/<script>([\\s\\S]*?)<\\/script>/g)];if(!m.length)throw Error('No inline script found');for(const x of m)new Function(x[1]);"
+          node --check app.js
+          node --check data.js
+          node -e "const fs=require('fs');global.window=global;require('./data.js');if(!LAB_DATA||LAB_DATA.workflows.length!==6)throw Error('Expected six workflows');for(const w of LAB_DATA.workflows){if(!w.main.length||!w.fault.length)throw Error('Incomplete workflow: '+w.id);for(const s of [...w.main,...w.fault])if(s.length<5)throw Error('Incomplete learning stage: '+w.id)}console.log('Validated '+LAB_DATA.workflows.length+' workflows')"
           test -s index.html
+          test -s styles.css
       - name: Upload static site
         uses: actions/upload-pages-artifact@v3
         with:
