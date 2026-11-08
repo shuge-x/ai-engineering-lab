@@ -8,7 +8,7 @@ const { chromium } = require("playwright");
 
   try {
     await page.goto("http://127.0.0.1:4173", { waitUntil: "networkidle" });
-    await page.locator('[data-category="1"]').click();
+    await page.locator('.top-categories [data-category="1"]').click();
 
     const expected = await page.evaluate(() => {
       const lesson = window.LAB_CURRICULUM.lessons.find((item) => item.id === "task-routing");
