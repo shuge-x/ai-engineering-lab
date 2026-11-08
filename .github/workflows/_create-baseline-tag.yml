@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   create-tag:
-    if: github.event.head_commit.message == 'ci: create v0.1.0 baseline tag'
+    if: "github.event.head_commit.message == 'ci: run v0.1.0 baseline tag creation'"
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
