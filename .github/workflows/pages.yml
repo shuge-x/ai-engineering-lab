@@ -16,9 +16,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - name: Validate static site
         run: |
-          node --check <(sed -n '/<script>/,/<\/script>/p' index.html | sed '1d;$d')
+          node -e "const fs=require('fs');const h=fs.readFileSync('index.html','utf8');const m=[...h.matchAll(/<script>([\\s\\S]*?)<\\/script>/g)];if(!m.length)throw Error('No inline script found');for(const x of m)new Function(x[1]);"
           test -s index.html
       - name: Upload static site
         uses: actions/upload-pages-artifact@v3
