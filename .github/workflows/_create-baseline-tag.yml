@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   create-tag:
-    if: "github.event.head_commit.message == 'ci: run v0.1.0 baseline tag creation'"
+    if: "github.event.head_commit.message == 'ci: configure tag author for v0.1.0'"
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -21,6 +21,8 @@ jobs:
         env:
           TAG_TARGET: 7c1804501ccb7168d578e82ea05afc0954694fed
         run: |
+          git config user.name "shuge"
+          git config user.email "shuge2026@gmail.com"
           if git show-ref --verify --quiet refs/tags/v0.1.0; then
             echo "Tag v0.1.0 already exists"
             exit 1
