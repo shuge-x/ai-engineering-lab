@@ -32,6 +32,7 @@ const { chromium } = require("playwright");
       { timeout: 7000 }
     );
 
+    await page.locator("[data-play]").click(); // pause after verifying one automatic stage transition
     await page.locator('[data-practice-tab="agent"]').click();
     await page.getByText("Agent 应该怎样工作", { exact: false }).waitFor().catch(() => {});
     await page.locator('[data-practice-tab="artifact"]').click();
