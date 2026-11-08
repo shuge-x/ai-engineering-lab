@@ -87,3 +87,155 @@
 .graph-legend span:before{content:"●";color:var(--blue);margin-right:5px}
 @media(max-width:1150px){.topbar{grid-template-columns:220px minmax(0,1fr) auto;gap:8px;padding:0 10px}.top-categories button{padding:6px 7px;gap:5px}.search{width:190px}.home-task-grid{grid-template-columns:repeat(2,minmax(220px,1fr))}.learning-route{grid-template-columns:1fr}.route-cards{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:760px){.topbar{grid-template-columns:1fr auto;gap:5px}.top-categories{grid-column:1/-1;grid-row:2;justify-content:flex-start;overflow-x:auto;border-top:1px solid var(--line);padding-top:5px}.top-categories button{font-size:10px}.top-right{grid-column:2;grid-row:1}.progress-mini{display:none}.home-modebar{margin-bottom:9px}.home-hero{padding:13px 5px}.home-hero h1{font-size:31px}.category-heading{padding:0 5px}.home-task-grid{grid-template-columns:1fr;padding:0 5px}.home-task-grid .task-card{min-height:135px}.learning-route{margin:18px 5px 0;grid-template-columns:1fr}.route-cards{grid-template-columns:repeat(2,1fr)}.home-bottom{grid-template-columns:1fr;margin:12px 5px}.mechanism-overview,.home-graph-panel{margin:8px 5px;padding:12px}.overview-steps{grid-template-columns:repeat(2,1fr)}.overview-detail{grid-template-columns:45px 1fr}.overview-number{font-size:30px}}
+
+/* Visual language aligned with K8S Learning Lab */
+:root{
+  --bg:#fafcfb;
+  --panel:#ffffff;
+  --panel2:#fafcfb;
+  --text:#15336b;
+  --muted:#6f81a0;
+  --line:#a8b7ce;
+  --blue:#164bc4;
+  --blue2:#edf3ff;
+  --teal:#087e7f;
+  --teal2:#edf7f6;
+  --amber:#b3552d;
+  --amber2:#fff5ed;
+  --red:#c64f4a;
+  --purple:#7255a4;
+  --shadow:0 8px 24px rgba(22,53,107,.07);
+  color-scheme:light;
+  font-family:Inter,"Noto Sans SC","PingFang SC","Microsoft YaHei",Arial,sans-serif;
+  font-size:14px
+}
+[data-theme=dark]{
+  --bg:#151d2c;
+  --panel:#1c2940;
+  --panel2:#202f49;
+  --text:#e7eefb;
+  --muted:#a4b3cc;
+  --line:#526581;
+  --blue:#8eafff;
+  --blue2:#253b62;
+  --teal:#70c8c1;
+  --teal2:#1d4144;
+  --amber:#e4a879;
+  --amber2:#49342e;
+  --red:#f08f8b;
+  --purple:#c0a8ed;
+  color-scheme:dark
+}
+html,body{font-family:Inter,"Noto Sans SC","PingFang SC","Microsoft YaHei",Arial,sans-serif;font-size:14px;color:var(--text);background:var(--bg)}
+.topbar{height:88px;padding:15px 20px;gap:18px}
+.brand{min-width:270px;gap:12px}
+.brand-mark{width:42px;height:42px;border-radius:7px;font-size:16px}
+.brand b{font:700 18px/1.4 "Courier New",monospace;letter-spacing:1px}
+.brand small{font-size:12px;letter-spacing:1.5px;margin-top:3px}
+.top-center{padding-left:21px}
+.top-kicker{font-size:12px;margin-bottom:4px}
+.top-center b{font-size:17px;font-weight:600}
+.top-categories{gap:10px}
+.top-categories button{font-size:12px;padding:7px 6px;gap:7px}
+.top-categories button span{font:600 14px monospace;width:27px;height:27px}
+.search{height:36px;font-size:13px}
+.search input{font-size:12px}
+.progress-mini b{font:600 15px monospace}
+.progress-mini small{font-size:12px}
+.icon-btn{min-width:33px;min-height:33px;font-size:21px}
+.github{font-size:12px}
+#app-layout.home-mode{min-height:calc(100vh - 122px)}
+#main{font-size:14px}
+.home-mode #main{padding-top:14px}
+.home-modebar{height:42px}
+.home-modebar .mode-left button{font-size:12px;padding:9px 12px}
+.mode-hint{font-size:11px}
+.eyebrow{font:11px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:1.4px}
+.home-hero h1{font-size:clamp(34px,3.2vw,48px);font-weight:600;letter-spacing:.2px}
+.home-hero p{font-size:14px;line-height:1.85}
+.home-hero .hero-meta{font-size:11px}
+.category-heading h2{font-size:22px;font-weight:600;letter-spacing:.3px}
+.category-heading p{font-size:12px}
+.category-count{font-size:11px}
+.home-task-grid .task-card{padding:17px 18px;min-height:174px}
+.home-task-grid .task-card h3{font-size:16px;line-height:1.45;font-weight:600}
+.home-task-grid .task-card p{font-size:12px;line-height:1.8}
+.number{font:11px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.7px}
+.mini-tag{font-size:10px}
+.card-bottom{font-size:11px}
+.learning-route{padding-top:20px}
+.route-intro h3{font-size:16px;font-weight:600}
+.route-intro p{font-size:11px;line-height:1.7}
+.route-card{padding:12px}
+.route-card span{font:11px monospace}
+.route-card b{font-size:12px;font-weight:600}
+.route-card small{font-size:10px;line-height:1.6}
+.home-topic b{font-size:13px}
+.home-topic p{font-size:11px;line-height:1.7}
+.home-topic button{font-size:11px}
+.course-heading h1{font-size:26px;font-weight:600;letter-spacing:.5px}
+.course-heading p{font-size:12px;line-height:1.7}
+.story-strip b{font-size:13px;font-weight:600}
+.story-strip p{font-size:11px;line-height:1.75}
+.story-label,.story-side span{font-size:10px}
+.mode-left button{font-size:12px}
+.mode-hint{font-size:10px}
+.panel-heading{height:46px}
+.panel-heading b{font-size:13px;font-weight:650;letter-spacing:.3px}
+.panel-heading span{font:11px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.step-item b{font-size:12px;font-weight:550}
+.step-item span{font:11px monospace}
+.side-rule b{font-size:11px}
+.side-rule p{font-size:10px;line-height:1.75}
+.task-view h2{font-size:21px;font-weight:600}
+.task-description{font-size:13px;line-height:1.8}
+.task-facts small,.artifact-row small{font-size:10px}
+.task-facts b,.artifact-row b{font-size:11px;line-height:1.65;font-weight:550}
+.route-head{font-size:11px}
+.route-head span{font-size:10px}
+.route-steps b{font-size:10px}
+.route-steps small{font-size:9px}
+.active-stage h2{font-size:17px;font-weight:600}
+.active-stage p{font-size:12px;line-height:1.8}
+.mechanism-meta{font-size:10px}
+.mechanism-bottom{font-size:10px}
+.graph-note b,.graph-selected b{font-size:12px}
+.graph-note p,.graph-selected p{font-size:11px;line-height:1.75}
+.right-tabs button{font-size:12px;padding:11px 4px}
+.right-content{font-size:13px;line-height:1.85;padding:17px 18px 20px}
+.detail-block h3{font:600 16px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.4px}
+.detail-block p,.detail-block li{font-size:12px;line-height:1.9}
+.detail-section b{font-size:12px}
+.detail-section p{font-size:12px;line-height:1.85}
+.callout{font-size:11px;line-height:1.75}
+.prompt{font:12px/1.85 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.copy-prompt{font-size:11px}
+.trace-head{height:46px}
+.trace-head b{font-size:13px;letter-spacing:.3px}
+.trace-head span{font:11px monospace}
+.play-controls button,.play-controls select{font-size:11px}
+.trace-columns{font-size:10px}
+.trace-row{font-size:11px;min-height:34px}
+.trace-status{font-size:10px}
+.course-footer{font-size:10px}
+.topic-page h1{font-size:26px;font-weight:600;letter-spacing:.5px}
+.topic-lead{font-size:13px;line-height:1.85}
+.topic-explain h2{font-size:16px}
+.topic-explain p,.topic-side li{font-size:12px;line-height:1.9}
+.topic-card b{font-size:12px}
+.topic-card p{font-size:11px;line-height:1.8}
+.skill-card h3{font-size:13px}
+.skill-card p,.skill-card small{font-size:11px;line-height:1.8}
+@media(max-width:1150px){
+ .topbar{grid-template-columns:230px minmax(260px,1fr) auto;gap:6px;padding:10px 12px}
+ .top-categories{gap:3px}
+ .top-categories button{font-size:11px;padding:6px 5px}
+ .search{width:175px}
+}
+@media(max-width:760px){
+ .topbar{height:auto;min-height:78px;padding:8px 11px;grid-template-columns:1fr auto}
+ .brand b{font-size:15px}
+ .top-categories button{font-size:11px}
+ .home-hero h1{font-size:34px}
+ .course-heading h1,.topic-page h1{font-size:23px}
+}
