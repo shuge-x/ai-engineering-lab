@@ -5,17 +5,10 @@ const $ = (s) => document.querySelector(s);
 const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const groups = CUR.groups;
 const lessons = CUR.lessons;
-const stories = (window.LAB_DATA && window.LAB_DATA.workflows) || [];
-const storyDomain = {quick:1,discovery:0,feature:1,architecture:0,bug:2,refactor:2};
-const storyLessons = {
- quick:["task-routing","tdd","review"],
- discovery:["grill","domain","adr"],
- feature:["spec","tickets","tdd","review","delivery"],
- architecture:["wayfinder","research","architecture","adr","multi-agent"],
- bug:["bug","codegraph","test-strategy","spec-compliance"],
- refactor:["refactor","codegraph","tdd","architecture"]
-};
-const state = {page:"home", group:0, lesson:lessons[0].id, story:"quick", mode:"task", step:0, branch:"main", tab:"mechanism", playing:false, speed:1, flowPulse:false, search:""};
+const PRACTICE = window.LAB_PRACTICE;
+const scenarios = PRACTICE.scenarios;
+const playbooks = PRACTICE.playbooks;
+const state = {page:"home", group:0, lesson:lessons[0].id, playbook:"quick-change", practiceSection:"scenario", practiceTab:"command", mode:"task", step:0, branch:"main", tab:"mechanism", playing:false, speed:1, flowPulse:false, search:""};
 const progress = JSON.parse(localStorage.getItem("ael-progress-v3") || "{}");
 const current = () => lessons.find((l) => l.id === state.lesson) || lessons[0];
 const currentGroupLessons = () => lessons.filter((l) => l.group === state.group);
@@ -31,11 +24,16 @@ function goLesson(id) {
   state.lesson=id; state.group=lesson.group; state.page="course"; state.mode="mechanism"; state.step=0; state.branch="main"; state.tab="mechanism";
   render(); window.scrollTo(0,0);
 }
-function goStory(id) {
+function goPlaybook(id) {
   stop();
-  if(!stories.some((x)=>x.id===id)) return;
-  state.story=id; state.page="story"; state.mode="task"; state.step=0; state.branch="main";
+  const item=playbooks.find((x)=>x.id===id);
+  if(!item) return;
+  state.playbook=id; state.page="playbook"; state.practiceSection="scenario"; state.practiceTab="command"; state.step=0; state.mode="mechanism"; state.branch="main";
   render(); window.scrollTo(0,0);
+}
+function goScenario(id) {
+  const item=playbooks.find((x)=>x.scenarioId===id);
+  if(item)goPlaybook(item.id);
 }
 function goPage(page) {
   stop(); state.page=page;
@@ -44,34 +42,84 @@ function goPage(page) {
 }
 function nav() {
   document.querySelectorAll("[data-category]").forEach((b)=>b.classList.toggle("active",state.page==="course"&&Number(b.dataset.category)===state.group));
-  document.querySelectorAll("[data-page]").forEach((b)=>b.classList.toggle("active",b.dataset.page==="home"?(state.page==="home"||state.page==="story"):b.dataset.page===state.page));
-  $("#app-layout").classList.toggle("home-mode",state.page==="home"||state.page==="story");
+  document.querySelectorAll("[data-page]").forEach((b)=>{
+    const page=b.dataset.page;
+    b.classList.toggle("active",page==="home"?(state.page==="home"):page==="playbooks"?(state.page==="playbooks"||state.page==="playbook"):page===state.page);
+  });
+  $("#app-layout").classList.toggle("home-mode",state.page==="home"||state.page==="playbooks");
 }
-function home() {
- const storyCards=stories.map((w)=>{
-   const group=groups[storyDomain[w.id]??1];
-   return '<button class="task-card story-card" data-story="'+w.id+'"><div class="task-card-top"><span class="number">'+w.n+' / REAL CASE</span><span class="mini-tag">'+esc(w.level)+'</span></div><h3>'+esc(w.story)+'</h3><p>'+esc(w.bg)+'</p><div class="story-card-meta"><span>'+esc(group.title)+'</span><span>'+w.main.length+' 个阶段</span></div><div class="card-bottom"><span>进入完整开发故事</span><b>→</b></div></button>';
+const practiceSections=[
+ {id:"scenario",title:"01 真实场景",hint:"我遇到了什么问题？"},
+ {id:"routing",title:"02 工作流选择",hint:"为什么选这条路线？"},
+ {id:"preparation",title:"03 开发准备",hint:"开始前需要准备什么？"},
+ {id:"execution",title:"04 逐步执行",hint:"输入什么命令和 Prompt？"},
+ {id:"agent",title:"05 Agent 行为",hint:"AI 应该如何响应？"},
+ {id:"artifacts",title:"06 工件与交接",hint:"每一步产出什么？"},
+ {id:"decisions",title:"07 异常与决策",hint:"什么时候必须停下来？"},
+ {id:"acceptance",title:"08 验收与复盘",hint:"怎么证明真的完成？"}
+];
+function currentPlaybook(){return playbooks.find((x)=>x.id===state.playbook)||playbooks[0]}
+function practiceSteps(){return currentPlaybook().steps}
+function home(){
+ const cards=scenarios.map((sc,i)=>{
+  const p=playbooks.find((x)=>x.scenarioId===sc.id);
+  return '<button class="task-card story-card" data-playbook="'+p.id+'"><div class="task-card-top"><span class="number">0'+(i+1)+' / REAL CASE</span><span class="mini-tag">'+esc(p.level)+'</span></div><h3>'+esc(sc.title)+'</h3><p>'+esc(sc.current)+'</p><div class="story-card-meta"><span>'+esc(p.workflow)+'</span><span>'+p.steps.length+' 个执行阶段</span></div><div class="card-bottom"><span>进入完整实战课程</span><b>→</b></div></button>';
  }).join("");
- const tabs='<div class="home-modebar"><div class="mode-left"><button data-home-mode="task" class="'+(state.mode==="task"?"active":"")+'">⌂ 任务入口</button><button data-home-mode="mechanism" class="'+(state.mode==="mechanism"?"active":"")+'">⬡ 机制演示</button><button data-home-mode="graph" class="'+(state.mode==="graph"?"active":"")+'">♧ 知识图谱</button></div><span class="mode-hint">AI ENGINEERING LEARNING MODEL</span></div>';
- if(state.mode==="mechanism") return '<div class="home-shell">'+tabs+homeMechanism()+'</div>';
- if(state.mode==="graph") return '<div class="home-shell">'+tabs+homeGraph()+'</div>';
  const domainCards=groups.map((g,i)=>'<button class="domain-card" data-category="'+i+'"><span class="domain-number">0'+(i+1)+'</span><div><b>'+esc(g.title)+'</b><p>'+esc(g.intro)+'</p><small>'+lessons.filter((l)=>l.group===i).length+' 个知识主题 · 进入课程体系 →</small></div></button>').join("");
- return '<div class="home-shell">'+tabs+
- '<section class="home-hero"><div class="eyebrow">START WITH A REAL ENGINEERING TASK</div><h1>先从一个真实开发问题开始，<br><em>再掌握背后的工程方法。</em></h1><p>像真实项目一样学习：选择一个你正在面对的场景，沿着开发故事看清需求、决策、实施与验证。需要系统掌握方法时，再进入对应的知识课程。</p><div class="hero-meta"><span>● 6 个真实开发案例</span><span>● 完整主流程与常见错误</span><span>● 可关联到 22 个知识主题</span></div></section>'+
- '<div class="category-heading story-section-heading"><div><span class="eyebrow">CHOOSE A REAL-WORLD SCENARIO</span><h2>你现在想解决什么问题？</h2><p>从任务目标进入，不必先理解所有 Skill 名称。</p></div><span class="category-count">'+stories.length+' 个实践故事</span></div>'+
- '<div class="task-grid home-task-grid story-grid">'+storyCards+'</div>'+
- '<section class="learning-route"><div class="route-intro"><span class="eyebrow">A PRACTICAL ENGINEERING JOURNEY</span><h3>一次开发任务的典型旅程</h3><p>不同任务不一定走完所有步骤；根据不确定性和风险选择最小充分流程。</p></div><div class="route-cards"><div class="route-card"><span>01</span><b>理解问题</b><small>恢复项目上下文，澄清真实目标</small></div><div class="route-card"><span>02</span><b>形成规格</b><small>记录业务规则、边界与验收条件</small></div><div class="route-card"><span>03</span><b>实施验证</b><small>拆分任务，TDD 与独立审查</small></div><div class="route-card"><span>04</span><b>交付沉淀</b><small>人工验收，更新项目知识</small></div></div></section>'+
- '<section class="knowledge-entry"><div class="knowledge-entry-heading"><div><span class="eyebrow">SYSTEMATIC KNOWLEDGE CURRICULUM</span><h2>想系统学习某个工程方法？</h2><p>这里是独立的知识课程体系。每个领域包含可逐步深入的知识主题，与上面的真实开发故事相互关联。</p></div><span class="category-count">'+lessons.length+' 个知识主题</span></div><div class="domain-grid">'+domainCards+'</div></section>'+
- '</div>';
+ return '<div class="home-shell"><section class="home-hero"><div class="eyebrow">AI CODING WORKFLOW LAB</div><h1>从真实开发问题出发，<br><em>学会使用 AI 完成工程任务。</em></h1><p>先选择一个你正在面对的开发场景，跟随完整工作流学习命令、Prompt、Agent 行为、工程工件和验收方法。需要系统理解某个概念时，再进入知识课程。</p><div class="hero-meta"><span>● 6 条实战训练路线</span><span>● 22 个工程知识主题</span><span>● Matt Pocock Skills + CodeGraph</span></div></section><div class="category-heading story-section-heading"><div><span class="eyebrow">TASK ENTRY / REAL-WORLD SCENARIOS</span><h2>你现在想解决什么问题？</h2><p>六个案例共享 Team Task Board 教学项目，从简单修改逐步走向复杂工程。</p></div><span class="category-count">'+scenarios.length+' 个实践故事</span></div><div class="task-grid home-task-grid story-grid">'+cards+'</div><section class="learning-route"><div class="route-intro"><span class="eyebrow">ONE PRACTICE PROJECT</span><h3>统一教学项目：Team Task Board</h3><p>从简单任务看板逐步演进到团队协作和多租户系统。每条路线都有独立起始版本，不要求先完成上一条。</p></div><div class="route-cards"><div class="route-card"><span>01</span><b>真实业务</b><small>项目、任务、成员和提醒</small></div><div class="route-card"><span>02</span><b>独立起点</b><small>每个故事有固定起始版本</small></div><div class="route-card"><span>03</span><b>可复现操作</b><small>命令、Prompt 和预期工件</small></div><div class="route-card"><span>04</span><b>证据验收</b><small>测试、Review 和人工验收</small></div></div></section><section class="knowledge-entry"><div class="knowledge-entry-heading"><div><span class="eyebrow">SYSTEMATIC KNOWLEDGE CURRICULUM</span><h2>想先系统学习工程方法？</h2><p>01～03 保留工具中立的工程知识课程；04 则把知识组合成完整工作流实践。</p></div><span class="category-count">'+lessons.length+' 个知识主题</span></div><div class="domain-grid">'+domainCards+'</div></section></div>';
 }
-function storyPage() {
- const w=stories.find((x)=>x.id===state.story)||stories[0];
- const group=groups[storyDomain[w.id]??1];
- const related=(storyLessons[w.id]||[]).map((id)=>lessons.find((l)=>l.id===id)).filter(Boolean);
- const stages=w.main.map((x,i)=>'<article class="story-stage"><div class="story-stage-number">'+String(i+1).padStart(2,"0")+'</div><div class="story-stage-body"><div class="story-stage-head"><h3>'+esc(x[0])+'</h3><span>'+esc(x[1])+'</span></div><p>'+esc(x[2])+'</p><div class="story-stage-artifacts"><div><small>阶段产物</small><b>'+esc(x[3])+'</b></div><div><small>交接提示</small><b>'+esc(x[4])+'</b></div></div><details><summary>查看可复制操作指令</summary><pre>'+esc(x[5]||"")+'</pre></details></div></article>').join("");
- const faults=w.fault.map((x)=>'<article class="story-fault"><b>'+esc(x[0])+'</b><p>'+esc(x[1])+'</p><div>'+esc(x[2])+'</div></article>').join("");
- const linked=related.map((l)=>'<button class="related-lesson" data-lesson="'+l.id+'"><span>'+String(lessons.indexOf(l)+1).padStart(2,"0")+'</span><b>'+esc(l.title)+'</b><small>进入知识课程 →</small></button>').join("");
- return '<div class="story-page"><div class="story-backline"><button data-page="home">← 返回任务入口</button><span>真实开发故事 / '+esc(group.title)+'</span></div><section class="story-hero"><div><div class="eyebrow">REAL-WORLD ENGINEERING STORY · '+esc(w.level)+'</div><h1>'+esc(w.story)+'</h1><p>'+esc(w.bg)+'</p></div><div class="story-hero-side"><small>实践工作流</small><b>'+esc(w.title)+'</b><small>主要使用能力</small><b>'+esc(w.skills)+'</b></div></section><div class="story-summary-grid"><div><small>适用场景</small><p>'+esc(w.when)+'</p></div><div><small>预期产物</small><p>'+esc(w.out)+'</p></div><div><small>流程边界</small><p>'+esc(w.gate)+'</p></div></div><div class="story-content-grid"><section class="story-main"><div class="story-section-title"><div><span class="eyebrow">MAIN JOURNEY</span><h2>完整开发故事</h2></div><span>'+w.main.length+' 个阶段</span></div><div class="story-stages">'+stages+'</div><div class="story-section-title fault-title"><div><span class="eyebrow">WHAT CAN GO WRONG</span><h2>常见错误与纠正</h2></div><span>'+w.fault.length+' 个案例</span></div><div class="story-fault-grid">'+faults+'</div></section><aside class="story-related"><div class="story-section-title"><div><span class="eyebrow">KNOWLEDGE CONNECTIONS</span><h2>关联知识课程</h2></div></div><p>实践故事告诉你一次任务如何推进；以下课程帮助你单独掌握其中的方法。</p><div class="related-list">'+linked+'</div><button class="back-to-tasks" data-page="home">选择其他实践故事 →</button></aside></div></div>';
+function playbookHub(){
+ const p=PRACTICE.pack;
+ const cards=playbooks.map((item,i)=>{
+  const sc=scenarios.find((x)=>x.id===item.scenarioId);
+  return '<button class="task-card story-card" data-playbook="'+item.id+'"><div class="task-card-top"><span class="number">0'+(i+1)+' / PLAYBOOK</span><span class="mini-tag">'+esc(item.level)+'</span></div><h3>'+esc(item.title)+'</h3><p>'+esc(sc.current)+'</p><div class="story-card-meta"><span>'+esc(item.workflow)+'</span><span>'+item.steps.length+' 个执行阶段</span></div><div class="card-bottom"><span>开始这条实战路线</span><b>→</b></div></button>';
+ }).join("");
+ return '<div class="home-shell"><section class="home-hero"><div class="eyebrow">04 / WORKFLOW PRACTICE</div><h1>把工程知识，<br><em>变成可以跟着做的工作流。</em></h1><p>每条实战课程都围绕一个真实开发问题，展示为什么选这条流程、要调用什么能力、输入什么 Prompt、Agent 应该做什么，以及如何验收。</p><div class="hero-meta"><span>● 1 套方法论实践包</span><span>● 6 条完整工作流</span><span>● 同一场景与知识课程互相关联</span></div></section><section class="methodology-pack"><div class="pack-mark">MP</div><div class="pack-copy"><span class="eyebrow">CURRENT METHODOLOGY PACK</span><h2>'+esc(p.meta.title)+'</h2><p>'+esc(p.meta.subtitle)+'</p><small>'+esc(p.meta.note)+'</small></div><div class="pack-links"><a href="'+esc(p.meta.upstream[0].url)+'" target="_blank" rel="noreferrer">上游 Skills ↗</a><a href="'+esc(p.meta.upstream[1].url)+'" target="_blank" rel="noreferrer">CodeGraph ↗</a></div></section><div class="category-heading story-section-heading"><div><span class="eyebrow">SIX PRACTICE PLAYBOOKS</span><h2>选择一条工作流实战</h2><p>从入门的小修改到高级的架构重构，逐步掌握 AI 编程工程方法。</p></div><span class="category-count">'+playbooks.length+' 条路线</span></div><div class="task-grid home-task-grid story-grid">'+cards+'</div></div>';
+}
+function practiceFlow(p){
+ const steps=p.steps, width=Math.max(900,steps.length*190+60), y=112;
+ const lines=steps.slice(0,-1).map((st,i)=>{
+  const x1=105+i*190+65,x2=105+(i+1)*190-65;
+  const cls=i<state.step?"completed":i===state.step?"active":"future";
+  const packet=i===state.step&&state.flowPulse?'<circle class="practice-packet" r="5"><animateMotion dur="2.2s" repeatCount="1" fill="freeze" path="M '+x1+' '+y+' L '+x2+' '+y+'"/></circle>':"";
+  return '<g class="practice-edge-group '+cls+'"><path class="practice-link '+cls+'" d="M '+x1+' '+y+' L '+x2+' '+y+'" marker-end="url(#practice-arrow)"/>'+packet+'</g>';
+ }).join("");
+ const nodes=steps.map((st,i)=>{
+  const x=105+i*190,kind=nodeKind(st.title),cls=i===state.step?"active":i<state.step?"passed":"";
+  const color=kind==="verify"||kind==="bug"?"var(--amber)":kind==="document"||kind==="ticket"||kind==="knowledge"?"var(--purple)":kind==="agent"||kind==="code"?"var(--teal)":"var(--blue)";
+  return '<g class="practice-object '+cls+'" data-practice-step="'+i+'" tabindex="0" role="button"><rect x="'+(x-65)+'" y="'+(y-42)+'" width="130" height="84" rx="8"/><circle cx="'+(x-43)+'" cy="'+(y-21)+'" r="12" class="practice-object-index"/><text x="'+(x-43)+'" y="'+(y-17)+'" class="practice-object-index-text" text-anchor="middle">'+String(i+1).padStart(2,"0")+'</text><g transform="translate('+x+' '+(y+1)+')" class="practice-object-icon" style="color:'+color+'">'+objectGlyph(kind)+'</g><text x="'+x+'" y="'+(y+30)+'" text-anchor="middle" class="practice-object-label">'+esc(st.title.length>12?st.title.slice(0,11)+'…':st.title)+'</text></g>';
+ }).join("");
+ return '<div class="practice-flow-wrap"><div class="practice-flow-caption"><span>工作流机制图 · 点击节点查看阶段</span><span>'+String(state.step+1).padStart(2,"0")+' / '+String(steps.length).padStart(2,"0")+'</span></div><div class="practice-flow-scroll"><svg class="practice-flow-svg" style="width:'+width+'px" viewBox="0 0 '+width+' 225" role="img" aria-label="'+esc(p.title)+' 工作流机制图"><defs><marker id="practice-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="var(--blue)"/></marker></defs>'+lines+nodes+'</svg></div></div>';
+}
+function practiceChapterContent(p,sc,section,step){
+ if(section==="scenario")return '<div class="practice-chapter"><div class="eyebrow">01 / REAL SCENARIO</div><h2>'+esc(sc.title)+'</h2><p class="practice-lead">'+esc(sc.current)+'</p><div class="practice-request"><small>用户提出的原始需求</small><p>'+esc(sc.request)+'</p></div><div class="practice-info-grid"><div><small>目标结果</small><p>'+esc(sc.goal)+'</p></div><div><small>起始项目版本</small><p><code>'+esc(sc.start)+'</code></p></div></div><h3>本次范围与约束</h3><ul class="practice-check-list">'+sc.constraints.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul></div>';
+ if(section==="routing")return '<div class="practice-chapter"><div class="eyebrow">02 / WORKFLOW ROUTING</div><h2>为什么选择 '+esc(p.workflow)+'？</h2><p class="practice-lead">'+esc(p.routing.why)+'</p><div class="practice-info-grid"><div><h3>适用条件</h3><ul>'+p.routing.when.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul></div><div><h3>不适用条件</h3><ul>'+p.routing.notWhen.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul></div></div><div class="practice-note"><b>如果条件变化</b><p>'+esc(p.routing.alternatives)+'</p></div></div>';
+ if(section==="preparation")return '<div class="practice-chapter"><div class="eyebrow">03 / PREPARATION</div><h2>开始前先准备好环境</h2><p class="practice-lead">本故事从固定的教学项目起始版本开始。先确认工具、项目和上下文，再执行工作流。</p><h3>项目与环境</h3><ul>'+p.preparation.requirements.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul><div class="practice-note"><b>起始版本</b><p><code>'+esc(p.preparation.project)+'</code></p></div><div class="practice-note"><b>CodeGraph 使用说明</b><p>'+esc(p.preparation.codegraph)+'</p></div><div class="practice-note"><b>一次性 Skill 初始化</b><p>'+esc(PRACTICE.pack.setup.tracker.recommendation)+'</p><code>'+esc(PRACTICE.pack.setup.tracker.command)+'</code></div></div>';
+ if(section==="execution")return '<div class="practice-chapter"><div class="eyebrow">04 / STEP-BY-STEP EXECUTION</div><h2>跟着步骤完成这条工作流</h2><p class="practice-lead">先看整体机制，再逐步操作。每一步都包含命令、Prompt、Agent 预期行为、工件和交接条件。</p>'+practiceFlow(p)+'<div class="practice-active-step"><div class="practice-active-number">'+String(state.step+1).padStart(2,"0")+'</div><div><span class="eyebrow">'+esc(step.actor)+'</span><h3>'+esc(step.title)+'</h3><p>'+esc(step.agentBehavior)+'</p><small>预期产物：'+esc(step.artifact)+'</small></div></div><div class="practice-step-nav">'+p.steps.map((x,i)=>'<button class="'+(i===state.step?"active":"")+'" data-practice-step="'+i+'">'+String(i+1).padStart(2,"0")+' '+esc(x.title)+'</button>').join("")+'</div></div>';
+ if(section==="agent")return '<div class="practice-chapter"><div class="eyebrow">05 / EXPECTED AGENT BEHAVIOR</div><h2>Agent 应该怎样工作？</h2><p class="practice-lead">不要只看最终代码。学习者需要知道 Agent 每个阶段应该做什么、不能做什么。</p><div class="practice-behavior-list">'+p.steps.map((x,i)=>'<article><span>'+String(i+1).padStart(2,"0")+'</span><div><b>'+esc(x.title)+'</b><p>'+esc(x.agentBehavior)+'</p></div></article>').join("")+'</div></div>';
+ if(section==="artifacts")return '<div class="practice-chapter"><div class="eyebrow">06 / ARTIFACTS & HANDOFF</div><h2>看懂每一步留下的工程工件</h2><p class="practice-lead">工件不是为了多写文档，而是让下一阶段和新会话能够理解目标、约束与验证结果。</p><div class="practice-artifact-list">'+p.artifactSamples.map(x=>'<article><h3>'+esc(x.title)+'</h3><pre>'+esc(x.content)+'</pre></article>').join("")+'</div><div class="practice-note"><b>阶段交接</b><p>'+esc(step.handoff)+'</p></div></div>';
+ if(section==="decisions")return '<div class="practice-chapter"><div class="eyebrow">07 / EXCEPTIONS & HUMAN DECISIONS</div><h2>哪些地方必须由人决定？</h2><p class="practice-lead">保留开发者对目标、业务决策、工作流入口和最终验收的控制权。</p><div class="practice-decision-list">'+p.decisions.map(x=>'<article><h3>'+esc(x.title)+'</h3><p>'+esc(x.detail)+'</p></article>').join("")+'</div><h3>当前阶段的停止条件</h3><ul>'+step.checklist.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul></div>';
+ return '<div class="practice-chapter"><div class="eyebrow">08 / ACCEPTANCE & RETROSPECTIVE</div><h2>如何判断这次实战真的完成？</h2><p class="practice-lead">完成状态必须由真实证据支撑。Agent 的 Done 不是验收证据。</p><ul class="practice-check-list">'+p.acceptance.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul><div class="practice-note"><b>最终交付原则</b><p>分别记录自动化验证、规格符合性、人工验收和知识同步。未执行的检查必须明确标记为未执行。</p></div><div class="practice-related"><h3>继续学习相关知识</h3>'+p.knowledgeRefs.map(id=>{const l=lessons.find(x=>x.id===id);return l?'<button data-lesson="'+l.id+'">'+esc(l.title)+' →</button>':''}).join("")+'</div></div>';
+}
+function practiceRight(p,step){
+ if(state.practiceTab==="agent")return '<div class="detail-block"><span class="detail-kicker">EXPECTED AGENT BEHAVIOR</span><h3>'+esc(step.title)+'</h3><p>'+esc(step.agentBehavior)+'</p><div class="callout">如果 Agent 跳过必要问题、擅自扩大范围或没有提供证据，应暂停并纠正。</div></div>';
+ if(state.practiceTab==="artifact")return '<div class="detail-block"><span class="detail-kicker">EXPECTED ARTIFACT</span><h3>'+esc(step.title)+'</h3><p>'+esc(step.artifact)+'</p><div class="detail-section"><b>检查清单</b><ul>'+step.checklist.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul></div><div class="detail-section"><b>交接条件</b><p>'+esc(step.handoff)+'</p></div></div>';
+ if(state.practiceTab==="sources")return '<div class="detail-block"><span class="detail-kicker">UPSTREAM SOURCES</span><h3>上游依据与适用边界</h3><ul>'+p.sources.map(url=>'<li><a href="'+esc(url)+'" target="_blank" rel="noreferrer">'+esc(url.split('/').slice(-2).join('/'))+' ↗</a></li>').join("")+'</ul><p>教学建议和上游 Skill 的强制行为会分开标注；具体调用权限以当前上游版本为准。</p></div>';
+ const inv=step.invocation||{};
+ const userCommand=inv.kind==="slash"||inv.kind==="shell"||inv.kind==="tool";
+ const invokeLabel=inv.kind==="slash"?"用户主动调用":inv.kind==="agent"?"Agent 按需调用":inv.kind==="tool"?"外部工具 / MCP":inv.kind==="shell"?"终端命令":"直接对话";
+ const invokeValue=inv.command||"直接向 Agent 描述当前任务";
+ const invokeButton=userCommand?'<button class="copy-prompt" data-copy-command>复制调用指令</button>':'<p class="invocation-hint">这一步不需要额外输入命令；按上面的方式与 Agent 协作即可。</p>';
+ return '<div class="detail-block"><span class="detail-kicker">COMMAND / PROMPT</span><h3>'+esc(step.title)+'</h3><div class="practice-command"><small>调用方式 · '+esc(invokeLabel)+'</small><code>'+esc(invokeValue)+'</code>'+invokeButton+'</div><div class="detail-section"><b>给 Agent 的完整提示词</b><pre class="prompt">'+esc(step.prompt)+'</pre><button class="copy-prompt" data-copy-practice-prompt>复制完整 Prompt</button></div><div class="callout">复制后请先确认当前项目和起始版本正确，再发送给 Coding Agent。</div></div>';
+}
+
+function playbookPage(){
+ const p=currentPlaybook(),sc=scenarios.find(x=>x.id===p.scenarioId),step=p.steps[Math.min(state.step,p.steps.length-1)];
+ const sec=practiceSections.find(x=>x.id===state.practiceSection)||practiceSections[0];
+ const sectionNav=practiceSections.map(x=>'<button class="practice-section-button '+(x.id===state.practiceSection?'active':'')+'" data-practice-section="'+x.id+'"><b>'+esc(x.title)+'</b><small>'+esc(x.hint)+'</small></button>'+(x.id==='execution'&&state.practiceSection==='execution'?'<div class="practice-substeps">'+p.steps.map((st,i)=>'<button class="'+(i===state.step?'active':'')+'" data-practice-step="'+i+'"><span>'+String(i+1).padStart(2,"0")+'</span>'+esc(st.title)+'</button>').join("")+'</div>':'')).join("");
+ const trace=p.steps.map((x,i)=>'<button class="trace-row '+(i===state.step?'active':'')+'" data-practice-step="'+i+'"><span class="trace-index">'+String(i+1).padStart(2,"0")+'</span><span class="trace-event">'+esc(x.title)+'</span><span class="trace-actor">'+esc(x.actor)+'</span><span class="trace-status">'+(i<state.step?'已回顾':i===state.step?'当前阶段':'待学习')+'</span></button>').join("");
+ const related=p.knowledgeRefs.map(id=>lessons.find(x=>x.id===id)).filter(Boolean);
+ return '<div class="course-shell practice-shell"><div class="practice-topline"><button data-page="playbooks">← 返回 04 工作流实战</button><span>'+esc(PRACTICE.pack.meta.title)+'</span><span>'+esc(p.level)+' · '+esc(p.duration)+'</span></div><div class="workbench"><aside class="left-panel panel practice-left"><div class="panel-heading"><b>实战课程目录</b><span>08</span></div><div class="practice-course-title"><small>'+esc(p.workflow)+'</small><b>'+esc(p.title)+'</b></div><div class="practice-section-list">'+sectionNav+'</div><div class="directory-foot"><span>● '+p.steps.length+' 个执行阶段</span><span>'+esc(p.level)+'</span></div></aside><section class="center-panel panel practice-center"><div class="mode-tabs"><div class="mode-left"><button class="active">实战学习</button><button data-page="playbooks">其他工作流</button></div><span class="mode-hint">04 / WORKFLOW PRACTICE</span></div><div class="lesson-canvas-head"><div><div class="eyebrow">'+esc(p.workflow)+'</div><h1>'+esc(p.title)+'</h1><p>'+esc(p.summary)+'</p></div><span class="lesson-index">'+String(playbooks.indexOf(p)+1).padStart(2,"0")+'</span></div><div class="practice-section-heading"><div><span class="eyebrow">'+esc(sec.title)+'</span><h2>'+esc(sec.hint)+'</h2></div><span>'+String(practiceSections.indexOf(sec)+1).padStart(2,"0")+' / 08</span></div><div class="center-content practice-center-content">'+practiceChapterContent(p,sc,state.practiceSection,step)+'</div></section><aside class="right-panel panel practice-right"><div class="panel-heading"><b>实战操作指南</b><span>'+String(state.step+1).padStart(2,"0")+' / '+String(p.steps.length).padStart(2,"0")+'</span></div><div class="right-tabs practice-right-tabs"><button data-practice-tab="command" class="'+(state.practiceTab==='command'?'active':'')+'">命令 / Prompt</button><button data-practice-tab="agent" class="'+(state.practiceTab==='agent'?'active':'')+'">Agent 行为</button><button data-practice-tab="artifact" class="'+(state.practiceTab==='artifact'?'active':'')+'">产物检查</button><button data-practice-tab="sources" class="'+(state.practiceTab==='sources'?'active':'')+'">来源</button></div><div class="right-content">'+practiceRight(p,step)+'</div></aside><section class="trace-panel panel practice-trace"><div class="trace-head"><div><b>工作流执行轨迹</b><span>'+String(state.step+1).padStart(2,"0")+' / '+String(p.steps.length).padStart(2,"0")+'</span></div><div class="play-controls"><button data-prev '+(state.step===0?'disabled':'')+'>‹</button><button class="play-btn" data-play>'+(state.playing?'Ⅱ 暂停':'▶ 播放')+'</button><button data-next>下一步 ›</button><button data-reset>↺</button></div></div><div class="trace-columns"><span>步骤</span><span>执行事件</span><span>执行者</span><span>学习状态</span></div><div class="trace-rows">'+trace+'</div><div class="trace-foot"><span>每一步都要核对 Prompt、Agent 行为、工件和交接条件。</span><button class="mark-btn" data-practice-mark>'+(progress['playbook:'+p.id]?'✓ 已完成':'标记本条实战已完成')+'</button></div></section></div><div class="practice-related-footer"><span>相关知识：</span>'+related.map(x=>'<button data-lesson="'+x.id+'">'+esc(x.title)+' →</button>').join("")+'</div></div>';
 }
 function homeMechanism() {
  const names=["用户目标","工作流选择","专业能力","证据验证","知识沉淀"];
@@ -185,32 +233,33 @@ function topicPage(kind) {
 function skillsPage(){return '<div class="topic-page"><div class="eyebrow">REFERENCE / SKILL CATALOG</div><h1>Matt Pocock Skills 索引</h1><p class="topic-lead">Skill 的名称、调用权限和内容以当前安装的上游版本为准。</p><div class="skill-grid">'+CUR.lessons.filter((l)=>l.sources.length).slice(0,12).map((l)=>'<article class="skill-card"><h3>'+esc(l.title)+'</h3><p>'+esc(l.summary)+'</p></article>').join("")+'</div></div>';}
 function render() {
  nav();
- $("#main").innerHTML=state.page==="home"?home():state.page==="story"?storyPage():state.page==="course"?course():state.page==="knowledge"?topicPage("knowledge"):state.page==="verify"?topicPage("verify"):skillsPage();
+ $("#main").innerHTML=state.page==="home"?home():state.page==="playbooks"?playbookHub():state.page==="playbook"?playbookPage():state.page==="course"?course():state.page==="knowledge"?topicPage("knowledge"):state.page==="verify"?topicPage("verify"):skillsPage();
  const pageStatus=$("#page-status");
- if(pageStatus)pageStatus.textContent=state.page==="course"?current().title:state.page==="story"?(stories.find((x)=>x.id===state.story)?.story||"真实开发故事"):state.page==="home"?"任务入口 · 真实开发案例":state.page==="knowledge"?"项目知识与 CodeGraph":state.page==="verify"?"测试、验证与验收":"Matt Skills 索引";
+ if(pageStatus)pageStatus.textContent=state.page==="course"?current().title:state.page==="playbook"?currentPlaybook().title:state.page==="playbooks"?"04 工作流实战":state.page==="home"?"任务入口 · 真实开发案例":state.page==="knowledge"?"项目知识与 CodeGraph":state.page==="verify"?"测试、验证与验收":"Matt Skills 索引";
  $("#search").value=state.search;
- $("#progress-count").textContent=Object.keys(progress).length+" / "+lessons.length;
+ $("#progress-count").textContent=Object.keys(progress).length+" / "+(lessons.length+playbooks.length);
 }
+function activeStages(){return state.page==="playbook"?practiceSteps():stages();}
 function changeStep(n) {
- state.step=Math.max(0,Math.min(stages().length-1,n));
+ state.step=Math.max(0,Math.min(activeStages().length-1,n));
  state.flowPulse=true;
  render();
 }
 function play() {
  if(state.playing){stop();render();return;}
- if(state.step>=stages().length-1)state.step=0;
+ if(state.step>=activeStages().length-1)state.step=0;
  state.playing=true;
  state.flowPulse=true;
  render();
 }
 document.addEventListener("animationend",(e)=>{
  if(e.animationName!=="mechanism-flow")return;
- const edge=e.target.closest?.(".mechanism-edge-group.active");
+ const edge=e.target.closest?.(".mechanism-edge-group.active, .practice-edge-group.active");
  if(!edge || !state.flowPulse)return;
  state.flowPulse=false;
  if(state.playing){
-   if(state.step<stages().length-1)state.step+=1;
-   if(state.step>=stages().length-1){
+   if(state.step<activeStages().length-1)state.step+=1;
+   if(state.step>=activeStages().length-1){
      state.playing=false;
    }else{
      state.flowPulse=true;
@@ -223,9 +272,12 @@ document.addEventListener("click",(e)=>{
  const b=e.target.closest("button,a"); if(!b)return;
  if(b.dataset.category!==undefined){state.group=Number(b.dataset.category);goLesson(currentGroupLessons()[0].id);return;}
  if(b.dataset.lesson){goLesson(b.dataset.lesson);return;}
- if(b.dataset.story){goStory(b.dataset.story);return;}
+ if(b.dataset.playbook){goPlaybook(b.dataset.playbook);return;}
  if(b.dataset.branch){stop();state.branch=b.dataset.branch;state.step=0;render();return;}
  if(b.dataset.homeMode){state.mode=b.dataset.homeMode;render();return;}
+ if(b.dataset.practiceSection){stop();state.practiceSection=b.dataset.practiceSection;render();return;}
+ if(b.dataset.practiceStep!==undefined){stop();state.practiceSection="execution";changeStep(Number(b.dataset.practiceStep));return;}
+ if(b.dataset.practiceTab){state.practiceTab=b.dataset.practiceTab;render();return;}
  if(b.dataset.homeStep!==undefined){state.step=Number(b.dataset.homeStep);render();return;}
  if(b.dataset.page){e.preventDefault();goPage(b.dataset.page);return;}
  if(b.dataset.mode){state.mode=b.dataset.mode;render();return;}
@@ -236,11 +288,14 @@ document.addEventListener("click",(e)=>{
  if(b.hasAttribute("data-play")){play();return;}
  if(b.hasAttribute("data-reset")){stop();state.step=0;render();return;}
  if(b.hasAttribute("data-mark")){progress[state.lesson]=true;localStorage.setItem("ael-progress-v3",JSON.stringify(progress));render();return;}
+ if(b.hasAttribute("data-practice-mark")){progress["playbook:"+state.playbook]=true;localStorage.setItem("ael-progress-v3",JSON.stringify(progress));render();return;}
  if(b.hasAttribute("data-copy")){navigator.clipboard?.writeText(stages()[state.step].prompt).then(()=>{b.textContent="已复制 ✓";}).catch(()=>{b.textContent="复制失败";});return;}
+ if(b.hasAttribute("data-copy-command")){navigator.clipboard?.writeText(practiceSteps()[state.step].invocation.command||"").then(()=>{b.textContent="已复制 ✓";}).catch(()=>{b.textContent="复制失败";});return;}
+ if(b.hasAttribute("data-copy-practice-prompt")){navigator.clipboard?.writeText(practiceSteps()[state.step].prompt).then(()=>{b.textContent="已复制 ✓";}).catch(()=>{b.textContent="复制失败";});return;}
 });
 document.addEventListener("change",(e)=>{if(e.target.id==="speed"){state.speed=Number(e.target.value);if(state.playing){state.flowPulse=true;render();}}});
 $("#theme").addEventListener("click",()=>{const t=document.documentElement.dataset.theme==="dark"?"light":"dark";document.documentElement.dataset.theme=t;localStorage.setItem("ael-theme",t);});
-$("#search").addEventListener("input",(e)=>{state.search=e.target.value;const q=state.search.trim().toLowerCase();if(!q)return;const match=lessons.find((l)=>(l.title+" "+l.summary+" "+l.principle+" "+l.prompt+" "+l.en).toLowerCase().includes(q));if(match)goLesson(match.id);});
+$("#search").addEventListener("input",(e)=>{state.search=e.target.value;const q=state.search.trim().toLowerCase();if(!q)return;const match=lessons.find((l)=>(l.title+" "+l.summary+" "+l.principle+" "+l.prompt+" "+l.en).toLowerCase().includes(q));if(match){goLesson(match.id);return;}const practiceMatch=playbooks.find((p)=>{const sc=scenarios.find((x)=>x.id===p.scenarioId);return (p.title+" "+p.workflow+" "+p.summary+" "+sc.title+" "+sc.request).toLowerCase().includes(q)});if(practiceMatch)goPlaybook(practiceMatch.id);});
 document.addEventListener("keydown",(e)=>{if(e.key==="/"&&!["INPUT","TEXTAREA"].includes(document.activeElement.tagName)){e.preventDefault();$("#search").focus();}if(e.key==="Escape"&&document.activeElement===$("#search"))$("#search").blur();});
 const saved=localStorage.getItem("ael-theme");if(saved)document.documentElement.dataset.theme=saved;
 render();

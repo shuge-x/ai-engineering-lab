@@ -1,6 +1,8 @@
-name: Deploy AI Engineering Lab
+name: Deploy AI Coding Workflow Lab
 on:
   push:
+    branches: [main]
+  pull_request:
     branches: [main]
   workflow_dispatch:
 permissions:
@@ -21,9 +23,9 @@ jobs:
       - name: Validate application scripts and course model
         run: |
           node --check app.js
-          node --check data.js
           node --check curriculum.js
-          node -e "const fs=require('fs');global.window=global;require('./data.js');if(!LAB_DATA||LAB_DATA.workflows.length!==6)throw Error('Expected six workflows');for(const w of LAB_DATA.workflows){if(!w.story||!w.bg||!w.main.length||!w.fault.length)throw Error('Incomplete task story: '+w.id);for(const s of [...w.main,...w.fault])if(s.length<5)throw Error('Incomplete story stage: '+w.id)}console.log('Validated '+LAB_DATA.workflows.length+' real-world task stories')"
+          node --check playbooks.js
+          node -e "global.window=global;require('./curriculum.js');require('./playbooks.js');const p=LAB_PRACTICE;if(p.scenarios.length!==6||p.playbooks.length!==6)throw Error('Expected six scenarios and six playbooks');for(const w of p.playbooks){if(!w.routing||!w.preparation||w.steps.length<4||!w.artifactSamples.length||!w.decisions.length||!w.acceptance.length||!w.sources.length)throw Error('Incomplete playbook: '+w.id);for(const s of w.steps){if(!s.prompt||!s.agentBehavior||!s.artifact||!s.checklist.length||!s.handoff)throw Error('Incomplete step: '+w.id+'/'+s.id)}for(const id of w.knowledgeRefs)if(!LAB_CURRICULUM.lessons.some(l=>l.id===id))throw Error('Unknown knowledge lesson: '+id)}console.log('Validated '+p.scenarios.length+' scenarios, '+p.playbooks.length+' playbooks and '+p.playbooks.reduce((n,w)=>n+w.steps.length,0)+' steps')"
           test -s index.html
           node -e "const fs=require('fs');global.window=global;require('./curriculum.js');const c=LAB_CURRICULUM;if(c.groups.length!==3||c.lessons.length!==22)throw Error('Expected 3 groups and 22 lessons');for(let i=0;i<3;i++){const n=c.lessons.filter(x=>x.group===i).length;if(n<6)throw Error('Too few lessons in group '+i)}for(const l of c.lessons){if(l.main.length!==4||l.fault.steps.length!==4)throw Error('Expected four stages in '+l.id);if(!l.sections.length||!l.sources.length||!l.artifact)throw Error('Incomplete lesson '+l.id)}console.log('Validated '+c.groups.length+' domains, '+c.lessons.length+' lessons and '+c.lessons.length*8+' learning stages')"
           test -s styles.css
@@ -39,11 +41,13 @@ jobs:
             sleep 1
           done
           node tests/playback-smoke.cjs
+          node tests/playbook-smoke.cjs
       - name: Upload static site
         uses: actions/upload-pages-artifact@v3
         with:
           path: .
   deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

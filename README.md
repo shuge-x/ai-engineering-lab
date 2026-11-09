@@ -1,39 +1,48 @@
-# AI Engineering Lab
+# AI Coding Workflow Lab
 
-面向中文开发者的 AI 编程工程实践实验室。以 Matt Pocock Skills 为核心工程工作流，以 CodeGraph 补充代码结构知识。
+**AI 编程工作流实验室**：面向 AI Coding Agent 的工程方法、工作流与实战。
 
-## 在线站点
+在线站点：https://shuge-x.github.io/ai-engineering-lab/
 
-https://shuge-x.github.io/ai-engineering-lab/
+## 产品结构
 
-## 两种入口：实践故事与知识课程
+- **任务入口**：从真实开发场景开始，进入对应工作流实战。
+- **01 需求与架构**：7 个工具中立知识主题。
+- **02 开发与交付**：8 个工具中立知识主题。
+- **03 质量与演进**：7 个工具中立知识主题。
+- **04 工作流实战**：当前第一套方法论包为 Matt Pocock Skills + CodeGraph，包含六条可操作实战路线。
 
-### 任务入口：从真实开发问题开始
+Matt Pocock Skills + CodeGraph 是第一套实践体系，不是平台永久绑定的唯一工具。未来可以加入 Superpowers、OpenSpec、Spec Kit 等，但必须先经过研究和课程设计。
 
-首页优先呈现六个真实开发案例，而不是把知识点目录当作用户故事：
+## 内容模型
 
-1. 修改 Workspace 页面空状态（快速修改）
-2. Workspace 多用户共享功能（需求探索）
-3. Workspace 邀请成员功能（常规功能）
-4. Workspace Runtime 迁移机制（大型架构）
-5. 容器已启动但 Workspace 仍显示失败（复杂 Bug）
-6. WorkspaceService 职责过载（架构重构）
+- **Scenario**：真实工程场景、用户目标和约束。
+- **Playbook**：用某套方法论解决该场景的完整工作流。
+- **Knowledge Lesson**：解释工程方法、机制和原则。
+- **Methodology Pack**：一套工作流方法论及其上游工具。
 
-每个故事包含背景、适用条件、完整主流程、阶段产物、操作指令、常见错误，以及关联知识课程。顶部「任务入口」始终可以返回故事首页。
+首页故事卡和 04 目录使用同一 Playbook 路由、数据源和学习进度。未来一个 Scenario 可以对应不同 Methodology Pack 的多个 Playbook。
 
-### 知识课程：系统掌握工程方法
+## 当前六条实战路线
 
-三个领域、22 个知识主题：
+| 编号 | 工作流 | 场景 |
+|---|---|---|
+| 01 | 快速修改 | 优化任务看板空状态 |
+| 02 | 需求探索 | 设计任务逾期提醒 |
+| 03 | 常规功能开发 | 任务指派与成员协作 |
+| 04 | 大型架构 | 单团队看板升级为多团队 SaaS |
+| 05 | 复杂 Bug 诊断 | 拖动任务后刷新，状态恢复原样 |
+| 06 | 架构重构 | TaskService 职责过载 |
 
-- **01 需求与架构（7 课）**：Grill、领域建模、Research / Prototype、Wayfinder、ADR、架构设计、变更控制。
-- **02 开发与交付（8 课）**：任务分级、Spec、Tickets、TDD、多 Agent、Code Review、跨会话知识、交付同步。
-- **03 质量与演进（7 课）**：Bug 诊断、测试策略、规格符合性、CodeGraph、人工验收、安全重构、Retro。
+每条 Playbook 包含真实场景、工作流选择、开发准备、逐步执行、Agent 预期行为、工件与交接、异常与人工决策、最终验收与复盘。每个步骤提供准确的命令 / 操作、完整 Prompt、预期行为、工件、检查清单和交接条件。
 
-顶部三个领域导航进入知识课程；课程页提供左侧主题目录、中间学习画布、右侧机制讲解和底部执行轨迹。
+## 配套教学项目
 
-## 三种学习视角
+配套仓库 [`shuge-x/ai-coding-workflow-demo`](https://github.com/shuge-x/ai-coding-workflow-demo) 已合并到 main，使用 Team Task Board 作为六条实战路线的统一可运行教学项目。
 
-知识课程支持任务入口、机制演示和知识图谱三种视角。机制演示支持阶段切换、主流程 / 典型错误切换、播放与逐步推进。
+推荐技术栈：Next.js App Router、React、TypeScript、Tailwind CSS、Prisma + SQLite、Vitest、Playwright。每条故事有独立起始 Tag / 分支，不要求学习者先完成前一条故事。
+
+六个不可变起始 Tag 已发布，基线矩阵已通过安装、Prisma 初始化、类型检查、ESLint、Vitest、Next.js build、浏览器 smoke、Story 05 预期红故障和 Story 06 指派行为检查。课程中的 clone / checkout 命令现在对应真实可复现的起始版本。
 
 ## 内容与工具边界
 
@@ -48,8 +57,8 @@ https://shuge-x.github.io/ai-engineering-lab/
 
 - Matt Pocock Skills: https://github.com/mattpocock/skills
 - CodeGraph: https://github.com/colbymchenry/codegraph
-- 交互教学形式参考: https://github.com/shuge-x/k8s-learning-lab
+- K8s Learning Lab（交互教学形式参考）: https://github.com/shuge-x/k8s-learning-lab
 
 ## 本地预览与部署
 
-纯静态站点，无需后端。直接打开 `index.html` 或使用任意静态 HTTP 服务。GitHub Actions 校验脚本、六个实践故事和课程数据后部署 GitHub Pages。
+纯静态站点，无需后端。直接打开 `index.html` 或使用任意静态 HTTP 服务。GitHub Actions 校验课程数据和浏览器交互后部署 GitHub Pages。
