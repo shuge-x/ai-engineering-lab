@@ -38,11 +38,11 @@ Matt Pocock Skills + CodeGraph 是第一套实践体系，不是平台永久绑�
 
 ## 配套教学项目
 
-计划建立独立仓库 `shuge-x/ai-coding-workflow-demo`，使用 Team Task Board 作为六条实战路线的统一可运行教学项目。
+配套仓库 [`shuge-x/ai-coding-workflow-demo`](https://github.com/shuge-x/ai-coding-workflow-demo) 已合并到 main，使用 Team Task Board 作为六条实战路线的统一可运行教学项目。
 
 推荐技术栈：Next.js App Router、React、TypeScript、Tailwind CSS、Prisma + SQLite、Vitest、Playwright。每条故事有独立起始 Tag / 分支，不要求学习者先完成前一条故事。
 
-该配套仓库尚待创建和授权；完成后会在课程中加入真实 clone / checkout 命令和起始版本链接。
+六个不可变起始 Tag 已发布，基线矩阵已通过安装、Prisma 初始化、类型检查、ESLint、Vitest、Next.js build、浏览器 smoke、Story 05 预期红故障和 Story 06 指派行为检查。课程中的 clone / checkout 命令现在对应真实可复现的起始版本。
 
 ## 内容与工具边界
 
