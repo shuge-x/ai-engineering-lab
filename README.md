@@ -42,7 +42,7 @@ Matt Pocock Skills + CodeGraph 是第一套实践体系，不是平台永久绑�
 
 推荐技术栈：Next.js App Router、React、TypeScript、Tailwind CSS、Prisma + SQLite、Vitest、Playwright。每条故事有独立起始 Tag / 分支，不要求学习者先完成前一条故事。
 
-配套项目已提交第一版基础实现，GitHub Actions 的安装、Prisma 初始化、TypeScript、ESLint、Vitest、Next.js build、Playwright 和任务指派行为检查均已通过。六个起始 Tag 仍需逐一验证后发布。
+配套项目已合并到主分支，六个不可变起始 Tag 已发布。GitHub Actions 基线矩阵已通过安装、Prisma 初始化、TypeScript、ESLint、Vitest、Next.js build、浏览器 smoke、Story 05 预期红故障和 Story 06 指派行为检查。
 
 ## 内容与工具边界
 
