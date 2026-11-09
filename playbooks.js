@@ -75,7 +75,7 @@ window.LAB_PRACTICE = {
       "demoProject": {
         "repository": "https://github.com/shuge-x/ai-coding-workflow-demo",
         "status": "已发布六个起始 Tag；基线矩阵通过",
-        "tags": ["story-01-start", "story-02-start", "story-03-start", "story-04-start", "story-05-start", "story-06-start"],
+        "tags": ["story-01-start-r1", "story-02-start-r1", "story-03-start-r1", "story-04-start-r1", "story-05-start-r1", "story-06-start-r1"],
         "verification": "六条基线已通过 GitHub Actions 矩阵：Story 05 预期红故障可复现，Story 06 指派行为保持通过。",
         "stack": [
           "Next.js App Router",
@@ -144,7 +144,7 @@ window.LAB_PRACTICE = {
         "不引入新权限规则",
         "已有任务时的看板布局不能受影响"
       ],
-      "start": "story-01-start"
+      "start": "story-01-start-r1"
     },
     {
       "id": "due-reminder",
@@ -158,7 +158,7 @@ window.LAB_PRACTICE = {
         "本故事只做需求探索和设计，不进入编码",
         "不允许 Agent 自行假设提醒频率或通知渠道"
       ],
-      "start": "story-02-start"
+      "start": "story-02-start-r1"
     },
     {
       "id": "task-assignment",
@@ -175,7 +175,7 @@ window.LAB_PRACTICE = {
         "非项目成员不能被指派",
         "不在本次范围内开发复杂通知系统"
       ],
-      "start": "story-03-start"
+      "start": "story-03-start-r1"
     },
     {
       "id": "multi-team-saas",
@@ -189,7 +189,7 @@ window.LAB_PRACTICE = {
         "本故事重点是架构决策，不默认一次性完成整个平台",
         "租户隔离和数据迁移方案必须由人确认"
       ],
-      "start": "story-04-start"
+      "start": "story-04-start-r1"
     },
     {
       "id": "drag-drop-bug",
@@ -204,7 +204,7 @@ window.LAB_PRACTICE = {
         "不能通过延长超时或只改前端显示掩盖问题",
         "需要重新执行原始浏览器操作验收"
       ],
-      "start": "story-05-start"
+      "start": "story-05-start-r1"
     },
     {
       "id": "task-service-refactor",
@@ -219,7 +219,7 @@ window.LAB_PRACTICE = {
         "重构前建立行为保护测试",
         "每次只处理一个边界，不顺手加入新业务功能"
       ],
-      "start": "story-06-start"
+      "start": "story-06-start-r1"
     }
   ],
   "playbooks": [
@@ -246,8 +246,8 @@ window.LAB_PRACTICE = {
         "alternatives": "如果访谈后发现要新增业务规则，升级到需求探索；如果需要跨多个模块和跨会话交付，升级到常规功能开发。"
       },
       "preparation": {
-        "project": "story-01-start",
-        "commands": ["git clone https://github.com/shuge-x/ai-coding-workflow-demo.git", "cd ai-coding-workflow-demo", "git fetch --tags", "git checkout story-01-start", "npm install", "cp .env.example .env", "npm run db:push", "PRACTICE_BASELINE=01 npm run db:seed", "npm run dev"],
+        "project": "story-01-start-r1",
+        "commands": ["git clone https://github.com/shuge-x/ai-coding-workflow-demo.git", "cd ai-coding-workflow-demo", "git fetch --tags", "git checkout story-01-start-r1", "npm install", "cp .env.example .env", "npm run db:push", "PRACTICE_BASELINE=01 npm run db:seed", "npm run dev"],
         "requirements": [
           "Node.js LTS",
           "已安装一个 Coding Agent",
@@ -395,8 +395,8 @@ window.LAB_PRACTICE = {
         "alternatives": "需求确认后，用户可以另开常规功能开发路线；不要把 Grill 自动延伸为编码授权。"
       },
       "preparation": {
-        "project": "story-02-start",
-        "commands": ["git clone https://github.com/shuge-x/ai-coding-workflow-demo.git", "cd ai-coding-workflow-demo", "git fetch --tags", "git checkout story-02-start", "npm install", "cp .env.example .env", "npm run db:push", "PRACTICE_BASELINE=02 npm run db:seed", "npm run dev"],
+        "project": "story-02-start-r1",
+        "commands": ["git clone https://github.com/shuge-x/ai-coding-workflow-demo.git", "cd ai-coding-workflow-demo", "git fetch --tags", "git checkout story-02-start-r1", "npm install", "cp .env.example .env", "npm run db:push", "PRACTICE_BASELINE=02 npm run db:seed", "npm run dev"],
         "requirements": [
           "完成通用 Skill 安装",
           "在教学项目运行过 /setup-matt-pocock-skills",
@@ -549,8 +549,8 @@ window.LAB_PRACTICE = {
         "alternatives": "如果主要未知是架构方向，先用 Wayfinder；如果已经出现真实故障，进入 Bug 诊断。"
       },
       "preparation": {
-        "project": "story-03-start",
-        "commands": ["git clone https://github.com/shuge-x/ai-coding-workflow-demo.git", "cd ai-coding-workflow-demo", "git fetch --tags", "git checkout story-03-start", "npm install", "cp .env.example .env", "npm run db:push", "PRACTICE_BASELINE=03 npm run db:seed", "npm run dev"],
+        "project": "story-03-start-r1",
+        "commands": ["git clone https://github.com/shuge-x/ai-coding-workflow-demo.git", "cd ai-coding-workflow-demo", "git fetch --tags", "git checkout story-03-start-r1", "npm install", "cp .env.example .env", "npm run db:push", "PRACTICE_BASELINE=03 npm run db:seed", "npm run dev"],
         "requirements": [
           "Skill 安装和项目级 tracker setup 已完成",
           "Local Markdown tracker 可用",
@@ -767,8 +767,8 @@ window.LAB_PRACTICE = {
         "alternatives": "若主要问题只是需求含义不清，先 Grill；如果未知决策清晰且已解决，则进入常规功能开发。"
       },
       "preparation": {
-        "project": "story-04-start",
-        "commands": ["git clone https://github.com/shuge-x/ai-coding-workflow-demo.git", "cd ai-coding-workflow-demo", "git fetch --tags", "git checkout story-04-start", "npm install", "cp .env.example .env", "npm run db:push", "PRACTICE_BASELINE=04 npm run db:seed", "npm run dev"],
+        "project": "story-04-start-r1",
+        "commands": ["git clone https://github.com/shuge-x/ai-coding-workflow-demo.git", "cd ai-coding-workflow-demo", "git fetch --tags", "git checkout story-04-start-r1", "npm install", "cp .env.example .env", "npm run db:push", "PRACTICE_BASELINE=04 npm run db:seed", "npm run dev"],
         "requirements": [
           "先读取项目架构和领域文档",
           "准备可用的 Issue Tracker（推荐 Local Markdown）",
@@ -1023,11 +1023,11 @@ window.LAB_PRACTICE = {
         "alternatives": "如果复现发现根本是需求规则未定义，回到需求探索；如果根因明确且改动很小，可收敛为快速修改。"
       },
       "preparation": {
-        "project": "story-05-start",
-        "commands": ["git clone https://github.com/shuge-x/ai-coding-workflow-demo.git", "cd ai-coding-workflow-demo", "git fetch --tags", "git checkout story-05-start", "npm install", "cp .env.example .env", "npm run db:push", "PRACTICE_BASELINE=05 npm run db:seed", "npm run dev"],
+        "project": "story-05-start-r1",
+        "commands": ["git clone https://github.com/shuge-x/ai-coding-workflow-demo.git", "cd ai-coding-workflow-demo", "git fetch --tags", "git checkout story-05-start-r1", "npm install", "cp .env.example .env", "npm run db:push", "PRACTICE_BASELINE=05 npm run db:seed", "npm run dev"],
         "verificationCommands": ["在第二个终端运行：npm run test:bug-repro（预期失败，用来证明预置持久化故障）"],
         "requirements": [
-          "确认使用带有预置缺陷的 story-05-start 起始版本",
+          "确认使用带有预置缺陷的 story-05-start-r1 起始版本",
           "保留浏览器控制台和 Network 记录",
           "不要先更新依赖或改动代码"
         ],
@@ -1235,8 +1235,8 @@ window.LAB_PRACTICE = {
         "alternatives": "如果重构同时改变用户行为，先把行为变化拆成独立 Feature Spec；如果只有一个小局部修复，走快速修改。"
       },
       "preparation": {
-        "project": "story-06-start",
-        "commands": ["git clone https://github.com/shuge-x/ai-coding-workflow-demo.git", "cd ai-coding-workflow-demo", "git fetch --tags", "git checkout story-06-start", "npm install", "cp .env.example .env", "npm run db:push", "PRACTICE_BASELINE=06 npm run db:seed", "npm run dev"],
+        "project": "story-06-start-r1",
+        "commands": ["git clone https://github.com/shuge-x/ai-coding-workflow-demo.git", "cd ai-coding-workflow-demo", "git fetch --tags", "git checkout story-06-start-r1", "npm install", "cp .env.example .env", "npm run db:push", "PRACTICE_BASELINE=06 npm run db:seed", "npm run dev"],
         "verificationCommands": ["npm run test:assignment（验证 Story 06 的既有指派行为）"],
         "requirements": [
           "使用预置 TaskService 过载的起始版本",
