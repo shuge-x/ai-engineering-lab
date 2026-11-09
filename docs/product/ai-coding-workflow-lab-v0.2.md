@@ -90,7 +90,7 @@ Matt Pocock Skills + CodeGraph 是第一套正式实践体系，不是平台永�
 
 ## 7. 配套教学项目：Team Task Board
 
-建议独立仓库：shuge-x/ai-coding-workflow-demo（已创建；基础项目已提交，六个练习起始 Tag 待验证）。
+配套仓库：shuge-x/ai-coding-workflow-demo（已合并到 main；六个练习起始 Tag 已发布，基线矩阵已通过）。
 
 这是一个简单、真实、可运行的团队任务看板，用来承载六条实战路线。它不是另一个大型产品。
 
