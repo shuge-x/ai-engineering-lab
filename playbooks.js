@@ -74,7 +74,9 @@ window.LAB_PRACTICE = {
       },
       "demoProject": {
         "repository": "https://github.com/shuge-x/ai-coding-workflow-demo",
-        "status": "待仓库创建和授权",
+        "status": "已发布六个起始 Tag；基线矩阵通过",
+        "tags": ["story-01-start", "story-02-start", "story-03-start", "story-04-start", "story-05-start", "story-06-start"],
+        "verification": "六条基线已通过 GitHub Actions 矩阵：Story 05 预期红故障可复现，Story 06 指派行为保持通过。",
         "stack": [
           "Next.js App Router",
           "React",
