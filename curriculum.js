@@ -1,6 +1,6 @@
 window.LAB_CURRICULUM = {
   "meta": {
-    "title": "AI Engineering Lab",
+    "title": "AI Coding Workflow Lab",
     "audience": "希望系统使用 AI Coding Agent 的个人开发者与工程团队",
     "version": "0.2.0",
     "reviewed": "2026-11-08",
