@@ -351,6 +351,10 @@ window.LAB_PRACTICE = {
         {
           "title": "不要把小改动做成完整 SDD",
           "detail": "如果目标和边界已经清楚，不需要 Grill、ADR、Spec、Tickets 全套流程。流程应该匹配风险，不是越多越专业。"
+        },
+        {
+          "title": "发现范围扩大时停止并升级",
+          "detail": "如果阅读代码后发现需要改创建 API、数据模型、权限或多个模块，说明当前路由判断已经失效。停止继续 implement，向用户报告新增未知，改走需求探索或常规功能路线。"
         }
       ],
       "acceptance": [
