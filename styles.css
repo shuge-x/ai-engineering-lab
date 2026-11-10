@@ -512,7 +512,7 @@ html,body{font-family:Inter,"Noto Sans SC","PingFang SC","Microsoft YaHei",Arial
   grid-template-columns:235px minmax(380px,1fr) 340px;
  }
 }
-@media(max-width:980px){
+@media(max-width:1020px){
  #app-layout:not(.home-mode) .workbench{
   grid-template-columns:220px minmax(0,1fr);
   grid-template-rows:minmax(450px,auto) auto auto
@@ -642,7 +642,7 @@ html,body{font-family:Inter,"Noto Sans SC","PingFang SC","Microsoft YaHei",Arial
   grid-template-columns:250px minmax(380px,1fr) 350px;
  }
 }
-@media(max-width:980px){
+@media(max-width:1020px){
  #app-layout:not(.home-mode) .workbench{
   grid-template-columns:230px minmax(0,1fr);
  }
@@ -931,6 +931,8 @@ html,body{font-family:Inter,"Noto Sans SC","PingFang SC","Microsoft YaHei",Arial
 .practice-substeps button.active{color:var(--blue);font-weight:750;background:var(--blue2)}
 .practice-left .directory-foot{font-size:9px}
 .practice-center{display:flex;flex-direction:column;min-height:0}
+.context-return-row{padding:8px 18px 0;background:var(--panel)}
+.context-return{border:0;background:var(--blue2);color:var(--blue);border-radius:4px;padding:6px 9px;font-size:10px;font-weight:750;cursor:pointer}
 .practice-center .lesson-canvas-head{padding:12px 18px 10px;background-image:none;background:var(--panel)}
 .practice-center .lesson-canvas-head h1{font-size:22px}
 .practice-section-heading{display:flex;align-items:end;justify-content:space-between;padding:9px 18px 7px;border-bottom:1px solid var(--line);background:var(--panel2)}
@@ -1014,11 +1016,33 @@ html,body{font-family:Inter,"Noto Sans SC","PingFang SC","Microsoft YaHei",Arial
 .practice-trace .trace-row{cursor:pointer}
 .practice-trace .trace-row.active{background:var(--blue2)}
 .practice-related-footer{display:flex;align-items:center;flex-wrap:wrap;margin:10px 3px 18px;font-size:10px;color:var(--muted)}
+@media(max-width:1350px){
+ .topbar{height:auto;grid-template-columns:minmax(0,1fr) auto;gap:8px 12px;padding:8px 12px}
+ .brand{grid-column:1;grid-row:1;min-width:0}
+ .brand-mark{flex-shrink:0}
+ .brand>span:last-child{min-width:0}
+ .brand b{font-size:15px}
+ .brand b,.brand small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .top-right{grid-column:2;grid-row:1;min-width:0}
+ .search{width:175px}
+ .top-categories{grid-column:1/-1;grid-row:2;min-width:0;justify-content:flex-start;overflow-x:auto;border-top:1px solid var(--line);padding-top:5px}
+ .top-categories button{flex-shrink:0}
+}
+@media(max-width:760px){
+ .top-right{display:contents}
+ .search{grid-column:1/-1;grid-row:2;width:100%}
+ .icon-btn{grid-column:2;grid-row:1}
+ .top-categories{grid-row:3}
+ #app-layout:not(.home-mode) .trace-head{height:auto;min-height:44px;flex-wrap:wrap;gap:8px;padding:8px}
+ #app-layout:not(.home-mode) .trace-head>div:first-child{flex-wrap:wrap}
+ .trace-columns,.trace-row{grid-template-columns:26px minmax(0,1fr) 64px 54px;gap:6px}
+ #app-layout:not(.home-mode) .trace-foot{flex-wrap:wrap;gap:8px}
+}
 @media(max-width:1250px){
  #app-layout:not(.home-mode) .practice-shell .workbench{grid-template-columns:250px minmax(380px,1fr) 350px}
  .practice-pack-links{display:none}
 }
-@media(max-width:980px){
+@media(max-width:1020px){
  #app-layout:not(.home-mode) .practice-shell .workbench{grid-template-columns:220px minmax(0,1fr);grid-template-rows:minmax(480px,auto) auto auto}
  #app-layout:not(.home-mode) .practice-left{grid-column:1;grid-row:1 / 4}
  #app-layout:not(.home-mode) .practice-center{grid-column:2;grid-row:1}

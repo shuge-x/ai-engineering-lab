@@ -8,7 +8,7 @@ const lessons = CUR.lessons;
 const PRACTICE = window.LAB_PRACTICE;
 const scenarios = PRACTICE.scenarios;
 const playbooks = PRACTICE.playbooks;
-const state = {page:"home", group:0, lesson:lessons[0].id, playbook:"quick-change", practiceSection:"scenario", practiceTab:"command", mode:"task", step:0, branch:"main", tab:"mechanism", playing:false, speed:1, flowPulse:false, search:""};
+const state = {page:"home", group:0, lesson:lessons[0].id, playbook:"quick-change", practiceSection:"scenario", practiceTab:"command", mode:"task", step:0, branch:"main", tab:"mechanism", playing:false, speed:1, flowPulse:false, search:"", returnToPractice:null};
 const progress = JSON.parse(localStorage.getItem("ael-progress-v3") || "{}");
 const current = () => lessons.find((l) => l.id === state.lesson) || lessons[0];
 const currentGroupLessons = () => lessons.filter((l) => l.group === state.group);
@@ -21,15 +21,20 @@ function goLesson(id) {
   stop();
   const lesson=lessons.find((l)=>l.id===id);
   if(!lesson) return;
+  if(state.page==="playbook") state.returnToPractice={id:state.playbook,section:state.practiceSection,tab:state.practiceTab,step:state.step};
   state.lesson=id; state.group=lesson.group; state.page="course"; state.mode="mechanism"; state.step=0; state.branch="main"; state.tab="mechanism";
   render(); window.scrollTo(0,0);
 }
-function goPlaybook(id) {
+function goPlaybook(id, restoreContext) {
   stop();
   const item=playbooks.find((x)=>x.id===id);
   if(!item) return;
-  state.playbook=id; state.page="playbook"; state.practiceSection="scenario"; state.practiceTab="command"; state.step=0; state.mode="mechanism"; state.branch="main";
+  state.playbook=id; state.page="playbook"; state.practiceSection=restoreContext?.section||"scenario"; state.practiceTab=restoreContext?.tab||"command"; state.step=Math.max(0,Math.min(Number(restoreContext?.step)||0,item.steps.length-1)); state.mode="mechanism"; state.branch="main"; state.returnToPractice=null;
   render(); window.scrollTo(0,0);
+}
+function returnToPractice() {
+  const context=state.returnToPractice;
+  if(context) goPlaybook(context.id,context);
 }
 function goScenario(id) {
   const item=playbooks.find((x)=>x.scenarioId===id);
@@ -37,6 +42,7 @@ function goScenario(id) {
 }
 function goPage(page) {
   stop(); state.page=page;
+  if(page==="home"||page==="playbooks") state.returnToPractice=null;
   if(page==="home"){state.mode="task";state.step=0;}
   render(); window.scrollTo(0,0);
 }
@@ -145,10 +151,11 @@ function course() {
  else if(state.mode==="mechanism") center=mechanism(l,ss,s,sceneNodes);
  else center=graph(l,related);
  const modeTabs='<div class="mode-tabs"><div class="mode-left"><button data-mode="task" class="'+(state.mode==="task"?"active":"")+'">⌂ 任务入口</button><button data-mode="mechanism" class="'+(state.mode==="mechanism"?"active":"")+'">⬡ 机制演示</button><button data-mode="graph" class="'+(state.mode==="graph"?"active":"")+'">♧ 知识图谱</button></div><span class="mode-hint">LEARNING VIEW</span></div>';
+ const returnPractice=state.returnToPractice?'<div class="context-return-row"><button class="context-return" data-practice-return>← 返回实战：'+esc(playbooks.find(x=>x.id===state.returnToPractice.id)?.title||"工作流实战")+'</button></div>':"";
  const scenario='<div class="scene-switch"><span class="scene-label">场景</span><button data-branch="main" class="'+(state.branch==="main"?"active":"")+'">主流程</button><button data-branch="fault" class="'+(state.branch==="fault"?"active":"")+'">⚡ '+esc(l.fault.name)+'</button><span class="scene-count">路径 '+(state.step+1)+' / '+ss.length+'</span></div>';
  const stagePath='<div class="stage-path">'+ss.map((x,i)=>'<button class="stage-path-item '+(i===state.step?"active":i<state.step?"passed":"")+'" data-step="'+i+'"><span>'+String(i+1).padStart(2,"0")+'</span><b>'+esc(x.title)+'</b></button>').join('<span class="stage-path-arrow">→</span>')+'</div>';
  const canvasHead='<div class="lesson-canvas-head"><div><div class="eyebrow">'+String(l.group+1).padStart(2,"0")+' / '+esc(groups[l.group].en)+'</div><h1>'+esc(l.title)+'</h1><p>'+esc(l.summary)+'</p></div><span class="lesson-index">'+String(lessons.indexOf(l)+1).padStart(2,"0")+'</span></div>';
- return '<div class="course-shell"><div class="workbench"><aside class="left-panel panel"><div class="panel-heading"><b>学习目录</b><span>'+groupLessons.length+'</span></div><div class="directory-domain"><span>0'+(l.group+1)+' / '+esc(groups[l.group].title)+'</span><small>'+groupLessons.length+' 个知识主题</small></div><div class="directory-list">'+lessonItems+'</div><div class="directory-foot"><span>● '+lessons.length+' 个主题</span><span>'+Object.keys(progress).length+' 已掌握</span></div></aside><section class="center-panel panel">'+modeTabs+canvasHead+scenario+stagePath+'<div class="center-content">'+center+'</div></section><aside class="right-panel panel"><div class="panel-heading"><b>机制详解</b><span>0'+(state.step+1)+' / 0'+ss.length+'</span></div><div class="right-tabs"><button data-tab="mechanism" class="'+(state.tab==="mechanism"?"active":"")+'">机制</button><button data-tab="command" class="'+(state.tab==="command"?"active":"")+'">命令 / Prompt</button><button data-tab="sources" class="'+(state.tab==="sources"?"active":"")+'">来源</button></div><div class="right-content">'+rightContent(l,s)+'</div></aside><section class="trace-panel panel"><div class="trace-head"><div><b>执行轨迹</b><span>0'+(state.step+1)+' / 0'+ss.length+'</span></div><div class="play-controls"><select id="speed" aria-label="播放速度"><option value="1" '+(state.speed===1?"selected":"")+' >1×</option><option value=".7" '+(state.speed===.7?"selected":"")+' >0.7×</option><option value="1.5" '+(state.speed===1.5?"selected":"")+' >1.5×</option></select><button data-prev '+(state.step===0?"disabled":"")+' >‹</button><button class="play-btn" data-play>'+(state.playing?"Ⅱ 暂停":"▶ 播放")+'</button><button data-next>下一步 ›</button><button data-reset title="重置">↺</button></div></div><div class="trace-columns"><span>步骤</span><span>事件</span><span>执行者</span><span>状态观察</span></div><div class="trace-rows">'+trace+'</div><div class="trace-foot"><span>点击步骤查看状态；Space 播放，← → 逐步探索</span><button class="mark-btn" data-mark>'+(progress[l.id]?"✓ 已标记已学":"标记已学 ✓")+'</button></div></section></div></div>';
+ return '<div class="course-shell"><div class="workbench"><aside class="left-panel panel"><div class="panel-heading"><b>学习目录</b><span>'+groupLessons.length+'</span></div><div class="directory-domain"><span>0'+(l.group+1)+' / '+esc(groups[l.group].title)+'</span><small>'+groupLessons.length+' 个知识主题</small></div><div class="directory-list">'+lessonItems+'</div><div class="directory-foot"><span>● '+lessons.length+' 个主题</span><span>'+Object.keys(progress).length+' 已掌握</span></div></aside><section class="center-panel panel">'+returnPractice+modeTabs+canvasHead+scenario+stagePath+'<div class="center-content">'+center+'</div></section><aside class="right-panel panel"><div class="panel-heading"><b>机制详解</b><span>0'+(state.step+1)+' / 0'+ss.length+'</span></div><div class="right-tabs"><button data-tab="mechanism" class="'+(state.tab==="mechanism"?"active":"")+'">机制</button><button data-tab="command" class="'+(state.tab==="command"?"active":"")+'">命令 / Prompt</button><button data-tab="sources" class="'+(state.tab==="sources"?"active":"")+'">来源</button></div><div class="right-content">'+rightContent(l,s)+'</div></aside><section class="trace-panel panel"><div class="trace-head"><div><b>执行轨迹</b><span>0'+(state.step+1)+' / 0'+ss.length+'</span></div><div class="play-controls"><select id="speed" aria-label="播放速度"><option value="1" '+(state.speed===1?"selected":"")+' >1×</option><option value=".7" '+(state.speed===.7?"selected":"")+' >0.7×</option><option value="1.5" '+(state.speed===1.5?"selected":"")+' >1.5×</option></select><button data-prev '+(state.step===0?"disabled":"")+' >‹</button><button class="play-btn" data-play>'+(state.playing?"Ⅱ 暂停":"▶ 播放")+'</button><button data-next>下一步 ›</button><button data-reset title="重置">↺</button></div></div><div class="trace-columns"><span>步骤</span><span>事件</span><span>执行者</span><span>状态观察</span></div><div class="trace-rows">'+trace+'</div><div class="trace-foot"><span>点击步骤查看状态；Space 播放，← → 逐步探索</span><button class="mark-btn" data-mark>'+(progress[l.id]?"✓ 已标记已学":"标记已学 ✓")+'</button></div></section></div></div>';
 }
 function taskCanvas(l,s,ss) {
  return '<div class="task-view"><div class="task-kicker">LEARNING SCENARIO</div><h2>'+esc(l.title)+'</h2><p class="task-description">'+esc(l.summary)+'</p><div class="task-facts"><div><small>核心原则</small><b>'+esc(l.principle)+'</b></div><div><small>实践重点</small><b>'+esc(l.tradeoff)+'</b></div><div><small>核心工件</small><b>'+esc(l.artifact)+'</b></div></div><div class="task-route"><div class="route-head"><b>学习步骤</b><span>选择阶段进入学习</span></div><div class="route-steps">'+ss.map((x,i)=>'<button data-step="'+i+'" class="'+(i===state.step?"active":"")+'"><span>0'+(i+1)+'</span><b>'+esc(x.title)+'</b><small>'+esc(x.actor)+'</small></button>').join("")+'</div></div><div class="current-task"><span class="current-label">当前阶段</span><b>'+esc(s.title)+'</b><p>'+esc(s.detail)+'</p><button class="primary" data-mode="mechanism">进入机制演示 →</button></div></div>';
@@ -271,6 +278,7 @@ document.addEventListener("animationend",(e)=>{
 document.addEventListener("click",(e)=>{
  const b=e.target.closest("button,a"); if(!b)return;
  if(b.dataset.category!==undefined){state.group=Number(b.dataset.category);goLesson(currentGroupLessons()[0].id);return;}
+ if(b.dataset.practiceReturn!==undefined){returnToPractice();return;}
  if(b.dataset.lesson){goLesson(b.dataset.lesson);return;}
  if(b.dataset.playbook){goPlaybook(b.dataset.playbook);return;}
  if(b.dataset.branch){stop();state.branch=b.dataset.branch;state.step=0;render();return;}
