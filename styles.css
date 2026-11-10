@@ -996,6 +996,13 @@ html,body{font-family:Inter,"Noto Sans SC","PingFang SC","Microsoft YaHei",Arial
 .practice-artifact-list{display:grid;gap:10px}
 .practice-artifact-list article{border:1px solid var(--line);border-radius:4px;padding:11px;background:var(--panel)}
 .practice-artifact-list h3{margin:0 0 7px}
+.practice-interview{display:grid;gap:8px;margin-top:12px}
+.practice-interview details{border:1px solid var(--line);border-radius:4px;background:var(--panel2);overflow-wrap:anywhere}
+.practice-interview summary{padding:12px;cursor:pointer;font-weight:600;line-height:1.8}
+.practice-interview summary:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.practice-interview details>div{padding:0 12px 4px;border-top:1px solid var(--line)}
+.practice-interview b{display:block;margin-top:12px;font-size:11px;color:var(--muted)}
+.practice-interview p{margin:4px 0 12px;line-height:1.85}
 .practice-walkthrough{border-top:1px solid var(--line);margin:18px 0;padding-top:4px}
 .practice-walkthrough ol{padding-left:22px}
 .practice-walkthrough li{margin:12px 0}

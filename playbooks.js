@@ -471,13 +471,51 @@ window.LAB_PRACTICE = {
       },
       "preparation": {
         "project": "story-02-start-r1",
-        "commands": ["git clone https://github.com/shuge-x/ai-coding-workflow-demo.git", "cd ai-coding-workflow-demo", "git fetch --tags", "git checkout story-02-start-r1", "npm install", "cp .env.example .env", "node -e \"require(\'fs\').closeSync(require(\'fs\').openSync(\'prisma/dev.db\',\'a\'))\"", "npm run db:push", "PRACTICE_BASELINE=02 npm run db:seed", "npm run dev"],
-        "requirements": [
-          "完成通用 Skill 安装",
-          "在教学项目运行过 /setup-matt-pocock-skills",
-          "选择 Local Markdown tracker"
+        "commands": [
+          "git clone https://github.com/shuge-x/ai-coding-workflow-demo.git",
+          "cd ai-coding-workflow-demo",
+          "git fetch --tags",
+          "git checkout story-02-start-r1",
+          "git switch -c codex/story-02-reminder-discovery",
+          "npm install",
+          "cp .env.example .env",
+          "node -e \"require('fs').closeSync(require('fs').openSync('prisma/dev.db','a'))\"",
+          "npm run db:push",
+          "PRACTICE_BASELINE=02 npm run db:seed",
+          "npm run dev"
         ],
-        "codegraph": "不需要。需求探索首先处理业务未知，代码结构索引不是替代访谈的工具。"
+        "requirements": [
+          "Git、Node.js 22、npm 10；终端命令使用 macOS / Linux shell 或 Windows Git Bash / WSL",
+          "已安装 Matt Pocock Skills，并在本项目运行过 /setup-matt-pocock-skills；可选择 Local Markdown tracker",
+          "准备作为需求方逐条回答；参考答案只是作者示例，不能替代你的真实决定"
+        ],
+        "codegraph": "不需要。需求探索首先处理业务未知，代码结构索引不是替代访谈的工具。",
+        "walkthrough": [
+          {
+            "title": "从独立起点开始",
+            "body": "在新建的练习目录切换 story-02-start-r1 后建立分支。seed 会清空该项目已有任务，再写入 4 个带截止日期的示例任务；无需先完成 Story 01。"
+          },
+          {
+            "title": "先读源码，再问业务",
+            "body": "先按第 01 步读取任务日期输入、创建服务和模型。当前起点没有用户、负责人或通知收件人关系；页面图标不代表这些业务能力已实现。"
+          },
+          {
+            "title": "一次回答一个问题",
+            "body": "在 Agent 中主动启动 grill-with-docs 并发送第 02 步 Prompt。由你作为需求方回答；Agent 应根据回答提出下一个问题。若找不到 Skill 入口，先完成安装并重启。"
+          },
+          {
+            "title": "对照示例，不照搬决定",
+            "body": "“工件与交接”里有作者编写的 8 轮访谈示例。先尝试回答，再展开示例；保留和示例不同的选择，并标明来源。"
+          },
+          {
+            "title": "检查文档与结束状态",
+            "body": "保存访谈记录、术语与未决项。检查 app、lib、prisma 没有因需求讨论而被修改；本轮完成状态是需求探索记录，不是提醒功能已经实现或获准实施。"
+          }
+        ],
+        "verificationCommands": [
+          "git grep -n -E 'model |dueDate' -- prisma/schema.prisma app/actions.ts lib/task-service.ts",
+          "git diff -- app lib prisma"
+        ]
       },
       "steps": [
         {
@@ -486,9 +524,9 @@ window.LAB_PRACTICE = {
           "actor": "Agent",
           "invocation": {
             "kind": "natural",
-            "command": "先读取项目文档和当前 Reminder 相关概念。"
+            "command": "读取项目规范、任务截止日期输入和保存链路，列出事实 / 推断 / 未知。"
           },
-          "prompt": "请先阅读 AGENTS.md、GLOSSARY.md（如存在）和任务截止日期相关代码。告诉我系统现在已有的事实、你从源码推断的内容，以及仍然未知的业务问题。不要把代码当前行为当成产品需求。",
+          "prompt": "请先阅读 AGENTS.md、GLOSSARY.md（如存在）、prisma/schema.prisma、prisma/seed.ts、任务日期输入与保存链路。分别列出代码事实、推断和待确认的业务问题，并为事实给出文件位置。特别核对当前是否存在用户、任务负责人、订阅者或收件人关系；不要把页面头像或通知图标当成真实身份功能，也不要把创建时附加的时间当成已批准提醒时刻。当前只恢复语境，不设计提醒规则、不写业务代码。",
           "agentBehavior": "Agent 将现状事实、代码推断和待确认业务问题分开；不应直接设计提醒规则。",
           "artifact": "现状摘要、事实 / 推断 / 未知列表",
           "checklist": [
@@ -506,13 +544,14 @@ window.LAB_PRACTICE = {
             "kind": "slash",
             "command": "/grill-with-docs"
           },
-          "prompt": "/grill-with-docs\n\n我想给 Team Task Board 增加任务逾期提醒。我现在只有一个模糊想法：任务快到期时，系统能提醒相关人员。请通过访谈找出会改变产品行为的关键未知。一次只问一个问题，先问最重要的，不要急着给方案或写代码。请区分已确认事实、我的决定、你的假设和待决策项。",
+          "prompt": "/grill-with-docs\n\n我想给 Team Task Board 增加任务到期提醒，目前只有一个模糊想法：任务快到期时，系统能提醒相关人员。请通过访谈找出会改变产品行为的关键未知。一次只问当前最重要的一个问题，收到我的回答再继续。先明确“相关人员”与“到期前提醒 / 逾期后催办”的含义，再讨论日期、时区、渠道、关闭和失败处理。区分代码事实、我真实确认的决定、你的假设、教学示例和未决项；没有回答的地方保留未知。当前授权仅限需求探索和设计。",
           "agentBehavior": "grill-with-docs 上游要求调用 grilling 与 domain-modeling。它应逐项追问，而不是一次抛出十几个问题；同时建立共享领域语言，必要时记录 ADR。用户应知道这是一个需求访谈，不是编码任务。",
           "artifact": "访谈记录、已确认业务规则、未决问题。",
           "checklist": [
             "一次聚焦一个关键问题",
             "提醒对象和触发时机没有被 Agent 擅自决定",
-            "不把示例答案当成用户已确认的决定"
+            "不把示例答案当成用户已确认的决定",
+            "未把作者示例或缺失的负责人关系写成真实用户决定"
           ],
           "handoff": "关键业务规则足够清晰后，整理领域概念与文档。",
           "sources": [
@@ -528,13 +567,13 @@ window.LAB_PRACTICE = {
             "kind": "agent",
             "command": "Agent 按需调用 domain-modeling；有真实权衡时创建 ADR。"
           },
-          "prompt": "请基于我刚才确认的回答整理 Reminder 的领域模型。至少区分 Task Due Date、Reminder Schedule、Recipient、Delivery Channel 和 User Preference。标注每个概念的定义、关系、状态和不变量。不要把尚未确认的默认值写成已批准规则。",
+          "prompt": "请根据刚才真实获得的回答整理领域用语，区分 Task Due Date、Due Reminder、Overdue Follow-up、Reminder Subscription、Recipient、Reminder Schedule、Delivery Channel、Delivery Attempt 和 User Preference。术语表只写概念定义；触发时间、频率、失败策略及确认状态写入需求记录。若只有教学示例回答，明确标注为示例，不能写成我的决定。只有出现真实且重要的架构取舍时才记录 ADR。",
           "agentBehavior": "domain-modeling 是 Agent 可调用的专业能力，不要求用户把它作为第二个 slash 命令。只有出现真实架构取舍时才创建 ADR；普通术语写入 GLOSSARY 即可。",
           "artifact": "GLOSSARY 候选条目、必要 ADR、领域关系摘要。",
           "checklist": [
-            "术语没有互相混用",
-            "时区、重复发送、取消和关闭提醒等规则有明确状态",
-            "ADR 只记录真实取舍"
+            "术语定义与规则状态分开保存",
+            "提醒对象、时区、重复发送、关闭和失败等规则均有来源或未决标记",
+            "ADR 只记录真实取舍，没有为流程完整而创建"
           ],
           "handoff": "把访谈结果整理成可确认的设计摘要。",
           "sources": [
@@ -550,7 +589,7 @@ window.LAB_PRACTICE = {
             "kind": "natural",
             "command": "不要调用 /to-spec 或 /implement；当前故事到这里结束。"
           },
-          "prompt": "请汇总任务逾期提醒的目标、用户、触发条件、提醒对象、时间规则、渠道、频率、免打扰、取消方式、失败处理、非目标和未决问题。每条规则标记为我已确认、仍是假设或待我决定。当前授权仅限需求探索与设计，请停止，不要生成实施 Spec 或修改业务代码。",
+          "prompt": "请汇总提醒的目标、收件人、到期语义、时间与时区、渠道、频率、关闭方式、任务变更与完成后的行为、失败处理、非目标和未决问题。每条规则必须标记为代码事实、我真实确认、你的假设、作者教学示例或待决定，并附来源。真实用户尚未确认的部分不要写成批准需求，也不要宣布已经可实施。当前授权仅限需求探索与设计；交付记录和下一轮问题后结束本故事。",
           "agentBehavior": "Agent 应输出可读的需求基线和开放问题，并明确停在设计边界。设计认可不等于编码授权。",
           "artifact": "需求基线、GLOSSARY 更新、必要 ADR、待决策清单。",
           "checklist": [
@@ -558,15 +597,85 @@ window.LAB_PRACTICE = {
             "没有将假设写成确认",
             "明确写出未开始编码"
           ],
-          "handoff": "用户确认后，本故事结束；后续另开常规功能开发。",
+          "handoff": "交付需求探索记录；真实用户确认与后续实施授权分别记录，后续路线另行选择。",
           "sources": []
         }
       ],
       "artifactSamples": [
         {
-          "title": "需求基线示例（节选）",
+          "title": "起始事实与未知对照",
           "format": "markdown",
-          "content": "## 已确认\n- Reminder 关联一个 Task。\n- 提醒对象默认是任务负责人；未指派任务的提醒规则仍待确认。\n\n## 待确认\n- 到期前多久发送第一次提醒？\n- 是否重复提醒？重复间隔由谁设置？\n- 使用项目时区、用户时区，还是任务创建者时区？\n- 用户能否关闭某一任务的提醒？\n- 邮件失败后是否重试？\n\n## 非目标\n- 本轮不实现通知中心 UI。\n- 本轮不决定具体邮件服务商。"
+          "content": "核对起点：story-02-start-r1\nCommit：46d98d66aa90c0a65b85f14ccb0c26a3841583d8\n\n代码事实：\n- schema.prisma 只定义 Project / Task，dueDate 可为空。\n- 日期输入在 actions.ts 中附加 T12:00:00 后保存。\n- seed 的 02 profile 创建 4 个有截止日期的任务，其中一个已完成且日期在过去。\n- 没有可直接复用的负责人、账户或通知收件人关系。\n\n不能推出：\n- 中午就是业务提醒时刻。\n- 默认收件人就是任务负责人。\n\n未知：提醒对象、提前或逾期语义、时区、频率、渠道、关闭和失败策略。\n本次为源码核对，没有把它记作提醒功能的运行测试。"
+        },
+        {
+          "title": "作者编写的访谈示例",
+          "format": "interview",
+          "content": "以下对话和候选规则由课程作者编写，用于演示访谈方法；不是本次会话用户的回答，也不是项目已批准需求。实际跟做时，请记录你自己的回答和来源。",
+          "turns": [
+            {
+              "question": "你说的“相关人员”具体是谁？",
+              "answer": "本例先考虑主动订阅任务提醒的个人，不把任务负责人作为默认收件人。",
+              "reason": "当前起点没有负责人或收件人关系。先明确“谁需要提醒”，才能讨论身份和订阅如何建立。",
+              "record": "教学示例 D01：收件人来自提醒订阅。真实用户是否采用、订阅者身份如何确认，待决定。"
+            },
+            {
+              "question": "“快到期”是到期前提醒，还是已经逾期后的催办？",
+              "answer": "本例先讨论截止日前一天的一次提醒；逾期后持续催办另行讨论。",
+              "reason": "提前提醒与逾期催办的触发条件、次数和用户预期不同，需要先确定本轮语义。",
+              "record": "教学示例 D02：到期前一次提醒。逾期催办不纳入本例候选范围。"
+            },
+            {
+              "question": "任务的日历截止日期和提醒时刻，应按哪个时区解释？",
+              "answer": "本例按收件人选择的时区，在任务截止日的前一天 09:00 提醒；没有选择时区时先要求补充。",
+              "reason": "代码把日期输入转成了带时间的值，但这不是业务已经选择的提醒时间或时区。",
+              "record": "教学示例 D03：按收件人时区解释日历日期与 09:00。真实用户确认、夏令时异常和修改时区后的行为仍待决定。"
+            },
+            {
+              "question": "任务完成、删除、取消订阅或修改截止日期后怎么办？",
+              "answer": "本例中，完成、删除或取消订阅会取消尚未发送的提醒；修改截止日期后重新计算未发送的计划。已发过一次后能否再发，我还没有决定。",
+              "reason": "状态变化可能让旧计划失效；“重新计算计划”和“允许再发送”是两个问题。",
+              "record": "教学示例 D04：失效计划取消，未发送计划重算。已发送任务再次提醒的条件列入未决项。"
+            },
+            {
+              "question": "如果任务没有截止日期，或计划提醒时刻已经过去呢？",
+              "answer": "本例中，没有截止日期就不安排提醒；新建或改期后计划时刻已经过去，先跳过，不补发历史提醒。",
+              "reason": "可选截止日期与迟到安排都需要明确边界，否则 Agent 会自行选择补发策略。",
+              "record": "教学示例 D05：无截止日期不排程；已过提醒时刻的安排跳过。真实采用前仍需确认。"
+            },
+            {
+              "question": "希望通过什么渠道收到提醒？收件地址从哪里来？",
+              "answer": "本例先比较邮件渠道。收件地址如何取得、验证和关联订阅者，还没有决定。",
+              "reason": "当前代码没有账户或邮箱关系。渠道偏好不等于已经具备投递条件。",
+              "record": "教学示例 D06：邮件为候选渠道；身份、收件地址验证与发送服务选择保持未决。"
+            },
+            {
+              "question": "用户能关闭提醒吗？需要全局免打扰窗口吗？",
+              "answer": "本例允许取消某个任务的提醒订阅；全局免打扰时段以及和 09:00 冲突时如何处理，先列为待讨论。",
+              "reason": "任务级订阅与个人全局偏好不能混成一个开关；尚未讨论的规则应保持可见。",
+              "record": "教学示例 D07：任务级关闭。免打扰与全局偏好的覆盖关系保持未决。"
+            },
+            {
+              "question": "投递失败后要重试吗？怎样算这次提醒成功？",
+              "answer": "本例不接受无限重试；次数和间隔仍待决定。发送服务接受了请求，也不代表用户已经收到或阅读。",
+              "reason": "提醒意图、单次投递尝试和用户实际看到消息，是不同的概念与完成状态。",
+              "record": "教学示例 D08：失败与重试需显式规则。重试上限、成功判定和失败反馈均待决定。"
+            }
+          ]
+        },
+        {
+          "title": "候选需求基线与停止边界",
+          "format": "markdown",
+          "content": "# Story 02 到期提醒候选需求基线\n\n状态：教学示例，尚未获得真实用户确认。以下对话和候选规则由课程作者编写，用于演示访谈方法；不是本次会话用户的回答，也不是项目已批准需求。实际跟做时，请记录你自己的回答和来源。\n\n## 问题与目标\n\n原始表达是“任务快到期时，系统能提醒相关人员”。本轮要明确提醒对象、时间语义、渠道、生命周期与失败处理，留下可审核的规则与未决项。\n\n## 代码事实\n\n事实与出处见 [起始代码核对](reminder-code-facts.md)。当前起点的任务具有可选截止日期；没有可直接复用的负责人、用户身份或收件人关系。\n\n## 作者设定的候选规则\n\n| 编号 | 候选规则 | 来源与状态 |\n|---|---|---|\n| D01 | 提醒面向主动订阅某任务的个人 | 教学示例第 1 轮；真实用户待确认 |\n| D02 | 截止日前一次提醒，逾期催办另议 | 教学示例第 2 轮；真实用户待确认 |\n| D03 | 按收件人时区，在任务日历截止日前一天 09:00 提醒；缺失时区需补充 | 教学示例第 3 轮；真实用户待确认 |\n| D04 | 完成、删除、取消订阅会取消未发送提醒；改期重算未发送计划 | 教学示例第 4 轮；真实用户待确认 |\n| D05 | 无截止日期不排程；新建或改期后提醒时刻已过则跳过 | 教学示例第 5 轮；真实用户待确认 |\n| D06 | 邮件仅为候选渠道 | 教学示例第 6 轮；真实用户待确认 |\n| D07 | 可以取消某任务的提醒订阅 | 教学示例第 7 轮；真实用户待确认 |\n| D08 | 不无限重试；投递与阅读分别描述 | 教学示例第 8 轮；真实用户待确认 |\n\n## 真实用户确认\n\n尚未收集真实用户的逐条确认。D01–D08 均不得标为项目已批准规则。\n\n## 待决策与后续访谈\n\n1. 谁能建立订阅，收件人身份和邮箱如何验证？\n2. 时区变更、夏令时异常，以及实际截止日期的业务解释如何处理？\n3. 已发送后再改截止日期，是否允许另一次提醒？\n4. 全局免打扰如何覆盖任务级安排？\n5. 重试上限、间隔、成功判定和最终失败反馈是什么？\n\n这些问题仍可能改变设计；后续不能把本记录直接当成可实施 Spec。\n\n## 情景检查 也是候选规则的推演\n\n- 若截止日为某月 20 日，且采用 D03，则候选提醒时刻为收件人所选时区 19 日 09:00；这不是从数据库里的中午时间推得的要求。\n- 若任务在发送前完成，按 D04 取消待发送计划；当前 seed 中“已完成且日期在过去”的任务可用来追问这条规则。\n- 若新任务的候选提醒时刻已经过去，按 D05 跳过；不能默默切换成补发策略。\n- 若发送服务接受请求，也不能据此声称用户已阅读；成功条件仍需确认。\n\n## 本轮范围与停止边界\n\n产物为访谈记录、术语表、候选规则和未决项。当前没有新增提醒界面、Schema、服务代码、邮件发送或部署配置。\n\n未创建 ADR：尚无需要记录的、真实批准且代价显著的架构取舍。术语定义保存在 [GLOSSARY](../../GLOSSARY.md)，不把状态表或实现方案塞进术语表。\n\n## 交接清单\n\n- 每条规则能追溯到回答，且标清是教学示例还是真实用户确认。\n- 未决问题保留优先级与下一步提问。\n- 需求探索结束不等于允许生成实施 Spec、Tickets 或写代码。\n- 实际项目只有在用户完成需求确认并另行授权后，才选择下一条实施路线。\n"
+        },
+        {
+          "title": "术语表节选",
+          "format": "markdown",
+          "content": "本例 GLOSSARY 只定义用语；确认状态与业务规则保存在需求基线中。\n\nTask Due Date：任务预期完成的日历日期，不等于提醒时间。\nDue Reminder：临近截止日期的提醒意图，不等于逾期催办。\nReminder Subscription：个人选择接收某任务提醒的关系，不等于任务指派。\nRecipient：某次提醒面向的人，不预设为负责人。\nReminder Schedule：任务、收件人和预期提醒时刻的安排。\nDelivery Attempt：一次发送尝试，不等于新增一次提醒。"
+        },
+        {
+          "title": "交接记录与参考工件",
+          "format": "markdown",
+          "content": "参考工件：story-02-example-r1，位于配套教学仓库。\n新增：GLOSSARY.md、docs/requirements/reminder-code-facts.md、reminder-interview.md、reminder-baseline.md。\n业务代码：相对 story-02-start-r1 无改动。\nADR / 实施 Spec / Tickets：未创建。\n\n状态：\n- 起始代码事实已核对。\n- 访谈内容为作者编写的教学示例，不是用户真实回答。\n- 真实用户需求确认与实施授权：待决定。\n- 宿主 grill-with-docs 菜单与完整安装流程：未实测。\n\n完成练习后再对照：\ngit fetch --tags\ngit diff story-02-start-r1...story-02-example-r1 -- GLOSSARY.md docs/requirements\ngit show story-02-example-r1:docs/requirements/reminder-baseline.md"
         }
       ],
       "decisions": [
@@ -581,15 +690,27 @@ window.LAB_PRACTICE = {
         {
           "title": "需求探索必须有停止边界",
           "detail": "本故事不调用 to-spec、不创建 Tickets、不写业务代码。"
+        },
+        {
+          "title": "样例答案不是默认业务规则",
+          "detail": "“提前一天 09:00”“订阅者”“邮件”都只是本例作者设定。真实访谈没有确认这些选择时，应保留未知，不能自动写入已批准需求。"
+        },
+        {
+          "title": "当前没有负责人，先澄清提醒谁",
+          "detail": "story-02-start-r1 的模型只包含 Project 和 Task。若需求方想提醒负责人，先讨论负责人身份与关系如何产生；不能从后续 Story 03 借来现成功能假装已经存在。"
+        },
+        {
+          "title": "日期值不能替用户决定提醒时刻",
+          "detail": "T12:00:00 是当前创建代码的表示方式。业务上的日历截止日、提醒时刻、收件人时区与夏令时处理都需要独立澄清。"
         }
       ],
       "acceptance": [
-        "关键业务未知被逐项提出",
-        "用户决定与 Agent 假设明确区分",
-        "GLOSSARY 只记录稳定共享术语",
+        "事实能定位到起始版本源码，推断与未知分开",
+        "真实用户决定与作者教学示例明确区分",
+        "GLOSSARY 只定义用语，规则与确认状态放在需求记录",
+        "未决项保留后续问题；缺少确认时不宣称可实施",
         "ADR 只记录真实架构取舍",
-        "需求摘要明确范围、非目标和未决项",
-        "没有擅自进入编码"
+        "交付需求探索记录，并单独记录后续实施授权状态"
       ],
       "knowledgeRefs": [
         "grill",
