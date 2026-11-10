@@ -247,7 +247,7 @@ window.LAB_PRACTICE = {
       },
       "preparation": {
         "project": "story-01-start-r1",
-        "commands": ["git clone https://github.com/shuge-x/ai-coding-workflow-demo.git", "cd ai-coding-workflow-demo", "git fetch --tags", "git checkout story-01-start-r1", "npm install", "cp .env.example .env", "npm run db:push", "PRACTICE_BASELINE=01 npm run db:seed", "npm run dev"],
+        "commands": ["git clone https://github.com/shuge-x/ai-coding-workflow-demo.git", "cd ai-coding-workflow-demo", "git fetch --tags", "git checkout story-01-start-r1", "npm install", "cp .env.example .env", "node -e \"require(\'fs\').closeSync(require(\'fs\').openSync(\'prisma/dev.db\',\'a\'))\"", "npm run db:push", "PRACTICE_BASELINE=01 npm run db:seed", "npm run dev"],
         "requirements": [
           "Node.js LTS",
           "已安装一个 Coding Agent",
@@ -396,7 +396,7 @@ window.LAB_PRACTICE = {
       },
       "preparation": {
         "project": "story-02-start-r1",
-        "commands": ["git clone https://github.com/shuge-x/ai-coding-workflow-demo.git", "cd ai-coding-workflow-demo", "git fetch --tags", "git checkout story-02-start-r1", "npm install", "cp .env.example .env", "npm run db:push", "PRACTICE_BASELINE=02 npm run db:seed", "npm run dev"],
+        "commands": ["git clone https://github.com/shuge-x/ai-coding-workflow-demo.git", "cd ai-coding-workflow-demo", "git fetch --tags", "git checkout story-02-start-r1", "npm install", "cp .env.example .env", "node -e \"require(\'fs\').closeSync(require(\'fs\').openSync(\'prisma/dev.db\',\'a\'))\"", "npm run db:push", "PRACTICE_BASELINE=02 npm run db:seed", "npm run dev"],
         "requirements": [
           "完成通用 Skill 安装",
           "在教学项目运行过 /setup-matt-pocock-skills",
@@ -550,7 +550,7 @@ window.LAB_PRACTICE = {
       },
       "preparation": {
         "project": "story-03-start-r1",
-        "commands": ["git clone https://github.com/shuge-x/ai-coding-workflow-demo.git", "cd ai-coding-workflow-demo", "git fetch --tags", "git checkout story-03-start-r1", "npm install", "cp .env.example .env", "npm run db:push", "PRACTICE_BASELINE=03 npm run db:seed", "npm run dev"],
+        "commands": ["git clone https://github.com/shuge-x/ai-coding-workflow-demo.git", "cd ai-coding-workflow-demo", "git fetch --tags", "git checkout story-03-start-r1", "npm install", "cp .env.example .env", "node -e \"require(\'fs\').closeSync(require(\'fs\').openSync(\'prisma/dev.db\',\'a\'))\"", "npm run db:push", "PRACTICE_BASELINE=03 npm run db:seed", "npm run dev"],
         "requirements": [
           "Skill 安装和项目级 tracker setup 已完成",
           "Local Markdown tracker 可用",
@@ -768,7 +768,7 @@ window.LAB_PRACTICE = {
       },
       "preparation": {
         "project": "story-04-start-r1",
-        "commands": ["git clone https://github.com/shuge-x/ai-coding-workflow-demo.git", "cd ai-coding-workflow-demo", "git fetch --tags", "git checkout story-04-start-r1", "npm install", "cp .env.example .env", "npm run db:push", "PRACTICE_BASELINE=04 npm run db:seed", "npm run dev"],
+        "commands": ["git clone https://github.com/shuge-x/ai-coding-workflow-demo.git", "cd ai-coding-workflow-demo", "git fetch --tags", "git checkout story-04-start-r1", "npm install", "cp .env.example .env", "node -e \"require(\'fs\').closeSync(require(\'fs\').openSync(\'prisma/dev.db\',\'a\'))\"", "npm run db:push", "PRACTICE_BASELINE=04 npm run db:seed", "npm run dev"],
         "requirements": [
           "先读取项目架构和领域文档",
           "准备可用的 Issue Tracker（推荐 Local Markdown）",
@@ -1024,7 +1024,7 @@ window.LAB_PRACTICE = {
       },
       "preparation": {
         "project": "story-05-start-r1",
-        "commands": ["git clone https://github.com/shuge-x/ai-coding-workflow-demo.git", "cd ai-coding-workflow-demo", "git fetch --tags", "git checkout story-05-start-r1", "npm install", "cp .env.example .env", "npm run db:push", "PRACTICE_BASELINE=05 npm run db:seed", "npm run dev"],
+        "commands": ["git clone https://github.com/shuge-x/ai-coding-workflow-demo.git", "cd ai-coding-workflow-demo", "git fetch --tags", "git checkout story-05-start-r1", "npm install", "cp .env.example .env", "node -e \"require(\'fs\').closeSync(require(\'fs\').openSync(\'prisma/dev.db\',\'a\'))\"", "npm run db:push", "PRACTICE_BASELINE=05 npm run db:seed", "npm run dev"],
         "verificationCommands": ["在第二个终端运行：npm run test:bug-repro（预期失败，用来证明预置持久化故障）"],
         "requirements": [
           "确认使用带有预置缺陷的 story-05-start-r1 起始版本",
@@ -1236,7 +1236,7 @@ window.LAB_PRACTICE = {
       },
       "preparation": {
         "project": "story-06-start-r1",
-        "commands": ["git clone https://github.com/shuge-x/ai-coding-workflow-demo.git", "cd ai-coding-workflow-demo", "git fetch --tags", "git checkout story-06-start-r1", "npm install", "cp .env.example .env", "npm run db:push", "PRACTICE_BASELINE=06 npm run db:seed", "npm run dev"],
+        "commands": ["git clone https://github.com/shuge-x/ai-coding-workflow-demo.git", "cd ai-coding-workflow-demo", "git fetch --tags", "git checkout story-06-start-r1", "npm install", "cp .env.example .env", "node -e \"require(\'fs\').closeSync(require(\'fs\').openSync(\'prisma/dev.db\',\'a\'))\"", "npm run db:push", "PRACTICE_BASELINE=06 npm run db:seed", "npm run dev"],
         "verificationCommands": ["npm run test:assignment（验证 Story 06 的既有指派行为）"],
         "requirements": [
           "使用预置 TaskService 过载的起始版本",
