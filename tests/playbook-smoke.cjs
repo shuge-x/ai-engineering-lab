@@ -91,6 +91,27 @@ const { chromium } = require("playwright");
           await image.evaluate((node) => node.decode());
         }
       }
+      if (id === "requirements-discovery") {
+        await page.locator('[data-practice-section="preparation"]').click();
+        await page.getByRole("heading", { name: "第一次跟做：按这个顺序操作" }).waitFor();
+        if (!(await page.locator(".practice-prep-code").first().textContent()).includes("git switch -c codex/story-02-reminder-discovery")) throw new Error("Story 02 does not create a learner branch");
+        await page.locator('[data-practice-section="artifacts"]').click();
+        await page.getByText("以下对话和候选规则由课程作者编写", { exact: false }).first().waitFor();
+        const rounds = page.locator(".practice-interview details");
+        if (await rounds.count() !== 8 || await page.locator(".practice-interview details[open]").count()) throw new Error("Story 02 must start with eight collapsed teaching rounds");
+        const answer = rounds.first().locator("p").first();
+        if (await answer.isVisible()) throw new Error("Teaching answer is exposed before expanding its question");
+        const before = await page.evaluate(() => ({ progress: JSON.stringify(localStorage), step: document.querySelector(".trace-row.active .trace-event").textContent }));
+        const question = rounds.first().locator("summary");
+        await question.focus();
+        await question.press("Enter");
+        await answer.waitFor({ state: "visible" });
+        if (!(await answer.textContent()).includes("主动订阅任务提醒的个人")) throw new Error("Story 02 answer does not match the author example");
+        await question.press("Enter");
+        await answer.waitFor({ state: "hidden" });
+        const after = await page.evaluate(() => ({ progress: JSON.stringify(localStorage), step: document.querySelector(".trace-row.active .trace-event").textContent }));
+        if (JSON.stringify(before) !== JSON.stringify(after)) throw new Error("Expanding a teaching round changed learning progress or execution stage");
+      }
     }
     if (await page.locator("#progress-count").textContent() !== "6 / 28") throw new Error("Completing a route twice changed the completion count");
     await page.reload({ waitUntil: "networkidle" });
@@ -137,10 +158,19 @@ const { chromium } = require("playwright");
       if (clippedStatus) throw new Error("Execution status is clipped at " + width + "px");
       await page.locator("[data-next]").click();
       await page.locator("[data-reset]").click();
+      if (width === 320 || width === 390) {
+        await page.locator(".brand").click();
+        await page.locator('.story-card[data-playbook="requirements-discovery"]').click();
+        await page.locator('[data-practice-section="artifacts"]').click();
+        await page.locator(".practice-interview summary").first().click();
+        await page.locator(".practice-interview details[open] p").first().waitFor({ state: "visible" });
+        const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+        if (overflow > 2) throw new Error(`Story 02 interview overflows at ${width}px: ${overflow}px`);
+      }
     }
 
     if (pageErrors.length) throw new Error("Browser errors: " + pageErrors.join("; "));
-    process.stdout.write("PASS: six shared routes, eight chapters, playback, clipboard, knowledge return, local completion across reload, search, and seven responsive widths.\n");
+    process.stdout.write("PASS: six shared routes, eight chapters, Story 01 evidence, Story 02 keyboard/mobile interview, playback, clipboard, knowledge return, local completion across reload, search, and seven responsive widths.\n");
   } finally {
     await browser.close();
   }

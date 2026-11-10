@@ -103,9 +103,10 @@ function practiceWalkthrough(preparation){
  return '<section class="practice-walkthrough"><h3>第一次跟做：按这个顺序操作</h3><ol>'+items.map(item=>'<li><b>'+esc(item.title)+'</b><p>'+esc(item.body)+'</p></li>').join("")+'</ol><p><a href="'+esc(PRACTICE.pack.meta.upstream[0].url)+'" target="_blank" rel="noreferrer">Matt Skills 安装说明 ↗</a></p></section>';
 }
 function practiceArtifact(sample){
- const content=sample.images?.length?'<p>'+esc(sample.content)+'</p>':'<pre>'+esc(sample.content)+'</pre>';
+ const content=sample.images?.length||sample.turns?.length?'<p>'+esc(sample.content)+'</p>':'<pre>'+esc(sample.content)+'</pre>';
  const images=sample.images?.length?'<div class="practice-evidence">'+sample.images.map(item=>'<figure><a href="'+esc(item.src)+'" target="_blank" rel="noreferrer"><img src="'+esc(item.src)+'" alt="'+esc(item.alt)+'" loading="lazy" decoding="async"></a><figcaption>'+esc(item.caption)+' · 点击查看原图</figcaption></figure>').join("")+'</div>':"";
- return '<article><h3>'+esc(sample.title)+'</h3>'+content+images+'</article>';
+ const interview=sample.turns?.length?'<div class="practice-interview">'+sample.turns.map((turn,i)=>'<details><summary>第 '+(i+1)+' 轮 · '+esc(turn.question)+'</summary><div><b>教学示例回答</b><p>'+esc(turn.answer)+'</p><b>为什么继续追问</b><p>'+esc(turn.reason)+'</p><b>记录</b><p>'+esc(turn.record)+'</p></div></details>').join("")+'</div>':"";
+ return '<article><h3>'+esc(sample.title)+'</h3>'+content+images+interview+'</article>';
 }
 function practiceChapterContent(p,sc,section,step){
  if(section==="scenario")return '<div class="practice-chapter"><div class="eyebrow">01 / REAL SCENARIO</div><h2>'+esc(sc.title)+'</h2><p class="practice-lead">'+esc(sc.current)+'</p><div class="practice-request"><small>用户提出的原始需求</small><p>'+esc(sc.request)+'</p></div><div class="practice-info-grid"><div><small>目标结果</small><p>'+esc(sc.goal)+'</p></div><div><small>起始项目版本</small><p><code>'+esc(sc.start)+'</code></p></div></div><h3>本次范围与约束</h3><ul class="practice-check-list">'+sc.constraints.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul></div>';
