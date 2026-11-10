@@ -569,7 +569,7 @@ window.LAB_PRACTICE = {
           "actor": "Agent",
           "invocation": {
             "kind": "natural",
-            "command": "读取场景说明、GLOSSARY、相关 ADR 和当前实现。"
+            "command": "读取场景说明、已有的 GLOSSARY / ADR（如存在）和当前实现。"
           },
           "prompt": "请检查任务指派相关的项目现状。先列出当前 Task、Project、Member 的领域定义、已有 API 和测试入口。下面这些规则是本练习的已确认范围：一个任务最多一个负责人；只能指派给当前项目成员；允许清空负责人；只有项目 Owner / Manager 能修改指派；不在范围内的是通知系统。请指出现有实现与需求之间的差距。",
           "agentBehavior": "Agent 应先核对项目事实，不能重新发明业务规则。若源码与练习规则冲突，标出冲突并暂停，不要静默选择。",
