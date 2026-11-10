@@ -996,6 +996,14 @@ html,body{font-family:Inter,"Noto Sans SC","PingFang SC","Microsoft YaHei",Arial
 .practice-artifact-list{display:grid;gap:10px}
 .practice-artifact-list article{border:1px solid var(--line);border-radius:4px;padding:11px;background:var(--panel)}
 .practice-artifact-list h3{margin:0 0 7px}
+.practice-walkthrough{border-top:1px solid var(--line);margin:18px 0;padding-top:4px}
+.practice-walkthrough ol{padding-left:22px}
+.practice-walkthrough li{margin:12px 0}
+.practice-walkthrough p{margin:4px 0;font-size:12px;line-height:1.85;color:var(--muted)}
+.practice-evidence{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+.practice-evidence figure{min-width:0;margin:0;border:1px solid var(--line);border-radius:4px;padding:8px;background:var(--panel2)}
+.practice-evidence img{display:block;width:100%;height:220px;object-fit:contain}
+.practice-evidence figcaption{margin-top:6px;font-size:10px;color:var(--muted);line-height:1.6}
 .practice-artifact-list pre{white-space:pre-wrap;overflow-wrap:anywhere;background:var(--panel2);border:1px solid var(--line);padding:10px;border-radius:4px;font:11px/1.8 ui-monospace,monospace}
 .practice-decision-list{display:grid;gap:8px}
 .practice-decision-list article{border-left:3px solid var(--amber);background:var(--amber2);padding:11px 13px}
@@ -1060,6 +1068,7 @@ html,body{font-family:Inter,"Noto Sans SC","PingFang SC","Microsoft YaHei",Arial
  #app-layout:not(.home-mode) .practice-right{order:2}
  #app-layout:not(.home-mode) .practice-trace{order:3}
  .practice-info-grid{grid-template-columns:1fr}
+ .practice-evidence{grid-template-columns:1fr}
  .practice-center-content{padding:12px}
  .practice-section-heading{padding:9px 12px}
 }

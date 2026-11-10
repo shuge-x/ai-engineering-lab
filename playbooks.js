@@ -135,7 +135,7 @@ window.LAB_PRACTICE = {
       "title": "任务看板空状态",
       "product": "Team Task Board",
       "user": "第一次打开任务看板的项目成员",
-      "current": "项目还没有任何任务，页面只有一段普通提示文字，用户不知道下一步该做什么。",
+      "current": "看板已有基础提示和“新建任务”按钮，但缺少明确的首次任务引导与操作说明。",
       "request": "把空状态做得更清楚：告诉用户为什么这里是空的，并提供一个明显的创建第一个任务入口。",
       "goal": "用户能理解空状态，并能从页面直接开始创建任务。",
       "constraints": [
@@ -247,14 +247,47 @@ window.LAB_PRACTICE = {
       },
       "preparation": {
         "project": "story-01-start-r1",
-        "commands": ["git clone https://github.com/shuge-x/ai-coding-workflow-demo.git", "cd ai-coding-workflow-demo", "git fetch --tags", "git checkout story-01-start-r1", "npm install", "cp .env.example .env", "node -e \"require(\'fs\').closeSync(require(\'fs\').openSync(\'prisma/dev.db\',\'a\'))\"", "npm run db:push", "PRACTICE_BASELINE=01 npm run db:seed", "npm run dev"],
-        "requirements": [
-          "Node.js LTS",
-          "已安装一个 Coding Agent",
-          "已安装 Matt Pocock Skills",
-          "已克隆 Team Task Board 教学项目"
+        "commands": [
+          "git clone https://github.com/shuge-x/ai-coding-workflow-demo.git",
+          "cd ai-coding-workflow-demo",
+          "git fetch --tags",
+          "git checkout story-01-start-r1",
+          "git switch -c codex/story-01-empty-state",
+          "npm install",
+          "cp .env.example .env",
+          "node -e \"require('fs').closeSync(require('fs').openSync('prisma/dev.db','a'))\"",
+          "npm run db:push",
+          "PRACTICE_BASELINE=01 npm run db:seed",
+          "npm run dev"
         ],
-        "codegraph": "不需要。小修改先用项目导航和普通源码阅读即可；不要为了展示工具而强行调用 CodeGraph。"
+        "requirements": [
+          "Git、Node.js 22、npm 10；本节终端命令使用 macOS / Linux shell 或 Windows Git Bash / WSL",
+          "已安装一个 Coding Agent，并在其中打开刚克隆的 ai-coding-workflow-demo 项目目录",
+          "已安装 Matt Pocock Skills；首次在本项目运行 /setup-matt-pocock-skills 时可选择 Local Markdown tracker"
+        ],
+        "codegraph": "不需要。小修改先用项目导航和普通源码阅读即可；不要为了展示工具而强行调用 CodeGraph。",
+        "walkthrough": [
+          {
+            "title": "先核对起始页面",
+            "body": "保持 npm run dev 所在终端运行，打开 http://localhost:3000。应看到“暂无任务”、基础说明和“新建任务”按钮。当前已经可以创建任务，本次练习改善的是首次任务引导。"
+          },
+          {
+            "title": "在 Agent 对话中发送 Prompt",
+            "body": "在 Coding Agent 中打开这个项目目录，先让它读取 AGENTS.md。进入课程“04 逐步执行”，逐条复制右侧完整 Prompt 到 Agent 对话框；这些 Prompt 不在终端执行。"
+          },
+          {
+            "title": "由你启动实施",
+            "body": "第 01 步只确认范围。认可 Agent 的修改计划后，再在同一对话主动选择 implement Skill 并发送第 02 步 Prompt。若技能入口找不到，先完成安装并重启 Agent；普通聊天响应不能证明 Skill 已加载。"
+          },
+          {
+            "title": "在第二个终端验证",
+            "body": "第二个终端也进入同一个项目目录。首次浏览器检查先运行 npx playwright install chromium，再按“验证真实页面”的 Prompt 执行检查。构建前先停止开发服务器，避免两个进程同时写入构建目录。"
+          },
+          {
+            "title": "重复测试前确认练习数据",
+            "body": "浏览器测试会真实创建任务。重复运行前，确认当前 SQLite 练习库中的任务可以丢弃，再运行 PRACTICE_BASELINE=01 npm run db:seed 恢复空看板；该命令会清空本练习项目的任务。"
+          }
+        ]
       },
       "steps": [
         {
@@ -265,7 +298,7 @@ window.LAB_PRACTICE = {
             "kind": "natural",
             "command": "先向 Agent 描述目标，不调用复杂工作流。"
           },
-          "prompt": "请阅读项目根目录 AGENTS.md 和任务看板首页相关代码。我要优化没有任务时的空状态：说明这里还没有任务、突出创建第一个任务按钮，并让用户知道点击后会发生什么。请先复述你理解的目标、列出不在本次范围内的内容和可观察验收条件；不要创建 Spec、Tickets 或 ADR。",
+          "prompt": "请阅读项目根目录 AGENTS.md、任务看板首页相关代码和 e2e/board.spec.ts。先说明起始页面已经有什么创建入口、点击后会发生什么。我要改善没有任务时的引导：解释当前为空、突出“创建第一个任务”按钮，并说明填写任务后会出现在待处理列。请先复述目标、非目标、最小修改计划和可观察验收条件；当前只确认范围，不编码，不创建 Spec、Tickets 或 ADR。",
           "agentBehavior": "Agent 读取项目规范和相关组件，复述目标、识别修改入口，并把视觉结果转成可观察验收条件。若发现需求歧义或涉及 API / 数据模型，应停下来询问。",
           "artifact": "简短修改计划 + 验收清单",
           "checklist": [
@@ -273,7 +306,7 @@ window.LAB_PRACTICE = {
             "确认不会改动创建任务业务逻辑",
             "已有任务状态下的页面行为列入回归检查"
           ],
-          "handoff": "确认范围后调用 /implement。",
+          "handoff": "用户认可范围后，在 Agent 中主动选择 implement Skill，再发送下一步 Prompt；设计认可不自动授权实施。",
           "sources": []
         },
         {
@@ -284,13 +317,13 @@ window.LAB_PRACTICE = {
             "kind": "slash",
             "command": "/implement"
           },
-          "prompt": "/implement\n\n按刚才确认的范围，完成空状态页面的最小修改。先检查现有组件和样式约定，不要重写页面。若涉及行为逻辑，在合适的测试 seam 先建立失败测试；如果只是纯视觉调整，不要为了形式添加无意义单测。完成后运行相关检查并调用 code-review。",
+          "prompt": "/implement\n\n按刚才确认的范围完成空状态的最小改动。复用现有组件、样式和 openCreate 创建流程，保留已有任务时的看板。标题可采用“从第一个任务开始”，主按钮写“创建第一个任务”，并说明填写名称和说明、保存后出现在待处理列。检查 e2e/board.spec.ts：文案变化后更新对应可访问名称断言，保留真实创建任务验证，并覆盖创建后刷新仍可见。纯视觉修改不必另写无意义单测。若检查被框架生成文件阻塞，先定位原因并单独报告必要的工程配置变更，不要关闭源码检查规则。完成后运行相关检查并做 code-review。",
           "agentBehavior": "implement 是用户主动调用的入口；它按 Spec 或用户描述实施工作。上游 Skill 指示它在合适 seam 使用 tdd、定期运行类型检查和测试，并在完成后调用 code-review。",
           "artifact": "页面代码 Diff；如有行为变化则包含测试。",
           "checklist": [
-            "Diff 只涉及空状态所需文件",
-            "没有顺手重构其他组件",
-            "没有改变 API 和数据结构"
+            "页面改动限于空状态，复用已有创建流程",
+            "API、数据模型及非空看板没有变化",
+            "测试继续验证真实创建行为；工程配置修正单独说明"
           ],
           "handoff": "实现完成后查看测试、Diff 和 Review 结果。",
           "sources": [
@@ -305,15 +338,15 @@ window.LAB_PRACTICE = {
           "actor": "用户 + Agent",
           "invocation": {
             "kind": "natural",
-            "command": "请运行项目已有的相关测试；启动开发服务器并用浏览器检查空状态和已有任务两种情况。"
+            "command": "在第二个终端运行 typecheck、lint、test 和 test:e2e；停止开发服务器后再运行 build。"
           },
-          "prompt": "请提供实际执行过的命令和结果。浏览器验收至少检查桌面和窄屏：空状态说明清楚、主按钮突出、点击能进入创建流程；已有任务时原看板不受影响。不要把未执行的检查写成通过。",
+          "prompt": "请给出实际执行过的命令、输出和未覆盖项。先运行 npm run typecheck、npm run lint、npm run test；首次运行浏览器测试先执行 npx playwright install chromium。确认当前练习库的任务可丢弃后，用 PRACTICE_BASELINE=01 npm run db:seed 恢复空看板，再运行 npm run test:e2e（测试会创建真实任务）。浏览器检查桌面和窄屏：引导清楚、主按钮突出、鼠标和键盘均能打开现有创建弹窗、取消后仍为空、创建后空状态消失、刷新后任务仍在待处理列。再检查已有任务时三列看板。停止开发服务器后运行 npm run build。不要把未执行的检查写成通过。",
           "agentBehavior": "Agent 运行相关测试，并对 UI 使用真实浏览器或视口验证；说明自动化检查和人工观察的区别。",
           "artifact": "测试输出、浏览器验收记录、未覆盖项。",
           "checklist": [
-            "测试命令真实执行",
-            "空状态和非空状态都检查",
-            "窄屏没有溢出或遮挡"
+            "命令和结果真实记录，生成文件的检查问题单独说明",
+            "桌面与窄屏检查了空状态、取消和键盘操作",
+            "真实创建后刷新仍可见，已有任务的三列看板正常"
           ],
           "handoff": "用户确认视觉和行为符合预期后才算完成。",
           "sources": []
@@ -345,6 +378,33 @@ window.LAB_PRACTICE = {
           "title": "本次任务的验收清单",
           "format": "markdown",
           "content": "- [ ] 空状态能解释为什么当前没有任务\n- [ ] 创建第一个任务是最明显的主操作\n- [ ] 点击主操作能进入现有创建流程\n- [ ] 有任务时看板布局和操作不变\n- [ ] 桌面与窄屏均无溢出\n- [ ] 相关测试和浏览器检查均有真实执行证据"
+        },
+        {
+          "title": "一次实际改造的前后页面",
+          "format": "images",
+          "content": "以下截图来自 story-01-start-r1 的独立演练。参考方案复用原创建弹窗；视觉风格可以不同，验收仍以清晰引导、真实创建和既有行为为准。",
+          "images": [
+            {
+              "src": "assets/story-01/before-desktop.png",
+              "alt": "改造前：暂无任务、基础说明和新建任务按钮",
+              "caption": "起始版本 · 桌面"
+            },
+            {
+              "src": "assets/story-01/after-desktop.png",
+              "alt": "改造后：从第一个任务开始、创建第一个任务按钮及操作说明",
+              "caption": "参考实现 · 桌面"
+            },
+            {
+              "src": "assets/story-01/after-mobile.png",
+              "alt": "390 像素窄屏下的空状态引导和创建入口",
+              "caption": "参考实现 · 390px 窄屏"
+            }
+          ]
+        },
+        {
+          "title": "实测交付记录（2026-11-11）",
+          "format": "markdown",
+          "content": "## 起点与参考实现\n起点：story-01-start-r1。\n参考实现：story-01-example-r1（在配套教学仓库中，供完成练习后对照）。\n\n## 修改范围\n- task-board.tsx：空状态展示，继续调用 openCreate。\n- globals.css：复用已有样式，调整提示文字和窄屏布局。\n- e2e/board.spec.ts：文案断言、取消、键盘创建、刷新持久化与三列看板。\n- eslint.config.mjs / .gitignore：排除 Next.js 自动生成的 next-env.d.ts；未关闭源码检查规则。\n\n## 实际验证\nNode 22.14.0 / npm 10.9.2；Next.js 15.5.29；Playwright 1.65.0。\n- npm run typecheck：通过。\n- npm run lint：通过。\n- npm run test：3 个用例通过。\n- npm run test:e2e：1 个浏览器旅程通过，覆盖 1440px 和 390px。\n- npm run build：通过；构建后 lint 仍通过。\n- 更新后的浏览器测试在原页面上先失败，修改后通过。\n\n## 调用与验收边界\n本次由当前 Codex 会话按课程 Prompt 直接实施；没有把它记录为宿主 /implement 菜单的实测，也未验证其他宿主的安装流程。\nAutomated Verified：通过；Standards Review：0 项问题；Spec Review：0 项问题；用户本人最终页面验收：待确认。\n\n## 对照 Diff\ngit fetch --tags\ngit diff story-01-start-r1...story-01-example-r1 -- app/components/task-board.tsx app/globals.css e2e/board.spec.ts eslint.config.mjs .gitignore"
         }
       ],
       "decisions": [
@@ -355,11 +415,20 @@ window.LAB_PRACTICE = {
         {
           "title": "发现范围扩大时停止并升级",
           "detail": "如果阅读代码后发现需要改创建 API、数据模型、权限或多个模块，说明当前路由判断已经失效。停止继续 implement，向用户报告新增未知，改走需求探索或常规功能路线。"
+        },
+        {
+          "title": "测试创建了任务，第二次运行却失败",
+          "detail": "先检查是否仍处于空看板。E2E 会写入练习数据库；确认数据可丢弃后，用本路线的 db:seed 恢复空状态再测。不要删除创建和刷新断言来制造通过。"
+        },
+        {
+          "title": "检查失败来自框架生成文件",
+          "detail": "本次实际遇到 next-env.d.ts 的 Lint 报错。确认文件由 Next.js 生成后，在 ESLint 和 Git 中排除它，保留原有源码规则；把环境修正和页面变更分别记录。"
         }
       ],
       "acceptance": [
         "空状态符合用户目标",
         "已有任务状态不回归",
+        "取消创建后仍为空；成功创建后空状态消失，刷新后任务仍可见",
         "相关测试通过并记录命令",
         "浏览器检查通过",
         "Code Review 没有未解决的高优先级问题",
@@ -374,7 +443,9 @@ window.LAB_PRACTICE = {
       "sources": [
         "https://github.com/mattpocock/skills/blob/main/skills/engineering/implement/SKILL.md",
         "https://github.com/mattpocock/skills/blob/main/skills/engineering/tdd/SKILL.md",
-        "https://github.com/mattpocock/skills/blob/main/skills/engineering/code-review/SKILL.md"
+        "https://github.com/mattpocock/skills/blob/main/skills/engineering/code-review/SKILL.md",
+        "https://github.com/mattpocock/skills/blob/main/README.md",
+        "https://nextjs.org/docs/app/api-reference/config/eslint"
       ]
     },
     {

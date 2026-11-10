@@ -79,6 +79,18 @@ const { chromium } = require("playwright");
       await page.locator(`.story-card[data-playbook="${id}"]`).click();
       if (await page.locator(".lesson-canvas-head h1").textContent() !== title || await page.locator(".practice-chapter").textContent() !== scenario) throw new Error("Home and hub routes disagree for " + id);
       await page.locator("[data-practice-mark]").click();
+      if (id === "quick-change") {
+        await page.locator('[data-practice-section="preparation"]').click();
+        await page.getByRole("heading", { name: "第一次跟做：按这个顺序操作" }).waitFor();
+        if (!(await page.locator(".practice-prep-code").first().textContent()).includes("git switch -c codex/story-01-empty-state")) throw new Error("Story 01 does not create a learner branch");
+        await page.locator('[data-practice-section="artifacts"]').click();
+        const images = page.locator(".practice-evidence img");
+        if (await images.count() !== 3) throw new Error("Story 01 is missing before/after evidence");
+        for (const image of await images.all()) {
+          await image.scrollIntoViewIfNeeded();
+          await image.evaluate((node) => node.decode());
+        }
+      }
     }
     if (await page.locator("#progress-count").textContent() !== "6 / 28") throw new Error("Completing a route twice changed the completion count");
     await page.reload({ waitUntil: "networkidle" });
