@@ -42,13 +42,26 @@ const { chromium } = require("playwright");
     const copied = await page.evaluate(() => navigator.clipboard.readText());
     if (!copied.toLowerCase().includes("tracer-bullet tickets")) throw new Error("Practice prompt copy did not copy the current step prompt");
 
+    await page.locator(".practice-related-footer [data-lesson]").first().click();
+    await page.locator(".lesson-canvas-head h1").waitFor();
+    await page.locator(".context-return").click();
+    await page.getByRole("heading", { name: "从需求到完整功能" }).waitFor();
+    if (await page.locator('[data-practice-section="execution"].active').count() !== 1) throw new Error("Knowledge jump did not preserve the Playbook section");
+
     await page.locator('[data-page="playbooks"]').first().click();
     await page.getByRole("heading", { name: "把工程知识" }).waitFor();
     await page.locator('.story-card[data-playbook="feature-development"]').click();
     await page.getByRole("heading", { name: "从需求到完整功能" }).waitFor();
 
-    await page.locator(".practice-related-footer [data-lesson]").first().click();
-    await page.locator(".lesson-canvas-head h1").waitFor();
+    await page.locator("[data-practice-mark]").click();
+    if (!(await page.locator("#progress-count").textContent()).startsWith("1 /")) throw new Error("Playbook progress did not persist locally");
+
+    await page.locator('[data-page="home"]').first().click();
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.locator('.story-card[data-playbook="quick-change"]').click();
+    await page.getByRole("heading", { name: "小需求快速修改" }).waitFor();
+    const horizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    if (horizontalOverflow > 2) throw new Error("Mobile layout has horizontal overflow: " + horizontalOverflow + "px");
 
     if (pageErrors.length) throw new Error("Browser errors: " + pageErrors.join("; "));
     process.stdout.write("PASS: six scenarios, eight chapters, playbook route, step playback, prompt copy, hub route and knowledge link.\n");
