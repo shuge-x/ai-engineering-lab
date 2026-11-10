@@ -514,7 +514,8 @@ window.LAB_PRACTICE = {
         ],
         "verificationCommands": [
           "git grep -n -E 'model |dueDate' -- prisma/schema.prisma app/actions.ts lib/task-service.ts",
-          "git diff -- app lib prisma"
+          "git diff story-02-start-r1 -- app lib prisma",
+          "git status --short"
         ]
       },
       "steps": [
