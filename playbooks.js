@@ -273,6 +273,7 @@ window.LAB_PRACTICE = {
           "已安装 Matt Pocock Skills；首次在本项目运行 /setup-matt-pocock-skills 时可选择 Local Markdown tracker"
         ],
         "codegraph": "不需要。小修改先用项目导航和普通源码阅读即可；不要为了展示工具而强行调用 CodeGraph。",
+      "verificationCommands": ["npm run typecheck", "npm run lint", "npm run test:e2e"],
         "walkthrough": [
           {
             "title": "先核对起始页面",
