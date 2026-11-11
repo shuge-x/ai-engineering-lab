@@ -1526,7 +1526,7 @@ window.LAB_PRACTICE = {
         {
           "title": "诊断交接",
           "format": "markdown",
-          "content": "参考 tag：story-05-example-r1（提交 964f060153ec11b388e941fabaae937432ac4458）。CodeGraph 1.6.2 只提供静态关系；源码核对是根因证据。宿主 Skill 菜单未实测；用户人工验收待执行。"
+          "content": "参考 tag：story-05-example-r2（提交 8d0f055c3d6592bd300dd28563dc50be42ac7e1d）。CodeGraph 1.6.2 只提供静态关系；源码核对是根因证据。宿主 Skill 菜单未实测；用户人工验收待执行。"
         }
       ],
       "decisions": [
@@ -1804,7 +1804,7 @@ window.LAB_PRACTICE = {
         {
           "title": "重构交接",
           "format": "markdown",
-          "content": "参考 tag：story-06-example-r1（提交 0fb60ea04fcdf4be62eb0d1c6fca4d5683e920ac）。重构前后同一公共 seam；npm test、typecheck、lint、build 通过后再 Review。Human Accepted 与生产动态入口仍待人工确认。"
+          "content": "参考 tag：story-06-example-r2（提交 dc15defa11432fc118cd31b7d4a262c6f85735df）。重构前后同一公共 seam；npm test、typecheck、lint、build 通过后再 Review。Human Accepted 与生产动态入口仍待人工确认。"
         }
       ],
       "decisions": [
