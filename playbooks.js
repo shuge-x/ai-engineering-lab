@@ -273,7 +273,11 @@ window.LAB_PRACTICE = {
           "已安装 Matt Pocock Skills；首次在本项目运行 /setup-matt-pocock-skills 时可选择 Local Markdown tracker"
         ],
         "codegraph": "不需要。小修改先用项目导航和普通源码阅读即可；不要为了展示工具而强行调用 CodeGraph。",
-      "verificationCommands": ["npm run typecheck", "npm run lint", "npm run test:e2e"],
+        "verificationCommands": [
+          "npm run typecheck",
+          "npm run lint",
+          "npm run test:e2e"
+        ],
         "walkthrough": [
           {
             "title": "先核对起始页面",
@@ -775,26 +779,26 @@ window.LAB_PRACTICE = {
         ],
         "codegraph": "可选。若需要理解现有 Task / Project / Member 调用链，可在项目初始化 CodeGraph 后用 codegraph_explore；不要为了形式强制使用。",
         "walkthrough": [
-          [
-            "从独立起点开始",
-            "切换 story-03-start-r1 并建立分支。seed 会创建项目成员和角色，但起点没有任务负责人；不依赖 Story 01/02。"
-          ],
-          [
-            "先核对规则与事实",
-            "确认一个任务最多一个负责人、只能指派给项目成员、Owner/Manager 才能修改、允许清空；通知系统不在范围。"
-          ],
-          [
-            "先 Spec 再 Tickets",
-            "主动调用 /to-spec，不重新访谈；检查用户故事、负面行为和测试 seam。随后用 /to-tickets 先审依赖，再逐票实施。"
-          ],
-          [
-            "按纵向切片实施",
-            "第一张票贯穿数据、服务、界面和刷新；第二张票增加我的任务筛选。不要把数据库票、API 票和 UI 票拆成互相等待的水平层。"
-          ],
-          [
-            "区分自动化和人工验收",
-            "用教学身份切换器观察角色差异，跑完测试后仍需用户本人确认浏览器行为；教学身份不代表真实认证。"
-          ]
+          {
+            "title": "从独立起点开始",
+            "body": "切换 story-03-start-r1 并建立分支。seed 会创建项目成员和角色，但起点没有任务负责人；不依赖 Story 01/02。"
+          },
+          {
+            "title": "先核对规则与事实",
+            "body": "确认一个任务最多一个负责人、只能指派给项目成员、Owner/Manager 才能修改、允许清空；通知系统不在范围。"
+          },
+          {
+            "title": "先 Spec 再 Tickets",
+            "body": "主动调用 /to-spec，不重新访谈；检查用户故事、负面行为和测试 seam。随后用 /to-tickets 先审依赖，再逐票实施。"
+          },
+          {
+            "title": "按纵向切片实施",
+            "body": "第一张票贯穿数据、服务、界面和刷新；第二张票增加我的任务筛选。不要把数据库票、API 票和 UI 票拆成互相等待的水平层。"
+          },
+          {
+            "title": "区分自动化和人工验收",
+            "body": "用教学身份切换器观察角色差异，跑完测试后仍需用户本人确认浏览器行为；教学身份不代表真实认证。"
+          }
         ],
         "verificationCommands": [
           "git grep -n -E 'model (User|Membership|Task)|role|assignee' -- prisma/schema.prisma app lib",
@@ -1043,26 +1047,26 @@ window.LAB_PRACTICE = {
         ],
         "codegraph": "建议。先安装 CodeGraph 并运行 codegraph init，探索当前 User / Project / Task 数据所有权和关键调用链。",
         "walkthrough": [
-          [
-            "从单团队起点开始",
-            "切换 story-04-start-r1 并建立分支。起点有 Team → Project → Task 关系，但没有请求租户上下文；不依赖前面故事。"
-          ],
-          [
-            "先命名 Destination",
-            "地图终点是经真实决策者确认的架构基线与可实施 Spec，不是一次性写完整个平台。"
-          ],
-          [
-            "建立决策地图",
-            "主动调用 /wayfinder；票解决决策问题，不按数据库/API/UI 拆实施任务。先处理无阻塞前沿。"
-          ],
-          [
-            "用研究和反例缩小未知",
-            "阅读官方资料，运行 tenant-scope.py 对比有无租户过滤与复合外键；实验只支持其条件下的结论。"
-          ],
-          [
-            "保持 HITL 停止边界",
-            "真实需求方没有确认时，保持票开放；不要生成批准 ADR、Spec 或实施代码。"
-          ]
+          {
+            "title": "从单团队起点开始",
+            "body": "切换 story-04-start-r1 并建立分支。起点有 Team → Project → Task 关系，但没有请求租户上下文；不依赖前面故事。"
+          },
+          {
+            "title": "先命名 Destination",
+            "body": "地图终点是经真实决策者确认的架构基线与可实施 Spec，不是一次性写完整个平台。"
+          },
+          {
+            "title": "建立决策地图",
+            "body": "主动调用 /wayfinder；票解决决策问题，不按数据库/API/UI 拆实施任务。先处理无阻塞前沿。"
+          },
+          {
+            "title": "用研究和反例缩小未知",
+            "body": "阅读官方资料，运行 tenant-scope.py 对比有无租户过滤与复合外键；实验只支持其条件下的结论。"
+          },
+          {
+            "title": "保持 HITL 停止边界",
+            "body": "真实需求方没有确认时，保持票开放；不要生成批准 ADR、Spec 或实施代码。"
+          }
         ],
         "verificationCommands": [
           "git grep -n -E 'teamId|Project|Task|Membership' -- prisma/schema.prisma app/page.tsx app/actions.ts",
@@ -1355,26 +1359,26 @@ window.LAB_PRACTICE = {
         ],
         "codegraph": "建议。使用 codegraph_explore 定位拖拽事件、状态更新函数、API handler 和数据库写入链路；图谱结果仍需回到源码核实。",
         "walkthrough": [
-          [
-            "从可复现起点开始",
-            "切换 story-05-start-r1 并建立分支。seed 生成可拖动任务；先跑故障复现，不先改代码。"
-          ],
-          [
-            "先建立红色反馈循环",
-            "运行 PRACTICE_BUG_REPRO=1 npm run test:bug-repro，确认旧代码刷新后回到进行中。"
-          ],
-          [
-            "分开假设并验证",
-            "比较“没有请求”“请求失败”“缓存旧读”“服务没写 status”，一次验证一个；CodeGraph 结果必须核对源码。"
-          ],
-          [
-            "最小修复并回归",
-            "服务端 update 只补写 status，不放宽断言、不延长等待、不只改 UI。用同一测试证明红到绿。"
-          ],
-          [
-            "重走原始用户路径",
-            "重新拖动、等待保存、刷新并检查；自动化通过后仍把人工验收和未验证环境分开。"
-          ]
+          {
+            "title": "从可复现起点开始",
+            "body": "切换 story-05-start-r1 并建立分支。seed 生成可拖动任务；先跑故障复现，不先改代码。"
+          },
+          {
+            "title": "先建立红色反馈循环",
+            "body": "运行 PRACTICE_BUG_REPRO=1 npm run test:bug-repro，确认旧代码刷新后回到进行中。"
+          },
+          {
+            "title": "分开假设并验证",
+            "body": "比较“没有请求”“请求失败”“缓存旧读”“服务没写 status”，一次验证一个；CodeGraph 结果必须核对源码。"
+          },
+          {
+            "title": "最小修复并回归",
+            "body": "服务端 update 只补写 status，不放宽断言、不延长等待、不只改 UI。用同一测试证明红到绿。"
+          },
+          {
+            "title": "重走原始用户路径",
+            "body": "重新拖动、等待保存、刷新并检查；自动化通过后仍把人工验收和未验证环境分开。"
+          }
         ]
       },
       "steps": [
@@ -1613,26 +1617,26 @@ window.LAB_PRACTICE = {
         ],
         "codegraph": "必需。运行 codegraph init，使用 codegraph_explore 或 CLI 查看 TaskService callers / callees / 依赖和受影响测试。",
         "walkthrough": [
-          [
-            "建立结构基线",
-            "切换 story-06-start-r1 并建立分支。先运行 CodeGraph explore 和现有行为测试，不先拆文件。"
-          ],
-          [
-            "寻找深模块机会",
-            "主动调用 /improve-codebase-architecture；比较复杂度是否能隐藏在更小接口后，不追求机械分层。"
-          ],
-          [
-            "选择一个边界",
-            "本参考只选 assignTask：把指派权限与持久化从 TaskService 移到独立模块；评论、Schema 和新功能留到以后。"
-          ],
-          [
-            "先保护行为",
-            "用独立 behavior-test.db 从公共接口验证创建、状态、评论和指派权限；测试基线通过后才改结构。"
-          ],
-          [
-            "复核并复盘",
-            "重跑同一行为测试、typecheck、lint、build 和 CodeGraph；记录动态入口限制，不把经验全塞进全局规范。"
-          ]
+          {
+            "title": "建立结构基线",
+            "body": "切换 story-06-start-r1 并建立分支。先运行 CodeGraph explore 和现有行为测试，不先拆文件。"
+          },
+          {
+            "title": "寻找深模块机会",
+            "body": "主动调用 /improve-codebase-architecture；比较复杂度是否能隐藏在更小接口后，不追求机械分层。"
+          },
+          {
+            "title": "选择一个边界",
+            "body": "本参考只选 assignTask：把指派权限与持久化从 TaskService 移到独立模块；评论、Schema 和新功能留到以后。"
+          },
+          {
+            "title": "先保护行为",
+            "body": "用独立 behavior-test.db 从公共接口验证创建、状态、评论和指派权限；测试基线通过后才改结构。"
+          },
+          {
+            "title": "复核并复盘",
+            "body": "重跑同一行为测试、typecheck、lint、build 和 CodeGraph；记录动态入口限制，不把经验全塞进全局规范。"
+          }
         ]
       },
       "steps": [
