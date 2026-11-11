@@ -954,7 +954,7 @@ window.LAB_PRACTICE = {
         {
           "title": "实施与验收证据",
           "format": "markdown",
-          "content": "参考 tag：story-03-example-r1（创建后再核对）。\n旧版本 Ticket 01 浏览器断言因没有负责人控件失败；实现后 Owner 指派和刷新通过。服务层集成检查覆盖 Manager 更换/清空、Member/非成员拒绝。\n\nHuman Accepted：待用户本人操作；原生 /to-spec、/to-tickets、/implement 菜单未实测。"
+          "content": "参考 tag：story-03-example-r1（提交 007a962a8e59a2c77073521956ef21db3564ec8d）。\n旧版本 Ticket 01 浏览器断言因没有负责人控件失败；实现后 Owner 指派和刷新通过。服务层集成检查覆盖 Manager 更换/清空、Member/非成员拒绝。\n\nHuman Accepted：待用户本人操作；原生 /to-spec、/to-tickets、/implement 菜单未实测。"
         }
       ],
       "decisions": [
@@ -1263,7 +1263,7 @@ window.LAB_PRACTICE = {
         {
           "title": "决策交接",
           "format": "markdown",
-          "content": "参考 tag：story-04-example-r1（创建后再核对）。新增地图、5 张决策票、研究和实验；app/lib/prisma 未修改。当前不创建批准 ADR / Spec / Tickets。"
+          "content": "参考 tag：story-04-example-r1（提交 08cb54af75e82daa91e2a0444d6f4fdced08da3a）。新增地图、5 张决策票、研究和实验；app/lib/prisma 未修改。当前不创建批准 ADR / Spec / Tickets。"
         }
       ],
       "decisions": [
@@ -1522,7 +1522,7 @@ window.LAB_PRACTICE = {
         {
           "title": "诊断交接",
           "format": "markdown",
-          "content": "参考 tag：story-05-example-r1（创建后再核对）。CodeGraph 1.6.2 只提供静态关系；源码核对是根因证据。宿主 Skill 菜单未实测；用户人工验收待执行。"
+          "content": "参考 tag：story-05-example-r1（提交 964f060153ec11b388e941fabaae937432ac4458）。CodeGraph 1.6.2 只提供静态关系；源码核对是根因证据。宿主 Skill 菜单未实测；用户人工验收待执行。"
         }
       ],
       "decisions": [
@@ -1800,7 +1800,7 @@ window.LAB_PRACTICE = {
         {
           "title": "重构交接",
           "format": "markdown",
-          "content": "参考 tag：story-06-example-r1（创建后再核对）。重构前后同一公共 seam；npm test、typecheck、lint、build 通过后再 Review。Human Accepted 与生产动态入口仍待人工确认。"
+          "content": "参考 tag：story-06-example-r1（提交 0fb60ea04fcdf4be62eb0d1c6fca4d5683e920ac）。重构前后同一公共 seam；npm test、typecheck、lint、build 通过后再 Review。Human Accepted 与生产动态入口仍待人工确认。"
         }
       ],
       "decisions": [
