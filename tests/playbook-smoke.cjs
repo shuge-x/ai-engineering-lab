@@ -148,7 +148,18 @@ const { chromium } = require("playwright");
     await page.getByRole("heading", { name: "Spec 规格设计", exact: true }).waitFor();
     await page.locator("[data-practice-return]").click();
     if ((await page.locator(".trace-row.active .trace-event").textContent()).trim() !== "选择一个重构目标") throw new Error("Searching knowledge lost the Playbook position");
-    await page.locator("#search").fill("");
+    const searchPage = await context.newPage();
+    try {
+      await searchPage.goto(process.env.LAB_BASE_URL || "http://127.0.0.1:4173", { waitUntil: "networkidle" });
+      await searchPage.locator("#search").fill("/wayfinder");
+      await searchPage.getByRole("heading", { name: "先解决未知，再设计大型架构" }).waitFor();
+      await searchPage.locator("#search").fill("story-05-example-r2");
+      await searchPage.getByRole("heading", { name: "复杂 Bug 诊断与根因定位" }).waitFor();
+      await searchPage.locator("#search").fill("taskservice");
+      await searchPage.getByRole("heading", { name: "用 CodeGraph 安全改进代码结构" }).waitFor();
+    } finally {
+      await searchPage.close();
+    }
 
     for (const width of [320, 390, 768, 1000, 1024, 1280, 1600]) {
       await page.setViewportSize({ width, height: 1000 });
