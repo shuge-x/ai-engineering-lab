@@ -112,6 +112,16 @@ const { chromium } = require("playwright");
         const after = await page.evaluate(() => ({ progress: JSON.stringify(localStorage), step: document.querySelector(".trace-row.active .trace-event").textContent }));
         if (JSON.stringify(before) !== JSON.stringify(after)) throw new Error("Expanding a teaching round changed learning progress or execution stage");
       }
+      if (["feature-development", "large-architecture", "complex-bug", "safe-refactor"].includes(id)) {
+        await page.locator('[data-practice-section="preparation"]').click();
+        await page.getByRole("heading", { name: "第一次跟做：按这个顺序操作" }).waitFor();
+        if ((await page.locator(".practice-walkthrough").textContent()).includes("undefined")) throw new Error(id + " walkthrough contains undefined content");
+        const prep = await page.locator(".practice-prep-code").first().textContent();
+        if (!prep.includes("git switch -c codex/")) throw new Error(id + " does not create a learner branch");
+        await page.locator('[data-practice-section="artifacts"]').click();
+        if (await page.locator(".practice-artifact-list article").count() < 3) throw new Error(id + " is missing reference artifacts");
+        if (!(await page.locator(".practice-artifact-list").textContent()).includes("参考 tag")) throw new Error(id + " does not disclose its reference tag");
+      }
     }
     if (await page.locator("#progress-count").textContent() !== "6 / 28") throw new Error("Completing a route twice changed the completion count");
     await page.reload({ waitUntil: "networkidle" });

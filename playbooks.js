@@ -75,7 +75,14 @@ window.LAB_PRACTICE = {
       "demoProject": {
         "repository": "https://github.com/shuge-x/ai-coding-workflow-demo",
         "status": "已发布六个起始 Tag；基线矩阵通过",
-        "tags": ["story-01-start-r1", "story-02-start-r1", "story-03-start-r1", "story-04-start-r1", "story-05-start-r1", "story-06-start-r1"],
+        "tags": [
+          "story-01-start-r1",
+          "story-02-start-r1",
+          "story-03-start-r1",
+          "story-04-start-r1",
+          "story-05-start-r1",
+          "story-06-start-r1"
+        ],
         "verification": "六条基线已通过 GitHub Actions 矩阵：Story 05 预期红故障可复现，Story 06 指派行为保持通过。",
         "stack": [
           "Next.js App Router",
@@ -266,6 +273,11 @@ window.LAB_PRACTICE = {
           "已安装 Matt Pocock Skills；首次在本项目运行 /setup-matt-pocock-skills 时可选择 Local Markdown tracker"
         ],
         "codegraph": "不需要。小修改先用项目导航和普通源码阅读即可；不要为了展示工具而强行调用 CodeGraph。",
+        "verificationCommands": [
+          "npm run typecheck",
+          "npm run lint",
+          "npm run test:e2e"
+        ],
         "walkthrough": [
           {
             "title": "先核对起始页面",
@@ -747,13 +759,51 @@ window.LAB_PRACTICE = {
       },
       "preparation": {
         "project": "story-03-start-r1",
-        "commands": ["git clone https://github.com/shuge-x/ai-coding-workflow-demo.git", "cd ai-coding-workflow-demo", "git fetch --tags", "git checkout story-03-start-r1", "npm install", "cp .env.example .env", "node -e \"require(\'fs\').closeSync(require(\'fs\').openSync(\'prisma/dev.db\',\'a\'))\"", "npm run db:push", "PRACTICE_BASELINE=03 npm run db:seed", "npm run dev"],
-        "requirements": [
-          "Skill 安装和项目级 tracker setup 已完成",
-          "Local Markdown tracker 可用",
-          "确认任务指派业务规则已由场景说明给出"
+        "commands": [
+          "git clone https://github.com/shuge-x/ai-coding-workflow-demo.git",
+          "cd ai-coding-workflow-demo",
+          "git fetch --tags",
+          "git checkout story-03-start-r1",
+          "git switch -c codex/story-03-assignment",
+          "npm install",
+          "cp .env.example .env",
+          "node -e \"require('fs').closeSync(require('fs').openSync('prisma/dev.db','a'))\"",
+          "npm run db:push",
+          "PRACTICE_BASELINE=03 npm run db:seed",
+          "npm run dev"
         ],
-        "codegraph": "可选。若需要理解现有 Task / Project / Member 调用链，可在项目初始化 CodeGraph 后用 codegraph_explore；不要为了形式强制使用。"
+        "requirements": [
+          "Git、Node.js 22、npm 10；使用独立 clone 或 worktree",
+          "已安装 Matt Pocock Skills，并完成项目级 setup；本参考不伪造宿主菜单执行",
+          "准备审核 Spec、Ticket 粒度和测试 seam；教学身份切换器只用于本地练习，不是生产认证"
+        ],
+        "codegraph": "可选。若需要理解现有 Task / Project / Member 调用链，可在项目初始化 CodeGraph 后用 codegraph_explore；不要为了形式强制使用。",
+        "walkthrough": [
+          {
+            "title": "从独立起点开始",
+            "body": "切换 story-03-start-r1 并建立分支。seed 会创建项目成员和角色，但起点没有任务负责人；不依赖 Story 01/02。"
+          },
+          {
+            "title": "先核对规则与事实",
+            "body": "确认一个任务最多一个负责人、只能指派给项目成员、Owner/Manager 才能修改、允许清空；通知系统不在范围。"
+          },
+          {
+            "title": "先 Spec 再 Tickets",
+            "body": "主动调用 /to-spec，不重新访谈；检查用户故事、负面行为和测试 seam。随后用 /to-tickets 先审依赖，再逐票实施。"
+          },
+          {
+            "title": "按纵向切片实施",
+            "body": "第一张票贯穿数据、服务、界面和刷新；第二张票增加我的任务筛选。不要把数据库票、API 票和 UI 票拆成互相等待的水平层。"
+          },
+          {
+            "title": "区分自动化和人工验收",
+            "body": "用教学身份切换器观察角色差异，跑完测试后仍需用户本人确认浏览器行为；教学身份不代表真实认证。"
+          }
+        ],
+        "verificationCommands": [
+          "git grep -n -E 'model (User|Membership|Task)|role|assignee' -- prisma/schema.prisma app lib",
+          "git diff story-03-start-r1 -- app lib prisma e2e tests"
+        ]
       },
       "steps": [
         {
@@ -882,7 +932,7 @@ window.LAB_PRACTICE = {
             "人工验收由用户确认",
             "模块知识与当前实现对账"
           ],
-          "handoff": "四种状态分别清楚后交付。",
+          "handoff": "交付自动化证据与人工验收状态；未获得用户确认的部分保持待验收。",
           "sources": [
             "delivery",
             "acceptance"
@@ -891,14 +941,24 @@ window.LAB_PRACTICE = {
       ],
       "artifactSamples": [
         {
-          "title": "Feature Spec 关键规则（节选）",
+          "title": "起始事实与需求边界",
           "format": "markdown",
-          "content": "## User Stories\n1. 作为项目 Owner，我希望将任务指派给项目成员，以便明确负责人。\n2. 作为项目 Manager，我希望更换或清空负责人，以便调整工作分配。\n3. 作为项目成员，我希望筛选自己负责的任务。\n\n## Acceptance\n- 只能指派给当前 Project 的有效成员。\n- 普通成员不能修改任务指派。\n- 一个 Task 最多有一个 assignee。\n- 取消指派后显示未指派。\n- 我的任务列表只包含当前用户有权访问且由其负责的任务。"
+          "content": "以下参考工件由课程作者编写，用于展示交接格式；不是本次会话用户的回答，也不是项目已经批准的生产设计。实际跟做时，请记录自己的决定、来源和人工验收。\n\n起点 story-03-start-r1 已有 User / Membership / role 与项目成员；Task 没有 assignee。候选范围：单负责人、当前项目成员、Owner/Manager 修改、允许清空、我的任务筛选。非目标：通知与生产认证。"
         },
         {
-          "title": "Ticket 纵向切片示例",
+          "title": "Feature Spec 参考工件",
           "format": "markdown",
-          "content": "## Ticket 01：项目成员可以被指派到任务\nDelivers: Owner 可以在任务详情选择项目成员并保存；刷新后仍显示正确负责人。\nBlocked by: 无\nAcceptance: 仅当前项目成员可被选中；持久化后重新读取一致；覆盖权限失败路径。\n\n## Ticket 02：成员可以查看我的任务\nBlocked by: Ticket 01\nDelivers: 当前成员可以筛选并查看自己负责的任务。"
+          "content": "来源：参考仓库的 .scratch/task-assignment/spec.md。\n\nProblem：成员无法明确负责人。\nAcceptance：负责人必须是项目成员；Owner/Manager 可修改；Member 越权被拒绝；刷新保持一致；我的任务只显示当前身份负责的任务。\n\n状态：作者参考，实际练习需要自己的批准记录。"
+        },
+        {
+          "title": "Tracer-bullet Ticket 图",
+          "format": "markdown",
+          "content": "01 管理者可指派项目成员（Blocked by：无）\n  → 贯穿关系、权限、控件、保存和刷新\n02 成员查看我的任务（Blocked by：01）\n  → 只增加当前身份筛选与组合搜索\n\n每张票独立可演示；先展示任务图，再由用户确认粒度。"
+        },
+        {
+          "title": "实施与验收证据",
+          "format": "markdown",
+          "content": "参考 tag：story-03-example-r1（提交 007a962a8e59a2c77073521956ef21db3564ec8d）。\n旧版本 Ticket 01 浏览器断言因没有负责人控件失败；实现后 Owner 指派和刷新通过。服务层集成检查覆盖 Manager 更换/清空、Member/非成员拒绝。\n\nHuman Accepted：待用户本人操作；原生 /to-spec、/to-tickets、/implement 菜单未实测。"
         }
       ],
       "decisions": [
@@ -913,16 +973,18 @@ window.LAB_PRACTICE = {
         {
           "title": "Implement 是按 Ticket 执行",
           "detail": "常规功能路线用 /implement 逐项完成；/implement-spec 是大型稳定任务图的整体集成路线，不要混用。"
+        },
+        {
+          "title": "教学身份不是认证系统",
+          "detail": "为了让初学者观察 Owner、Manager、Member 的行为，本参考提供本地身份切换器。服务端仍按角色判断，但生产接入必须替换为可信会话；不能把客户端选择当成安全边界。"
         }
       ],
       "acceptance": [
-        "Spec 已经用户确认",
-        "Ticket 粒度和依赖经用户批准",
-        "每张 Ticket 有独立验证证据",
-        "集成分支测试通过",
-        "Standards 和 Spec Review 完成",
-        "用户完成真实浏览器验收",
-        "知识文档与实际实现对账"
+        "Spec 与原始规则逐条对应",
+        "Ticket 粒度和阻塞关系有交接记录",
+        "Owner/Manager 指派、更换、清空与 Member/非成员拒绝有服务证据",
+        "刷新后负责人和我的任务筛选有浏览器证据",
+        "测试、Review、人工验收和知识对账分开报告"
       ],
       "knowledgeRefs": [
         "spec",
@@ -965,13 +1027,52 @@ window.LAB_PRACTICE = {
       },
       "preparation": {
         "project": "story-04-start-r1",
-        "commands": ["git clone https://github.com/shuge-x/ai-coding-workflow-demo.git", "cd ai-coding-workflow-demo", "git fetch --tags", "git checkout story-04-start-r1", "npm install", "cp .env.example .env", "node -e \"require(\'fs\').closeSync(require(\'fs\').openSync(\'prisma/dev.db\',\'a\'))\"", "npm run db:push", "PRACTICE_BASELINE=04 npm run db:seed", "npm run dev"],
-        "requirements": [
-          "先读取项目架构和领域文档",
-          "准备可用的 Issue Tracker（推荐 Local Markdown）",
-          "重要决策需用户参与确认"
+        "commands": [
+          "git clone https://github.com/shuge-x/ai-coding-workflow-demo.git",
+          "cd ai-coding-workflow-demo",
+          "git fetch --tags",
+          "git checkout story-04-start-r1",
+          "git switch -c codex/story-04-wayfinder",
+          "npm install",
+          "cp .env.example .env",
+          "node -e \"require('fs').closeSync(require('fs').openSync('prisma/dev.db','a'))\"",
+          "npm run db:push",
+          "PRACTICE_BASELINE=04 npm run db:seed",
+          "npm run dev"
         ],
-        "codegraph": "建议。先安装 CodeGraph 并运行 codegraph init，探索当前 User / Project / Task 数据所有权和关键调用链。"
+        "requirements": [
+          "Git、Node.js 22、npm 10；使用独立 clone 或 worktree",
+          "已安装 Matt Pocock Skills；CodeGraph CLI 1.6.2 可选用于结构探索",
+          "准备参与租户语义、可信身份、隔离和迁移回滚的 HITL 决策；作者示例不关闭决策票"
+        ],
+        "codegraph": "建议。先安装 CodeGraph 并运行 codegraph init，探索当前 User / Project / Task 数据所有权和关键调用链。",
+        "walkthrough": [
+          {
+            "title": "从单团队起点开始",
+            "body": "切换 story-04-start-r1 并建立分支。起点有 Team → Project → Task 关系，但没有请求租户上下文；不依赖前面故事。"
+          },
+          {
+            "title": "先命名 Destination",
+            "body": "地图终点是经真实决策者确认的架构基线与可实施 Spec，不是一次性写完整个平台。"
+          },
+          {
+            "title": "建立决策地图",
+            "body": "主动调用 /wayfinder；票解决决策问题，不按数据库/API/UI 拆实施任务。先处理无阻塞前沿。"
+          },
+          {
+            "title": "用研究和反例缩小未知",
+            "body": "阅读官方资料，运行 tenant-scope.py 对比有无租户过滤与复合外键；实验只支持其条件下的结论。"
+          },
+          {
+            "title": "保持 HITL 停止边界",
+            "body": "真实需求方没有确认时，保持票开放；不要生成批准 ADR、Spec 或实施代码。"
+          }
+        ],
+        "verificationCommands": [
+          "git grep -n -E 'teamId|Project|Task|Membership' -- prisma/schema.prisma app/page.tsx app/actions.ts",
+          "python3 experiments/tenant-scope.py",
+          "git diff story-04-start-r1 -- app lib prisma"
+        ]
       },
       "steps": [
         {
@@ -1140,7 +1241,7 @@ window.LAB_PRACTICE = {
             "迁移可重复和可回滚",
             "未验证的生产风险透明"
           ],
-          "handoff": "用户接受架构路线和实施证据后结束。",
+          "handoff": "交付自动化证据与人工验收状态；未获得用户确认的部分保持待验收。",
           "sources": [
             "delivery",
             "cross-session"
@@ -1149,14 +1250,24 @@ window.LAB_PRACTICE = {
       ],
       "artifactSamples": [
         {
-          "title": "Wayfinder Map 示例",
+          "title": "Wayfinder Map 与前沿",
           "format": "markdown",
-          "content": "## Destination\n形成经批准的多团队 SaaS 架构决策和可实施 Spec。\n\n## Decisions so far\n- Tenant 与 Project 的所有权关系：待决策\n- 用户是否可以加入多个 Team：待决策\n- 数据隔离边界：待研究\n\n## Not yet specified\n- 旧数据如何迁移\n- 跨团队访问审计\n- 迁移失败如何回滚\n\n## Out of scope\n- 本阶段不实现计费和商业套餐。"
+          "content": "以下参考工件由课程作者编写，用于展示交接格式；不是本次会话用户的回答，也不是项目已经批准的生产设计。实际跟做时，请记录自己的决定、来源和人工验收。\n\n参考工件：.scratch/multi-team/map.md。Destination：形成租户语义、可信身份、隔离和迁移回滚均有确认的架构 Spec。当前 Decisions so far 只有资料调查；HITL 决策保持开放。"
         },
         {
-          "title": "决策票示例",
+          "title": "隔离研究记录",
           "format": "markdown",
-          "content": "## Question\n多团队 SaaS 的数据隔离应采用应用层租户过滤、数据库 Row-Level Security，还是两者组合？\n\n## Evidence needed\n- 当前数据库与部署形态\n- 连接池和事务上下文\n- 越权访问测试方式\n- 运维和迁移复杂度\n\n## Exit criteria\n形成有证据的方案比较，由用户批准最终选择。"
+          "content": "docs/story-04/isolation-research.md 比较应用过滤、复合外键和 PostgreSQL RLS 的保护边界，引用 SQLite、Prisma 6 和 PostgreSQL 18 官方资料。\n\n未验证：生产认证、连接池上下文、RLS 管理员例外、迁移与恢复。"
+        },
+        {
+          "title": "可证伪隔离实验",
+          "format": "markdown",
+          "content": "python3 experiments/tenant-scope.py\n\n结果：无租户过滤可读到对方任务；带租户条件拒绝；同租户可读；复合外键拒绝伪造归属。\n\n限制：内存 SQLite fixture，不是应用或生产安全证明。"
+        },
+        {
+          "title": "决策交接",
+          "format": "markdown",
+          "content": "参考 tag：story-04-example-r1（提交 08cb54af75e82daa91e2a0444d6f4fdced08da3a）。新增地图、5 张决策票、研究和实验；app/lib/prisma 未修改。当前不创建批准 ADR / Spec / Tickets。"
         }
       ],
       "decisions": [
@@ -1171,16 +1282,18 @@ window.LAB_PRACTICE = {
         {
           "title": "并行是后置选择",
           "detail": "先稳定任务图和接口契约，再判断并行收益是否超过协调和集成成本。"
+        },
+        {
+          "title": "Wayfinder 只规划，不替人关闭决策",
+          "detail": "租户等价于 Team、跨团队身份、请求上下文和隔离策略都可能改变架构。没有真实决策者确认时，地图停在开放票；实验成功不等于方案获批。"
         }
       ],
       "acceptance": [
-        "Wayfinder Destination 明确",
-        "所有阻塞架构方向的决策有结论或明确保留",
-        "ADR 记录关键取舍",
-        "Spec 与 ADR 一致",
-        "Ticket 图依赖真实",
-        "迁移、权限、回滚有验证证据",
-        "生产级未验证事项明确披露"
+        "Destination 可判断且与地图一致",
+        "决策票是问题而不是实施任务，前沿依赖真实",
+        "研究来源与实验限制完整",
+        "租户、身份、隔离、迁移和回滚未确认项保持开放",
+        "没有把研究或原型结果写成生产安全保证"
       ],
       "knowledgeRefs": [
         "wayfinder",
@@ -1221,14 +1334,52 @@ window.LAB_PRACTICE = {
       },
       "preparation": {
         "project": "story-05-start-r1",
-        "commands": ["git clone https://github.com/shuge-x/ai-coding-workflow-demo.git", "cd ai-coding-workflow-demo", "git fetch --tags", "git checkout story-05-start-r1", "npm install", "cp .env.example .env", "node -e \"require(\'fs\').closeSync(require(\'fs\').openSync(\'prisma/dev.db\',\'a\'))\"", "npm run db:push", "PRACTICE_BASELINE=05 npm run db:seed", "npm run dev"],
-        "verificationCommands": ["在第二个终端运行：npm run test:bug-repro（预期失败，用来证明预置持久化故障）"],
-        "requirements": [
-          "确认使用带有预置缺陷的 story-05-start-r1 起始版本",
-          "保留浏览器控制台和 Network 记录",
-          "不要先更新依赖或改动代码"
+        "commands": [
+          "git clone https://github.com/shuge-x/ai-coding-workflow-demo.git",
+          "cd ai-coding-workflow-demo",
+          "git fetch --tags",
+          "git checkout story-05-start-r1",
+          "git switch -c codex/story-05-bug-fix",
+          "npm install",
+          "cp .env.example .env",
+          "node -e \"require('fs').closeSync(require('fs').openSync('prisma/dev.db','a'))\"",
+          "npm run db:push",
+          "PRACTICE_BASELINE=05 npm run db:seed",
+          "npm run dev"
         ],
-        "codegraph": "建议。使用 codegraph_explore 定位拖拽事件、状态更新函数、API handler 和数据库写入链路；图谱结果仍需回到源码核实。"
+        "verificationCommands": [
+          "PRACTICE_BUG_REPRO=1 npm run test:bug-repro",
+          "git grep -n -E \"updateTaskStatus|status\" -- app lib",
+          "git diff story-05-start-r1 -- app lib e2e tests"
+        ],
+        "requirements": [
+          "Git、Node.js 22、npm 10；使用独立 clone 或 worktree",
+          "已安装 diagnosing-bugs、tdd 与 CodeGraph（或使用课程给出的 CLI 参考）",
+          "准备观察 Network、服务端写入和刷新结果；不能只接受页面乐观状态"
+        ],
+        "codegraph": "建议。使用 codegraph_explore 定位拖拽事件、状态更新函数、API handler 和数据库写入链路；图谱结果仍需回到源码核实。",
+        "walkthrough": [
+          {
+            "title": "从可复现起点开始",
+            "body": "切换 story-05-start-r1 并建立分支。seed 生成可拖动任务；先跑故障复现，不先改代码。"
+          },
+          {
+            "title": "先建立红色反馈循环",
+            "body": "运行 PRACTICE_BUG_REPRO=1 npm run test:bug-repro，确认旧代码刷新后回到进行中。"
+          },
+          {
+            "title": "分开假设并验证",
+            "body": "比较“没有请求”“请求失败”“缓存旧读”“服务没写 status”，一次验证一个；CodeGraph 结果必须核对源码。"
+          },
+          {
+            "title": "最小修复并回归",
+            "body": "服务端 update 只补写 status，不放宽断言、不延长等待、不只改 UI。用同一测试证明红到绿。"
+          },
+          {
+            "title": "重走原始用户路径",
+            "body": "重新拖动、等待保存、刷新并检查；自动化通过后仍把人工验收和未验证环境分开。"
+          }
+        ]
       },
       "steps": [
         {
@@ -1353,7 +1504,7 @@ window.LAB_PRACTICE = {
             "相关回归测试通过",
             "未验证环境和风险如实披露"
           ],
-          "handoff": "用户确认真实行为后结束。",
+          "handoff": "交付自动化证据与人工验收状态；未获得用户确认的部分保持待验收。",
           "sources": [
             "bugs",
             "review",
@@ -1365,12 +1516,17 @@ window.LAB_PRACTICE = {
         {
           "title": "根因假设表",
           "format": "markdown",
-          "content": "| 假设 | 可观察预测 | 验证方式 | 结果 |\n|---|---|---|---|\n| 前端只做乐观更新，没有发送请求 | Network 中没有状态更新请求 | Playwright 观察请求 | 待验证 |\n| API 请求失败但 UI 未回滚 | Network 返回 4xx / 5xx，数据库未变化 | 记录响应和数据库状态 | 待验证 |\n| 服务端写入成功，但刷新读取旧缓存 | 数据库是新状态，GET 返回旧状态 | 对比 DB 和 GET | 待验证 |"
+          "content": "| 假设 | 预测 | 结果 |\n|---|---|---|\n| 无保存请求 | Network 没有请求 | 不支持：HTTP 200 |\n| API 失败 | 4xx/5xx | 不支持：响应成功 |\n| 旧缓存 | 数据库已有新状态 | 不支持：先发现写入遗漏 |\n| 服务没有写 status | 刷新读旧状态 | 支持：只写 updatedAt |"
         },
         {
-          "title": "回归测试必须断言的行为",
-          "format": "text",
-          "content": "Given：任务处于进行中。\nWhen：用户把任务拖动到已完成，保存成功后刷新页面。\nThen：任务仍显示已完成，并且重新读取的服务端状态也是已完成。"
+          "title": "红到绿回归证据",
+          "format": "markdown",
+          "content": "旧代码：刷新后“已完成”断言失败。\n修复：updateTaskStatus 写入 data: { status }。\n新代码：npm run test:bug-repro 通过，真实跨拖拽、Server Action、Prisma 和刷新读取。"
+        },
+        {
+          "title": "诊断交接",
+          "format": "markdown",
+          "content": "参考 tag：story-05-example-r2（提交 8d0f055c3d6592bd300dd28563dc50be42ac7e1d）。CodeGraph 1.6.2 只提供静态关系；源码核对是根因证据。宿主 Skill 菜单未实测；用户人工验收待执行。"
         }
       ],
       "decisions": [
@@ -1385,15 +1541,18 @@ window.LAB_PRACTICE = {
         {
           "title": "测试通过不等于人工验收",
           "detail": "必须重跑用户最初的操作路径，确认真实行为修复。"
+        },
+        {
+          "title": "不能把 HTTP 200 当持久化成功",
+          "detail": "请求成功只说明 Server Action 返回；必须检查数据库写入和刷新读取。回归测试断言用户真实症状，避免只测试乐观 UI。"
         }
       ],
       "acceptance": [
-        "原始症状有可重复步骤",
-        "自动化反馈循环能在旧代码上失败",
-        "根因由实验和源码证据支持",
-        "修复测试从红转绿",
-        "原始浏览器路径复测成功",
-        "Review 和未验证风险已报告"
+        "原始症状在起点可重复",
+        "红色反馈循环已实际运行",
+        "根因有请求与源码证据",
+        "最小修复使回归从红转绿",
+        "原始浏览器路径复测并单列人工验收"
       ],
       "knowledgeRefs": [
         "bug",
@@ -1433,14 +1592,52 @@ window.LAB_PRACTICE = {
       },
       "preparation": {
         "project": "story-06-start-r1",
-        "commands": ["git clone https://github.com/shuge-x/ai-coding-workflow-demo.git", "cd ai-coding-workflow-demo", "git fetch --tags", "git checkout story-06-start-r1", "npm install", "cp .env.example .env", "node -e \"require(\'fs\').closeSync(require(\'fs\').openSync(\'prisma/dev.db\',\'a\'))\"", "npm run db:push", "PRACTICE_BASELINE=06 npm run db:seed", "npm run dev"],
-        "verificationCommands": ["npm run test:assignment（验证 Story 06 的既有指派行为）"],
-        "requirements": [
-          "使用预置 TaskService 过载的起始版本",
-          "先运行现有测试，记录行为基线",
-          "不要先重写 Service"
+        "commands": [
+          "git clone https://github.com/shuge-x/ai-coding-workflow-demo.git",
+          "cd ai-coding-workflow-demo",
+          "git fetch --tags",
+          "git checkout story-06-start-r1",
+          "git switch -c codex/story-06-refactor",
+          "npm install",
+          "cp .env.example .env",
+          "node -e \"require('fs').closeSync(require('fs').openSync('prisma/dev.db','a'))\"",
+          "npm run db:push",
+          "PRACTICE_BASELINE=06 npm run db:seed",
+          "npm run dev"
         ],
-        "codegraph": "必需。运行 codegraph init，使用 codegraph_explore 或 CLI 查看 TaskService callers / callees / 依赖和受影响测试。"
+        "verificationCommands": [
+          "CODEGRAPH_TELEMETRY=0 codegraph explore \"Map TaskService responsibilities callers assignment and comments\"",
+          "npm run test:behavior",
+          "git diff story-06-start-r1 -- app lib tests"
+        ],
+        "requirements": [
+          "Git、Node.js 22、npm 10；使用独立 clone 或 worktree",
+          "已安装 CodeGraph、tdd、code-review 和 retro；本参考记录实际 CLI 证据",
+          "准备先批准单一重构边界；行为不变优先于文件数量变化"
+        ],
+        "codegraph": "必需。运行 codegraph init，使用 codegraph_explore 或 CLI 查看 TaskService callers / callees / 依赖和受影响测试。",
+        "walkthrough": [
+          {
+            "title": "建立结构基线",
+            "body": "切换 story-06-start-r1 并建立分支。先运行 CodeGraph explore 和现有行为测试，不先拆文件。"
+          },
+          {
+            "title": "寻找深模块机会",
+            "body": "主动调用 /improve-codebase-architecture；比较复杂度是否能隐藏在更小接口后，不追求机械分层。"
+          },
+          {
+            "title": "选择一个边界",
+            "body": "本参考只选 assignTask：把指派权限与持久化从 TaskService 移到独立模块；评论、Schema 和新功能留到以后。"
+          },
+          {
+            "title": "先保护行为",
+            "body": "用独立 behavior-test.db 从公共接口验证创建、状态、评论和指派权限；测试基线通过后才改结构。"
+          },
+          {
+            "title": "复核并复盘",
+            "body": "重跑同一行为测试、typecheck、lint、build 和 CodeGraph；记录动态入口限制，不把经验全塞进全局规范。"
+          }
+        ]
       },
       "steps": [
         {
@@ -1587,7 +1784,7 @@ window.LAB_PRACTICE = {
             "优先自动化 guardrail",
             "没有无边界膨胀全局规范"
           ],
-          "handoff": "复盘建议经用户确认后再落地。",
+          "handoff": "交付自动化证据与人工验收状态；未获得用户确认的部分保持待验收。",
           "sources": [
             "retro"
           ]
@@ -1595,14 +1792,19 @@ window.LAB_PRACTICE = {
       ],
       "artifactSamples": [
         {
-          "title": "架构机会报告摘要",
+          "title": "架构机会报告",
           "format": "markdown",
-          "content": "## Opportunity：TaskService owns too many change reasons\n\nEvidence:\n- Task lifecycle, assignment authorization, and comment persistence change for different reasons.\n- Callers need to understand permission checks and persistence details that should be hidden behind a stable seam.\n- Existing tests reach into internal collaborators instead of the public behavior.\n\nCandidate improvement:\n- Choose one cohesive responsibility and deepen its interface.\n- Preserve public task behavior and data semantics.\n\nRisks:\n- Assignment permission behavior may drift.\n- Existing callers may rely on incidental service methods."
+          "content": "TaskService 同时承担生命周期、指派权限和评论。assignTask 有独立变化原因和调用入口。\n\n选择：移到 lib/task-assignment.ts，由 Server Action 直接使用；保持参数、错误、数据和行为。"
         },
         {
-          "title": "行为保持清单",
+          "title": "行为保护结果",
           "format": "markdown",
-          "content": "- [ ] 创建任务的外部行为不变\n- [ ] 任务状态变更规则不变\n- [ ] 指派权限和项目成员校验不变\n- [ ] 评论创建和读取行为不变\n- [ ] 错误语义和事务边界不变\n- [ ] 相关集成测试通过"
+          "content": "npm run test:behavior\n\n覆盖标题规范化、状态更新、评论创建/读取/拒绝、Owner 指派、Manager 更换/清空、Member/非成员错误。使用独立数据库，不 mock 内部模块。"
+        },
+        {
+          "title": "重构交接",
+          "format": "markdown",
+          "content": "参考 tag：story-06-example-r3（提交 4f880a3a7373014ad3281e87d9cf07403519c205）。重构前后同一 task-service 公共 seam 均通过；npm test、typecheck、lint、build 通过后再 Review。Human Accepted 与生产动态入口仍待人工确认。"
         }
       ],
       "decisions": [
@@ -1617,16 +1819,18 @@ window.LAB_PRACTICE = {
         {
           "title": "深模块比拆文件更重要",
           "detail": "目标是小而稳定的接口隐藏更多行为，不是把一个大文件机械拆成许多薄文件。"
+        },
+        {
+          "title": "重构不是重写",
+          "detail": "只处理一个有证据的职责边界。移动 assignTask 不等于完成所有架构改善；其他机会保持在未来任务，避免扩大 Diff。"
         }
       ],
       "acceptance": [
-        "CodeGraph 索引建立且查询结果已核对源码",
-        "架构机会有证据",
-        "用户批准单一重构目标",
-        "重构前行为测试基线通过",
-        "重构后行为测试通过",
-        "Code Review 无未解决阻断项",
-        "Retro 建议有证据和适用范围"
+        "CodeGraph 结果已核对源码并披露静态限制",
+        "单一重构目标有用户授权边界和行为基线",
+        "重构前后同一公共行为测试通过",
+        "typecheck、lint、build 和 Review 证据完整",
+        "没有混入 Schema、新功能或全仓库重命名"
       ],
       "knowledgeRefs": [
         "codegraph",
