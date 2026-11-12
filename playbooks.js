@@ -1804,7 +1804,7 @@ window.LAB_PRACTICE = {
         {
           "title": "重构交接",
           "format": "markdown",
-          "content": "参考 tag：story-06-example-r2（提交 dc15defa11432fc118cd31b7d4a262c6f85735df）。重构前后同一公共 seam；npm test、typecheck、lint、build 通过后再 Review。Human Accepted 与生产动态入口仍待人工确认。"
+          "content": "参考 tag：story-06-example-r3（提交 4f880a3a7373014ad3281e87d9cf07403519c205）。重构前后同一 task-service 公共 seam 均通过；npm test、typecheck、lint、build 通过后再 Review。Human Accepted 与生产动态入口仍待人工确认。"
         }
       ],
       "decisions": [
