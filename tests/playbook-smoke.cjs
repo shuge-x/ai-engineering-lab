@@ -115,6 +115,7 @@ const { chromium } = require("playwright");
       if (["feature-development", "large-architecture", "complex-bug", "safe-refactor"].includes(id)) {
         await page.locator('[data-practice-section="preparation"]').click();
         await page.getByRole("heading", { name: "第一次跟做：按这个顺序操作" }).waitFor();
+        if ((await page.locator(".practice-walkthrough").textContent()).includes("undefined")) throw new Error(id + " walkthrough contains undefined content");
         const prep = await page.locator(".practice-prep-code").first().textContent();
         if (!prep.includes("git switch -c codex/")) throw new Error(id + " does not create a learner branch");
         await page.locator('[data-practice-section="artifacts"]').click();
