@@ -62,3 +62,5 @@ Matt Pocock Skills + CodeGraph 是第一套实践体系，不是平台永久绑�
 ## 本地预览与部署
 
 纯静态站点，无需后端。直接打开 `index.html` 或使用任意静态 HTTP 服务。GitHub Actions 校验课程数据和浏览器交互后部署 GitHub Pages。
+
+人工验收使用 [六条工作流实战人工验收清单](docs/acceptance/six-playbooks-human-acceptance.md)，把自动化验证、规格审查、人工验收和知识对账分别记录。
