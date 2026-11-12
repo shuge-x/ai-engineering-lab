@@ -65,6 +65,18 @@ const practiceSections=[
  {id:"acceptance",title:"08 验收与复盘",hint:"怎么证明真的完成？"}
 ];
 function currentPlaybook(){return playbooks.find((x)=>x.id===state.playbook)||playbooks[0]}
+function playbookSearchText(p,sc){
+ const prep=p.preparation||{};
+ const steps=p.steps||[];
+ const artifacts=p.artifactSamples||[];
+ return [p.title,p.workflow,p.summary,sc?.title,sc?.request,sc?.goal,
+   ...(prep.commands||[]),...(prep.requirements||[]),...(prep.verificationCommands||[]),
+   ...((prep.walkthrough||[]).flatMap((x)=>[x.title,x.body])),
+   ...steps.flatMap((x)=>[x.id,x.title,x.actor,x.invocation?.command,x.prompt,x.agentBehavior,x.artifact,...(x.checklist||[]),x.handoff]),
+   ...artifacts.flatMap((x)=>[x.title,x.content]),
+   ...(p.decisions||[]).flatMap((x)=>[x.title,x.detail]),...(p.acceptance||[])
+ ].filter(Boolean).join(" ").toLowerCase();
+}
 function practiceSteps(){return currentPlaybook().steps}
 function home(){
  const cards=scenarios.map((sc,i)=>{
@@ -314,7 +326,7 @@ document.addEventListener("click",(e)=>{
 });
 document.addEventListener("change",(e)=>{if(e.target.id==="speed"){state.speed=Number(e.target.value);if(state.playing){state.flowPulse=true;render();}}});
 $("#theme").addEventListener("click",()=>{const t=document.documentElement.dataset.theme==="dark"?"light":"dark";document.documentElement.dataset.theme=t;localStorage.setItem("ael-theme",t);});
-$("#search").addEventListener("input",(e)=>{state.search=e.target.value;const q=state.search.trim().toLowerCase();if(!q)return;const match=lessons.find((l)=>(l.title+" "+l.summary+" "+l.principle+" "+l.prompt+" "+l.en).toLowerCase().includes(q));if(match){goLesson(match.id);return;}const practiceMatch=playbooks.find((p)=>{const sc=scenarios.find((x)=>x.id===p.scenarioId);return (p.title+" "+p.workflow+" "+p.summary+" "+sc.title+" "+sc.request).toLowerCase().includes(q)});if(practiceMatch)goPlaybook(practiceMatch.id);});
+$("#search").addEventListener("input",(e)=>{state.search=e.target.value;const q=state.search.trim().toLowerCase();if(!q)return;const match=lessons.find((l)=>(l.title+" "+l.summary+" "+l.principle+" "+l.prompt+" "+l.en).toLowerCase().includes(q));if(match){goLesson(match.id);return;}const practiceMatch=playbooks.find((p)=>playbookSearchText(p,scenarios.find((x)=>x.id===p.scenarioId)).includes(q));if(practiceMatch)goPlaybook(practiceMatch.id);});
 document.addEventListener("keydown",(e)=>{if(e.key==="/"&&!["INPUT","TEXTAREA"].includes(document.activeElement.tagName)){e.preventDefault();$("#search").focus();}if(e.key==="Escape"&&document.activeElement===$("#search"))$("#search").blur();});
 const saved=localStorage.getItem("ael-theme");if(saved)document.documentElement.dataset.theme=saved;
 render();
